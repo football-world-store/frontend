@@ -11,21 +11,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    "bg-black text-white hover:bg-zinc-800 disabled:bg-zinc-400 dark:bg-white dark:text-black dark:hover:bg-zinc-200",
+    "bg-metallic text-on-primary hover:bg-metallic-hover disabled:opacity-50 disabled:bg-none disabled:bg-surface-container-high disabled:text-on-surface-variant",
   secondary:
-    "border border-zinc-300 text-zinc-900 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-900",
+    "bg-surface-container-highest text-on-surface border-ghost hover:bg-surface-bright disabled:opacity-50",
   ghost:
-    "text-zinc-900 hover:bg-zinc-100 disabled:opacity-50 dark:text-zinc-100 dark:hover:bg-zinc-900",
+    "bg-transparent text-on-surface hover:bg-surface-container-low disabled:opacity-50",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-sm",
-  md: "h-10 px-4 text-base",
-  lg: "h-12 px-6 text-lg",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-5 text-sm",
+  lg: "h-12 px-7 text-base",
 };
 
 const BASE_CLASSES =
-  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-label font-medium uppercase tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-focus-gold disabled:cursor-not-allowed";
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
