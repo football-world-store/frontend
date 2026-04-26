@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+
+import { Spinner } from "@/components/atoms";
 import { LoginForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
 
@@ -16,7 +19,15 @@ const SignInPage = () => {
         </p>
       }
     >
-      <LoginForm />
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-12">
+            <Spinner size="lg" tone="primary" />
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </AuthLayout>
   );
 };

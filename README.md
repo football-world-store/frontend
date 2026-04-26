@@ -131,7 +131,7 @@ src/
 │
 ├── utils/                        # formatters, validators (funções puras)
 │
-└── middleware.ts                 # Sessão server-side (httpOnly cookie) + redirects
+└── proxy.ts                      # Sessão server-side (httpOnly cookie) + redirects
 ```
 
 ---
@@ -141,7 +141,7 @@ src/
 Sessão é **server-side first**, baseada em cookie httpOnly emitido pelo backend (`POST /auth/login`). Detalhes:
 
 - Axios envia cookie automaticamente (`withCredentials: true`).
-- `src/middleware.ts` decide redirects antes do React montar:
+- `src/proxy.ts` (convenção do Next 16, antes chamada `middleware.ts`) decide redirects antes do React montar:
   - `/` → `/dashboard` (com sessão) ou `/sign-in` (sem sessão).
   - Rota de auth com sessão ativa → `/dashboard`.
   - Rota protegida sem sessão → `/sign-in?redirect=<rota>`.

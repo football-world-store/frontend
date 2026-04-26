@@ -12,7 +12,7 @@ interface ProtectedLayoutProps {
 const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   const { isLoading } = useAuth();
 
-  // Middleware (src/middleware.ts) já barrou não-autenticados via cookie de sessão.
+  // Proxy (src/proxy.ts) já barrou não-autenticados via cookie de sessão.
   // Aqui só seguramos o primeiro paint enquanto o /auth/me resolve para hidratar
   // dados do usuário no AuthContext.
   if (isLoading) {

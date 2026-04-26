@@ -68,7 +68,7 @@ src/
 ### 1. Sem `useEffect` para data fetching nem redirect baseado em estado
 
 - Data fetching: use **sempre** TanStack Query (`useQuery`/`useMutation`).
-- Redirect baseado em sessão/auth: **proibido via `useEffect`**. Quem decide isso é o **middleware** (`src/middleware.ts`), server-side, antes do React montar.
+- Redirect baseado em sessão/auth: **proibido via `useEffect`**. Quem decide isso é o **proxy** (`src/proxy.ts`), server-side, antes do React montar.
 - Redirect pós-ação (ex: após `useLoginMutation` sucesso): faça dentro de `onSuccess` da mutation, não em `useEffect` reagindo a state.
 - `useEffect` fica restrito a side-effects de UI puros: DOM, event listeners, subscriptions a libs externas (ex: WebSocket, IntersectionObserver).
 
@@ -355,7 +355,7 @@ Auth é **server-side first**. O frontend não toca em token de sessão.
 
 1. **Backend** emite um cookie `access_token` no `POST /auth/login`. O cookie é **httpOnly + Secure + SameSite=Lax** — JavaScript do client **não consegue ler**. Logout limpa o cookie via `POST /auth/logout`.
 2. **`apiClient`** (axios) usa `withCredentials: true` — o navegador anexa o cookie em toda request automaticamente.
-3. **`src/middleware.ts`** (Next.js) roda em todas as rotas server-side, antes do React montar:
+3. **`src/proxy.ts`** (Next.js — convenção do Next 16, antes chamada `middleware.ts`) roda em todas as rotas server-side, antes do React montar:
    - `/` → redireciona para `/dashboard` (com sessão) ou `/sign-in` (sem sessão).
    - Rota de auth (`/sign-in`, `/forgot-password`, `/reset-password`) com sessão ativa → redireciona para `/dashboard`.
    - Rota protegida sem sessão → redireciona para `/sign-in?redirect=<rota-original>`.
@@ -366,8 +366,8 @@ Auth é **server-side first**. O frontend não toca em token de sessão.
 
 - **NUNCA** armazene token em `localStorage`, `sessionStorage` ou cookie não-httpOnly. O backend é o dono da sessão.
 - **NUNCA** faça redirect de auth via `useEffect`. O middleware já cuidou disso server-side.
-- **NUNCA** crie uma rota protegida fora de `(protected)/`. O middleware presume que tudo que NÃO é auth-route é protegido.
-- Para nova rota pública (ex: `/about`), adicione exceção explícita no `middleware.ts`.
+- **NUNCA** crie uma rota protegida fora de `(protected)/`. O proxy presume que tudo que NÃO é auth-route é protegido.
+- Para nova rota pública (ex: `/about`), adicione exceção explícita no `proxy.ts`.
 - Nome do cookie vive em `SESSION_COOKIE_NAME` (`src/constants/auth.ts`). Sincronize com o backend.
 
 ---

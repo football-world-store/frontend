@@ -13,7 +13,7 @@ const isAuthRoute = (pathname: string): boolean =>
 
 const isHomeRoute = (pathname: string): boolean => pathname === APP_ROUTES.home;
 
-export const middleware = (request: NextRequest): NextResponse => {
+export const proxy = (request: NextRequest): NextResponse => {
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE_NAME)?.value);
   const { pathname, search } = request.nextUrl;
 
@@ -45,6 +45,8 @@ export const middleware = (request: NextRequest): NextResponse => {
 /**
  * Roda em todas as rotas exceto assets estáticos, proxy de API e o service
  * worker do MSW. Mantém a checagem de sessão server-side, antes do React montar.
+ *
+ * Convenção `proxy.ts` introduzida no Next 16 (substitui `middleware.ts`).
  */
 export const config = {
   matcher: [

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { APP_ROUTES } from "@/constants";
 
 /**
- * O middleware (`src/middleware.ts`) redireciona `/` para `/dashboard` ou `/sign-in`
+ * O proxy (`src/proxy.ts`) redireciona `/` para `/dashboard` ou `/sign-in`
  * conforme a presença do cookie de sessão. Este `redirect()` é fallback defensivo
  * para o caso (raro) do middleware ser bypassado em algum ambiente.
  */
