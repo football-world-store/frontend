@@ -1,26 +1,15 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 
-import { setAuthToken } from "@/services/api";
-
-interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useMeQuery } from "@/hooks/queries/useMeQuery";
+import { useLogoutMutation } from "@/hooks/mutations/useLogoutMutation";
+import type { AuthUser } from "@/types";
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  signIn: (params: { user: AuthUser; token: string }) => void;
+  isLoading: boolean;
   signOut: () => void;
 }
 
@@ -31,29 +20,17 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  const signIn = useCallback<AuthContextValue["signIn"]>(
-    ({ user: nextUser, token }) => {
-      setAuthToken(token);
-      setUser(nextUser);
-    },
-    [],
-  );
-
-  const signOut = useCallback(() => {
-    setAuthToken(null);
-    setUser(null);
-  }, []);
+  const meQuery = useMeQuery();
+  const logoutMutation = useLogoutMutation();
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      user,
-      isAuthenticated: user !== null,
-      signIn,
-      signOut,
+      user: meQuery.data ?? null,
+      isAuthenticated: Boolean(meQuery.data),
+      isLoading: meQuery.isPending,
+      signOut: () => logoutMutation.mutate(),
     }),
-    [user, signIn, signOut],
+    [meQuery.data, meQuery.isPending, logoutMutation],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
