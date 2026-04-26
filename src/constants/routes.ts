@@ -1,13 +1,17 @@
 export const APP_ROUTES = {
   home: "/",
-  products: {
-    list: "/products",
-    detail: (slug: string) => `/products/${slug}`,
-  },
-  cart: "/cart",
-  checkout: "/checkout",
   auth: {
     signIn: "/sign-in",
-    signUp: "/sign-up",
+    forgotPassword: "/forgot-password",
+    resetPassword: "/reset-password",
+  },
+  app: {
+    dashboard: "/dashboard",
+    inventory: "/inventory",
+    entries: "/entries",
+    customers: "/customers",
+    customerDetail: (id: string) => `/customers/${id}`,
+    insights: "/insights",
+    settings: "/settings",
   },
 } as const;

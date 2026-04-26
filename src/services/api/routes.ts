@@ -1,16 +1,32 @@
 export const API_ROUTES = {
+  auth: {
+    login: "/auth/login",
+    logout: "/auth/logout",
+    me: "/auth/me",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
+  },
   products: {
     list: "/products",
     byId: (id: string) => `/products/${id}`,
   },
-  cart: {
-    current: "/cart",
-    addItem: "/cart/items",
-    removeItem: (itemId: string) => `/cart/items/${itemId}`,
+  stockEntries: {
+    list: "/stock-entries",
   },
-  auth: {
-    signIn: "/auth/sign-in",
-    signUp: "/auth/sign-up",
-    me: "/auth/me",
+  sales: {
+    list: "/sales",
+  },
+  customers: {
+    list: "/customers",
+    byId: (id: string) => `/customers/${id}`,
+  },
+  alerts: {
+    list: "/alerts",
+  },
+  users: {
+    list: "/users",
+  },
+  dashboard: {
+    stats: "/dashboard/stats",
   },
 } as const;
