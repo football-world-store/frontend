@@ -1,12 +1,7 @@
-/**
- * Configuração centralizada da API.
- *
- * Toda constante relacionada à comunicação com o backend vive aqui.
- * O `client.ts` consome esta config para criar o axios instance,
- * e os MSW handlers usam `API_BASE_URL` para montar os interceptors.
- */
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const API_URL =
+  typeof window === "undefined"
+    ? (process.env.BACKEND_URL ?? "http://localhost:3333")
+    : "";
 
 /** Prefixo de versionamento — muda aqui, reflete em todo o app. */
 export const API_PREFIX = "/api/v1";
