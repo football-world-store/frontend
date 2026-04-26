@@ -2,9 +2,9 @@
 
 import { type ReactNode } from "react";
 
-import { Avatar, Badge, Icon, IconButton } from "@/components/atoms";
-import { useAuth } from "@/contexts";
-import { useAlertsQuery, useProductsQuery } from "@/hooks/queries";
+import { Avatar, IconButton } from "@/components/atoms";
+import { useAuth, useUI } from "@/contexts";
+import { useAlertsQuery } from "@/hooks/queries";
 
 interface TopBarProps {
   title: ReactNode;
@@ -13,35 +13,34 @@ interface TopBarProps {
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut } = useAuth();
+  const { toggleSidebar } = useUI();
   const { data: alerts } = useAlertsQuery();
-  const { data: products } = useProductsQuery();
 
-  const lowStockCount = (products ?? []).filter(
-    (product) => product.quantity <= product.minStock,
-  ).length;
   const pendingAlerts = (alerts ?? []).filter(
     (alert) => !alert.acknowledgedAt,
   ).length;
 
   return (
-    <header className="flex items-center justify-between gap-6 py-6">
-      <div className="space-y-1">
-        <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p className="font-body text-sm text-on-surface-variant">
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
+    <header className="flex items-center justify-between gap-4 py-6">
       <div className="flex items-center gap-3">
-        {lowStockCount > 0 ? (
-          <Badge tone="error" className="gap-1.5">
-            <Icon name="warning" size="sm" />
-            {lowStockCount} low stock
-          </Badge>
-        ) : null}
+        <IconButton
+          iconName="menu"
+          label="Abrir menu"
+          className="lg:hidden"
+          onClick={toggleSidebar}
+        />
+        <div className="space-y-1">
+          <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="font-body text-sm text-on-surface-variant">
+              {subtitle}
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 md:gap-3">
         <div className="relative">
           <IconButton iconName="notifications" label="Notificações" />
           {pendingAlerts > 0 ? (
@@ -50,9 +49,13 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
             </span>
           ) : null}
         </div>
-        <IconButton iconName="search" label="Buscar" />
-        <div className="flex items-center gap-3 pl-3 ml-1">
-          {user ? <Avatar name={user.name} /> : null}
+        <IconButton
+          iconName="search"
+          label="Buscar"
+          className="hidden md:inline-flex"
+        />
+        <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-3 ml-1">
+          {user ? <Avatar name={user.name} className="hidden md:flex" /> : null}
           <IconButton
             iconName="logout"
             label="Sair"

@@ -18,7 +18,7 @@ export const DashboardLayout = ({
   return (
     <div className="min-h-screen bg-surface text-on-surface font-body">
       <Sidebar />
-      <div className="ml-64 px-8 pb-12">
+      <div className="lg:ml-64 px-4 md:px-8 pb-12">
         <TopBar title={title} subtitle={subtitle} />
         {toolbar ? <div className="mb-6">{toolbar}</div> : null}
         <main className="space-y-8">{children}</main>
