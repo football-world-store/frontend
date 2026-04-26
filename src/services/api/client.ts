@@ -1,10 +1,11 @@
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 
-import { ENV, APP_ROUTES } from "@/constants";
+import { APP_ROUTES } from "@/constants";
 import type { ApiErrorResponse } from "@/types";
 
-const REQUEST_TIMEOUT_MS = 15_000;
+import { API_BASE_URL, DEFAULT_HEADERS, REQUEST_TIMEOUT_MS } from "./config";
+
 const UNAUTHORIZED_STATUS = 401;
 const SILENT_ERROR_PATHS = ["/auth/me"] as const;
 const PUBLIC_AUTH_ROUTES = [
@@ -15,8 +16,8 @@ const PUBLIC_AUTH_ROUTES = [
 const FALLBACK_ERROR_MESSAGE = "Algo deu errado. Tente novamente.";
 
 export const apiClient = axios.create({
-  baseURL: ENV.API_URL,
-  headers: { "Content-Type": "application/json" },
+  baseURL: API_BASE_URL,
+  headers: DEFAULT_HEADERS,
   timeout: REQUEST_TIMEOUT_MS,
   withCredentials: true,
 });

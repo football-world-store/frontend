@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { ENV } from "@/constants";
+import { API_BASE_URL } from "@/services/api";
 import { alertsFixture } from "./fixtures/alerts";
 import { customersFixture } from "./fixtures/customers";
 import { dashboardStatsFixture } from "./fixtures/dashboard";
@@ -9,7 +9,7 @@ import { salesFixture } from "./fixtures/sales";
 import { stockEntriesFixture } from "./fixtures/stockEntries";
 import { usersFixture } from "./fixtures/users";
 
-const rawBase = ENV.API_URL.replace(/\/$/, "");
+const rawBase = API_BASE_URL.replace(/\/$/, "");
 const baseUrl = rawBase.startsWith("/") ? `*${rawBase}` : rawBase;
 
 const envelope = <T>(data: T) => HttpResponse.json({ data });
