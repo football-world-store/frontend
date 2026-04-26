@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   FOOTBALL WORLD STORE — Design Tokens
+   "The Elite Performance Tier" — dark-first, metallic gold, no-line system.
+   Todos os tokens vivem aqui. Componentes consomem APENAS via classes Tailwind
+   (ex: bg-surface, text-on-surface, font-headline). Nunca hex cru no JSX/TSX.
+   ========================================================================== */
+
+:root {
+  /* ---------- Cores: Material 3 palette (DESIGN.md) ---------- */
+  /* Background base & surface tiers (do mais profundo ao mais claro) */
+  --color-background: #131313;
+  --color-surface: #131313;
+  --color-surface-dim: #131313;
+  --color-surface-bright: #393939;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-surface-container-low: #1c1b1b;
+  --color-surface-container: #201f1f;
+  --color-surface-container-high: #2a2a2a;
+  --color-surface-container-highest: #353534;
+  --color-surface-variant: #353534;
+  --color-surface-tint: #e9c349;
+
+  /* Texto sobre superfícies */
+  --color-on-background: #e5e2e1;
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #d0c5af;
+  --color-inverse-surface: #e5e2e1;
+  --color-inverse-on-surface: #313030;
+
+  /* Primary — gold metálico (CTA principal) */
+  --color-primary: #f2ca50;
+  --color-primary-container: #d4af37;
+  --color-primary-fixed: #ffe088;
+  --color-primary-fixed-dim: #e9c349;
+  --color-on-primary: #3c2f00;
+  --color-on-primary-container: #554300;
+  --color-on-primary-fixed: #241a00;
+  --color-on-primary-fixed-variant: #574500;
+  --color-inverse-primary: #735c00;
+
+  /* Secondary — neutros quentes */
+  --color-secondary: #c8c6c5;
+  --color-secondary-container: #474747;
+  --color-secondary-fixed: #e4e2e1;
+  --color-secondary-fixed-dim: #c8c6c5;
+  --color-on-secondary: #303030;
+  --color-on-secondary-container: #b6b5b4;
+  --color-on-secondary-fixed: #1b1c1c;
+  --color-on-secondary-fixed-variant: #474747;
+
+  /* Tertiary — azul gélido (acentos secundários) */
+  --color-tertiary: #bfcdff;
+  --color-tertiary-container: #97b0ff;
+  --color-tertiary-fixed: #dbe1ff;
+  --color-tertiary-fixed-dim: #b4c5ff;
+  --color-on-tertiary: #082b72;
+  --color-on-tertiary-container: #254188;
+  --color-on-tertiary-fixed: #00174b;
+  --color-on-tertiary-fixed-variant: #27438a;
+
+  /* Error */
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
+
+  /* Outlines (uso restrito — ver "No-Line Rule" no CLAUDE.md) */
+  --color-outline: #99907c;
+  --color-outline-variant: #4d4635;
+
+  /* ---------- Tipografia: famílias por papel ---------- */
+  /* Variáveis de família vêm de next/font (layout.tsx). */
+  --font-headline: var(--font-lexend); /* display, headline (Lexend) */
+  --font-body: var(--font-manrope); /* title, body (Manrope) */
+  --font-label: var(--font-inter); /* label, micro-copy (Inter) */
+  --font-sans: var(--font-body); /* fallback genérico */
+
+  /* ---------- Border radius (Stitch tokens em rem p/ escalar c/ usuário) ---------- */
+  --radius-default: 0.125rem; /* 2px @ 16px base — micro elementos */
+  --radius-lg: 0.25rem; /* 4px — chips, tags */
+  --radius-xl: 0.5rem; /* 8px — buttons, inputs, cards */
+  --radius-full: 0.75rem; /* 12px — containers grandes */
+  --radius-pill: 9999px; /* pílulas */
+
+  /* ---------- Sombras: ambient glow apenas (DESIGN.md §4) ---------- */
+  --shadow-ambient: 0 0 2rem 0 rgb(229 226 225 / 0.06);
+  --shadow-glass: 0 0.5rem 2rem 0 rgb(0 0 0 / 0.32);
+  --shadow-focus-gold: 0 0 0 0.25rem rgb(242 202 80 / 0.15);
+
+  /* ---------- Gradientes assinatura ---------- */
+  --gradient-primary-metallic: linear-gradient(
+    45deg,
+    var(--color-primary) 0%,
+    var(--color-primary-container) 100%
+  );
+  --gradient-primary-metallic-hover: linear-gradient(
+    225deg,
+    var(--color-primary) 0%,
+    var(--color-primary-container) 100%
+  );
+
+  /* ---------- Backdrop blur (Glass Rule, DESIGN.md §2) ---------- */
+  --blur-glass: 1.25rem; /* 20px @ 16px base */
+}
+
+/* =============================================================================
+   Tailwind v4 theme bridge — expõe os tokens como utilities (bg-*, text-*, etc.)
+   ========================================================================== */
+@theme inline {
+  /* Cores → utilities Tailwind (bg-surface, text-on-surface, border-outline...) */
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-surface-dim: var(--color-surface-dim);
+  --color-surface-bright: var(--color-surface-bright);
+  --color-surface-container-lowest: var(--color-surface-container-lowest);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-container-highest);
+  --color-surface-variant: var(--color-surface-variant);
+  --color-surface-tint: var(--color-surface-tint);
+
+  --color-on-background: var(--color-on-background);
+  --color-on-surface: var(--color-on-surface);
+  --color-on-surface-variant: var(--color-on-surface-variant);
+  --color-inverse-surface: var(--color-inverse-surface);
+  --color-inverse-on-surface: var(--color-inverse-on-surface);
+
+  --color-primary: var(--color-primary);
+  --color-primary-container: var(--color-primary-container);
+  --color-primary-fixed: var(--color-primary-fixed);
+  --color-primary-fixed-dim: var(--color-primary-fixed-dim);
+  --color-on-primary: var(--color-on-primary);
+  --color-on-primary-container: var(--color-on-primary-container);
+  --color-on-primary-fixed: var(--color-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--color-on-primary-fixed-variant);
+  --color-inverse-primary: var(--color-inverse-primary);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-container: var(--color-secondary-container);
+  --color-secondary-fixed: var(--color-secondary-fixed);
+  --color-secondary-fixed-dim: var(--color-secondary-fixed-dim);
+  --color-on-secondary: var(--color-on-secondary);
+  --color-on-secondary-container: var(--color-on-secondary-container);
+  --color-on-secondary-fixed: var(--color-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--color-on-secondary-fixed-variant);
+
+  --color-tertiary: var(--color-tertiary);
+  --color-tertiary-container: var(--color-tertiary-container);
+  --color-tertiary-fixed: var(--color-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--color-tertiary-fixed-dim);
+  --color-on-tertiary: var(--color-on-tertiary);
+  --color-on-tertiary-container: var(--color-on-tertiary-container);
+  --color-on-tertiary-fixed: var(--color-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--color-on-tertiary-fixed-variant);
+
+  --color-error: var(--color-error);
+  --color-error-container: var(--color-error-container);
+  --color-on-error: var(--color-on-error);
+  --color-on-error-container: var(--color-on-error-container);
+
+  --color-outline: var(--color-outline);
+  --color-outline-variant: var(--color-outline-variant);
+
+  /* Famílias → font-headline, font-body, font-label */
+  --font-headline: var(--font-headline);
+  --font-body: var(--font-body);
+  --font-label: var(--font-label);
+  --font-sans: var(--font-sans);
+
+  /* Raios → rounded-default, rounded-lg, rounded-xl, rounded-full, rounded-pill */
+  --radius-default: var(--radius-default);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+  --radius-pill: var(--radius-pill);
+}
+
+/* =============================================================================
+   Reset / base — dark-first SEMPRE (não usa prefers-color-scheme)
+   ========================================================================== */
+html {
+  color-scheme: dark;
+  background-color: var(--color-surface);
+  /* Prevenção contra flash branco em transições de página */
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family:
+    var(--font-body),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings usam Lexend por padrão (pode ser sobrescrito via classe) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headline), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Selection com gold metálico tonal */
+::selection {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+}
+
+/* Focus ring global — acessibilidade sem ser feio */
+:focus-visible {
+  outline: 0.125rem solid var(--color-primary);
+  outline-offset: 0.125rem;
+}
+
+/* Scrollbar discreta no estilo da paleta */
+@supports (scrollbar-color: auto) {
+  * {
+    scrollbar-color: var(--color-surface-container-highest) var(--color-surface);
+    scrollbar-width: thin;
+  }
+}
+
+/* =============================================================================
+   Utilities customizadas — gradiente metálico, glass, ambient glow
+   Use estas em vez de reinventar em cada componente.
+   ========================================================================== */
+@utility bg-metallic {
+  background-image: var(--gradient-primary-metallic);
+}
+
+@utility bg-metallic-hover {
+  background-image: var(--gradient-primary-metallic-hover);
+}
+
+@utility bg-glass {
+  background-color: rgb(57 57 57 / 0.8); /* surface-bright @ 80% */
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+@utility shadow-ambient {
+  box-shadow: var(--shadow-ambient);
+}
+
+@utility shadow-glass {
+  box-shadow: var(--shadow-glass);
+}
+
+@utility ring-focus-gold {
+  box-shadow: var(--shadow-focus-gold);
+}
+
+/* Ghost border (DESIGN.md §4) — outline_variant @ 15% opacity */
+@utility border-ghost {
+  border: 0.0625rem solid rgb(77 70 53 / 0.15);
+}
