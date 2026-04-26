@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { Button, Icon, IconButton, Spinner } from "@/components/atoms";
+import { Button, Icon, IconButton, Input, Spinner } from "@/components/atoms";
 import { FormField, SelectField } from "@/components/molecules";
 import { useCreateStockEntryMutation } from "@/hooks/mutations";
 import { useProductsQuery } from "@/hooks/queries";
@@ -118,7 +118,7 @@ export const StockMovementForm = () => {
       </div>
 
       <SelectField
-        label="Search product"
+        label="Buscar produto"
         options={productOptions}
         error={errorMessages.productId}
         {...register("productId")}
@@ -135,11 +135,11 @@ export const StockMovementForm = () => {
               label="Diminuir"
               onClick={() => handleStep(-1)}
             />
-            <input
+            <Input
               type="number"
               {...register("quantity")}
               min={1}
-              className="w-20 h-12 rounded-xl bg-surface-container-lowest text-on-surface text-center font-body text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
+              className="w-20 text-center"
             />
             <IconButton
               iconName="add"
@@ -158,7 +158,7 @@ export const StockMovementForm = () => {
         />
         <FormField
           label="Fornecedor"
-          placeholder="Select Supplier"
+          placeholder="Selecione o fornecedor"
           error={errorMessages.supplier}
           {...register("supplier")}
         />

@@ -9,17 +9,16 @@ import {
   Button,
   Icon,
   IconButton,
+  Input,
   Modal,
   Spinner,
 } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
-import { APP_ROUTES } from "@/constants";
+import { APP_ROUTES, PRICE_CENTS_MULTIPLIER, VIP_THRESHOLD } from "@/constants";
 import { useCustomersQuery } from "@/hooks/queries";
 import type { Customer } from "@/types";
 import { formatCurrencyBRL } from "@/utils";
-
-const PRICE_CENTS_MULTIPLIER = 100;
 
 const STATUS_TONE = {
   ACTIVE: "success",
@@ -34,8 +33,6 @@ const STATUS_LABEL = {
 } as const;
 
 type TabKey = "all" | "active" | "vip";
-
-const VIP_THRESHOLD = 2000;
 
 const matchesTab = (tab: TabKey, customer: Customer): boolean => {
   if (tab === "active") return customer.status === "ACTIVE";
@@ -149,7 +146,7 @@ export const CustomersList = () => {
           title="Gestão de Elite"
           description="Controle de performance e ranking de clientes."
           action={
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button type="button" onClick={() => setIsModalOpen(true)}>
               <Icon name="add" size="sm" />
               Novo cliente
             </Button>
@@ -183,12 +180,12 @@ export const CustomersList = () => {
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
                 <Icon name="search" size="sm" />
               </span>
-              <input
+              <Input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar cliente..."
-                className="w-full h-10 pl-11 pr-4 rounded-xl bg-surface-container-lowest text-on-surface text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
+                className="pl-11 h-10"
               />
             </div>
           </div>
