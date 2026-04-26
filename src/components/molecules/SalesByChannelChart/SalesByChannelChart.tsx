@@ -10,13 +10,16 @@ import {
   YAxis,
 } from "recharts";
 
+import {
+  CHART_AXIS_COLOR,
+  CHART_SERIES_COLORS,
+  CHART_TOOLTIP_STYLE,
+} from "@/constants";
 import { formatCurrencyBRL } from "@/utils";
 
 interface SalesByChannelChartProps {
   data: { channel: string; total: number }[];
 }
-
-const CHANNEL_COLORS = ["#f2ca50", "#d4af37", "#bfcdff"];
 
 export const SalesByChannelChart = ({ data }: SalesByChannelChartProps) => {
   return (
@@ -24,18 +27,13 @@ export const SalesByChannelChart = ({ data }: SalesByChannelChartProps) => {
       <BarChart data={data} margin={{ top: 12, right: 0, bottom: 0, left: 0 }}>
         <XAxis
           dataKey="channel"
-          tick={{ fill: "#d0c5af", fontSize: 12 }}
+          tick={{ fill: CHART_AXIS_COLOR, fontSize: 12 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis hide />
         <Tooltip
-          contentStyle={{
-            background: "var(--color-surface-bright)",
-            border: "none",
-            borderRadius: 8,
-            color: "var(--color-on-surface)",
-          }}
+          contentStyle={CHART_TOOLTIP_STYLE}
           formatter={(value) =>
             formatCurrencyBRL(Number(value) * 100) as unknown as string
           }
@@ -44,7 +42,7 @@ export const SalesByChannelChart = ({ data }: SalesByChannelChartProps) => {
           {data.map((_, index) => (
             <Cell
               key={index}
-              fill={CHANNEL_COLORS[index % CHANNEL_COLORS.length]}
+              fill={CHART_SERIES_COLORS[index % CHART_SERIES_COLORS.length]}
             />
           ))}
         </Bar>

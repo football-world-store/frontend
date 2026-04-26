@@ -10,11 +10,19 @@ import {
   YAxis,
 } from "recharts";
 
+import {
+  CHART_AXIS_COLOR,
+  CHART_GRID_COLOR,
+  CHART_PALETTE,
+  CHART_TOOLTIP_STYLE,
+} from "@/constants";
 import { formatCurrencyBRL } from "@/utils";
 
 interface RevenueLineChartProps {
   data: { date: string; revenue: number; cost: number }[];
 }
+
+const AXIS_TICK = { fill: CHART_AXIS_COLOR, fontSize: 11 };
 
 export const RevenueLineChart = ({ data }: RevenueLineChartProps) => {
   return (
@@ -23,15 +31,15 @@ export const RevenueLineChart = ({ data }: RevenueLineChartProps) => {
         data={data}
         margin={{ top: 16, right: 16, bottom: 0, left: 0 }}
       >
-        <CartesianGrid stroke="rgba(208, 197, 175, 0.08)" vertical={false} />
+        <CartesianGrid stroke={CHART_GRID_COLOR} vertical={false} />
         <XAxis
           dataKey="date"
-          tick={{ fill: "#d0c5af", fontSize: 11 }}
+          tick={AXIS_TICK}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#d0c5af", fontSize: 11 }}
+          tick={AXIS_TICK}
           axisLine={false}
           tickLine={false}
           tickFormatter={(value: number) =>
@@ -39,12 +47,7 @@ export const RevenueLineChart = ({ data }: RevenueLineChartProps) => {
           }
         />
         <Tooltip
-          contentStyle={{
-            background: "var(--color-surface-bright)",
-            border: "none",
-            borderRadius: 8,
-            color: "var(--color-on-surface)",
-          }}
+          contentStyle={CHART_TOOLTIP_STYLE}
           formatter={(value) =>
             formatCurrencyBRL(Number(value) * 100) as unknown as string
           }
@@ -52,7 +55,7 @@ export const RevenueLineChart = ({ data }: RevenueLineChartProps) => {
         <Line
           type="monotone"
           dataKey="revenue"
-          stroke="#f2ca50"
+          stroke={CHART_PALETTE.primary}
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 4 }}
@@ -60,7 +63,7 @@ export const RevenueLineChart = ({ data }: RevenueLineChartProps) => {
         <Line
           type="monotone"
           dataKey="cost"
-          stroke="#bfcdff"
+          stroke={CHART_PALETTE.tertiary}
           strokeWidth={2}
           strokeDasharray="4 4"
           dot={false}

@@ -28,6 +28,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Football World Store",
   description: "A loja oficial dos torcedores apaixonados.",
+  icons: {
+    icon: [{ url: "/brand/logo-compact.png", type: "image/png" }],
+    shortcut: "/brand/logo-compact.png",
+    apple: "/brand/logo-compact.png",
+  },
+  openGraph: {
+    title: "Football World Store",
+    description: "A loja oficial dos torcedores apaixonados.",
+    images: [{ url: "/brand/logo.png" }],
+  },
 };
 
 interface RootLayoutProps {

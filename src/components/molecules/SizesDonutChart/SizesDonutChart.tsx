@@ -2,11 +2,11 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { CHART_SERIES_COLORS, CHART_TOOLTIP_STYLE } from "@/constants";
+
 interface SizesDonutChartProps {
   data: { size: string; percentage: number }[];
 }
-
-const PALETTE = ["#f2ca50", "#d4af37", "#bfcdff", "#97b0ff", "#e9c349"];
 
 export const SizesDonutChart = ({ data }: SizesDonutChartProps) => {
   return (
@@ -22,16 +22,14 @@ export const SizesDonutChart = ({ data }: SizesDonutChartProps) => {
             paddingAngle={3}
           >
             {data.map((_, index) => (
-              <Cell key={index} fill={PALETTE[index % PALETTE.length]} />
+              <Cell
+                key={index}
+                fill={CHART_SERIES_COLORS[index % CHART_SERIES_COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{
-              background: "var(--color-surface-bright)",
-              border: "none",
-              borderRadius: 8,
-              color: "var(--color-on-surface)",
-            }}
+            contentStyle={CHART_TOOLTIP_STYLE}
             formatter={(value) => `${Number(value)}%` as unknown as string}
           />
         </PieChart>
@@ -45,7 +43,10 @@ export const SizesDonutChart = ({ data }: SizesDonutChartProps) => {
             <span className="flex items-center gap-2">
               <span
                 className="block h-3 w-3 rounded-default"
-                style={{ background: PALETTE[index % PALETTE.length] }}
+                style={{
+                  background:
+                    CHART_SERIES_COLORS[index % CHART_SERIES_COLORS.length],
+                }}
               />
               <span className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
                 {item.size}
