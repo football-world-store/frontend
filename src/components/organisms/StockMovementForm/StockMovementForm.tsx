@@ -47,13 +47,13 @@ interface TabsProps {
 }
 
 const Tabs = ({ activeTab, onChange }: TabsProps) => (
-  <div className="flex gap-2">
+  <div className="flex flex-wrap gap-2">
     {TABS.map((tab) => (
       <button
         key={tab.key}
         type="button"
         onClick={() => onChange(tab.key)}
-        className={`rounded-pill px-4 py-2 font-label text-xs uppercase tracking-wider font-semibold transition-colors ${
+        className={`rounded-pill px-4 py-2 font-label text-xs uppercase tracking-wider font-semibold transition-colors whitespace-nowrap ${
           activeTab === tab.key
             ? "bg-metallic text-on-primary"
             : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
@@ -199,7 +199,7 @@ export const StockMovementForm = () => {
         />
       </div>
 
-      <div className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface-container-low rounded-xl px-4 py-3">
         <div>
           <p className="font-label uppercase text-xs tracking-wider text-on-surface-variant">
             Impacto estimado
@@ -208,7 +208,11 @@ export const StockMovementForm = () => {
             +{formatPriceFromReais(estimatedImpact)}
           </p>
         </div>
-        <Button type="submit" disabled={isPending || isReverseTab}>
+        <Button
+          type="submit"
+          disabled={isPending || isReverseTab}
+          className="w-full sm:w-auto"
+        >
           {isPending ? (
             <>
               <Spinner size="sm" tone="on-primary" />
