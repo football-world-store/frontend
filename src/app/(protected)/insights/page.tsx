@@ -20,7 +20,7 @@ const InsightsPage = () => {
 
   if (isLoading || !data) {
     return (
-      <DashboardLayout title="Insights center" subtitle="Carregando...">
+      <DashboardLayout title="Centro de Insights" subtitle="Carregando...">
         <div className="flex justify-center py-12">
           <Spinner size="lg" />
         </div>
@@ -38,40 +38,44 @@ const InsightsPage = () => {
       subtitle="Análise em tempo real da performance do inventário."
     >
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Tradução: "Total Profit" → "Lucro Total" */}
         <StatTile
-          label="Total Profit"
+          label="Lucro Total"
           value={formatCurrencyBRL(data.totalProfit * PRICE_CENTS_MULTIPLIER)}
           delta={12.4}
           trend="up"
           iconName="paid"
         />
+        {/* Tradução: "Best Selling Club" → "Clube Mais Vendido" */}
         <StatTile
-          label="Best Selling Club"
+          label="Clube Mais Vendido"
           value={data.bestSellingClub}
           iconName="emoji_events"
         />
+        {/* Tradução: "Top Performance Size" → "Tamanho com Melhor Performance" */}
         <StatTile
-          label="Top Performance Size"
+          label="Tamanho com Melhor Performance"
           value={data.topPerformanceSize}
           iconName="straighten"
         />
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Tradução: "Revenue dynamics — 30D" → "Dinâmica de Receita — 30D" + "Sales" → "Vendas" + "Cost" → "Custo" */}
         <Card
           className="lg:col-span-2"
           tier="container-high"
-          title="Revenue dynamics — 30D"
+          title="Dinâmica de Receita — 30D"
           description="Receita vs custo nos últimos 30 dias"
           action={
             <div className="flex items-center gap-3 font-label text-xs uppercase tracking-wider">
               <span className="flex items-center gap-1.5 text-primary">
                 <span className="block h-2 w-2 rounded-full bg-primary" />
-                Sales
+                Vendas
               </span>
               <span className="flex items-center gap-1.5 text-tertiary">
                 <span className="block h-2 w-2 rounded-full bg-tertiary" />
-                Cost
+                Custo
               </span>
             </div>
           }
@@ -79,13 +83,15 @@ const InsightsPage = () => {
           <RevenueLineChart data={data.revenueHistory} />
         </Card>
 
-        <Card title="Sales by category" description="Distribuição em volume">
+        {/* Tradução: "Sales by category" → "Vendas por categoria" */}
+        <Card title="Vendas por categoria" description="Distribuição em volume">
           <SizesDonutChart data={data.sizeShares} />
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Top 5 Clubs" description="Volume de unidades vendidas">
+        {/* Tradução: "Top 5 Clubs" → "Top 5 Clubes" */}
+        <Card title="Top 5 Clubes" description="Volume de unidades vendidas">
           {data.topClubs.length === 0 ? (
             <EmptyState
               iconName="sports_soccer"
@@ -97,14 +103,15 @@ const InsightsPage = () => {
           )}
         </Card>
 
+        {/* Tradução: "Slow-moving items" → "Itens de Movimento Lento" + "Add insight note" → "Adicionar anotação" */}
         <Card
           tier="container-high"
-          title="Slow-moving items"
+          title="Itens de Movimento Lento"
           description="Sem vendas há mais de 30 dias"
           action={
             <button className="font-label text-xs uppercase tracking-wider text-primary inline-flex items-center gap-1">
               <Icon name="add_circle" size="sm" />
-              Add insight note
+              Adicionar anotação
             </button>
           }
         >
@@ -127,7 +134,8 @@ const InsightsPage = () => {
                     estoque
                   </p>
                 </div>
-                <Badge tone="warning">Mark down</Badge>
+                {/* Tradução: "Mark down" → "Redução de Preço" */}
+                <Badge tone="warning">Redução de Preço</Badge>
               </li>
             ))}
           </ul>
