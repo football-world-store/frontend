@@ -1,8 +1,17 @@
-export interface PaginatedResponse<T> {
-  data: T[];
+export interface ApiEnvelope<T> {
+  data: T;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
   page: number;
-  pageSize: number;
+  limit: number;
   total: number;
+}
+
+export interface ListQueryParams {
+  page?: number;
+  limit?: number;
 }
 
 export interface ApiErrorResponse {
