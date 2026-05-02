@@ -20,7 +20,12 @@ interface AlertsPanelProps {
 }
 
 export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
-  const { data, isLoading } = useAlertsQuery();
+  // TODO: useAlertsQuery usa mock — backend não tem GET /alerts implementado
+  const { data: alertsData, isLoading } = useAlertsQuery();
+
+  const alerts = Array.isArray(alertsData)
+    ? alertsData
+    : (alertsData?.items ?? []);
 
   const wrap = (children: React.ReactNode, props?: { description?: string }) =>
     inline ? (
@@ -39,7 +44,7 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!alerts || alerts.length === 0) {
     return wrap(
       <EmptyState
         iconName="notifications_active"
@@ -51,7 +56,7 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
 
   const list = (
     <ul className="space-y-3">
-      {data.map((alert) => (
+      {alerts.map((alert) => (
         <li
           key={alert.id}
           className="flex items-start gap-3 bg-surface-container-low rounded-xl px-4 py-3 border-l-4 border-primary"
@@ -71,7 +76,7 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
               {alert.message}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
             <Badge tone={SEVERITY_TONE[alert.severity]}>
               {TYPE_LABEL[alert.type]}
@@ -82,5 +87,5 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
     </ul>
   );
 
-  return wrap(list, { description: `${data.length} pendentes` });
+  return wrap(list, { description: `${alerts.length} pendentes` });
 };
