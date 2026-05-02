@@ -4,26 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Icon, Logo } from "@/components/atoms";
-import { APP_ROUTES } from "@/constants";
-
-interface SidebarItem {
-  href: string;
-  label: string;
-  icon: string;
-}
-
-const NAV_ITEMS: SidebarItem[] = [
-  { href: APP_ROUTES.app.dashboard, label: "Dashboard", icon: "dashboard" },
-  { href: APP_ROUTES.app.inventory, label: "Inventário", icon: "inventory_2" },
-  {
-    href: APP_ROUTES.app.entries,
-    label: "Entradas e saídas",
-    icon: "swap_horiz",
-  },
-  { href: APP_ROUTES.app.customers, label: "Clientes", icon: "groups" },
-  { href: APP_ROUTES.app.insights, label: "Insights", icon: "analytics" },
-  { href: APP_ROUTES.app.settings, label: "Configurações", icon: "settings" },
-];
+import { NAV_ITEMS } from "@/constants";
 
 export const Sidebar = () => {
   const pathname = usePathname();
