@@ -15,6 +15,7 @@ import { useDashboardStatsQuery } from "@/hooks/queries";
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  // TODO: Dashboard stats ainda usam mock — backend não tem GET /dashboard/stats implementado
   const { data, isLoading } = useDashboardStatsQuery();
   const greeting = user ? `Olá, ${user.name.split(" ")[0]}.` : "Olá.";
 
@@ -32,8 +33,9 @@ const DashboardPage = () => {
     <DashboardLayout
       title={
         <>
+          {/* Tradução: "Operational overview" → "Visão operacional" */}
           <span className="font-label text-xs uppercase tracking-widest text-primary block">
-            Operational overview
+            Visão operacional
           </span>
           DASHBOARD
         </>
@@ -43,7 +45,8 @@ const DashboardPage = () => {
         <div className="flex justify-end">
           <Button>
             <Icon name="add_shopping_cart" size="sm" />
-            Register new sale
+            {/* Tradução: "Register new sale" → "Registrar nova venda" */}
+            Registrar nova venda
           </Button>
         </div>
       }
@@ -125,11 +128,13 @@ const DashboardPage = () => {
             <div className="flex items-center gap-3">
               <ClawIndicator level={3} />
               <div>
+                {/* Tradução: "System Status: Elite" → "Status do Sistema: Elite" */}
                 <p className="font-headline text-sm font-bold text-on-surface">
-                  System Status: Elite
+                  Status do Sistema: Elite
                 </p>
+                {/* Tradução: "Sincing with tiger.store API" → "Sincronizando com API tiger.store" */}
                 <p className="font-label text-xs text-on-surface-variant">
-                  Sincing with tiger.store API
+                  Sincronizando com API tiger.store
                 </p>
               </div>
             </div>
