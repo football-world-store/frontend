@@ -37,20 +37,24 @@ const RECENT_ORDERS = [
   },
 ];
 
+// Tradução de nomes de listas inteligentes:
+// "Flamengo Fans" → "Fãs do Flamengo"
+// "Size G Users" → "Usuários Tamanho G"
+// "Inactive 30+ days" → "Inativos há 30+ dias"
 const SMART_LISTS = [
   {
     id: "list-1",
-    name: "Flamengo Fans",
+    name: "Fãs do Flamengo",
     description: "Público com afinidade ao Flamengo. Conversão histórica 18%.",
   },
   {
     id: "list-2",
-    name: "Size G Users",
+    name: "Usuários Tamanho G",
     description: "Clientes com perfil tamanho G. Aumenta CTR em mailings.",
   },
   {
     id: "list-3",
-    name: "Inactive 30+ days",
+    name: "Inativos há 30+ dias",
     description: "Reengajamento prioritário. Ofereça cupom VIP.",
   },
 ];
@@ -193,9 +197,10 @@ const CustomerDetailPage = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Tradução: "Smart Mailing Lists" → "Listas Inteligentes de Mailing" */}
           <Card
             tier="container-high"
-            title="Smart Mailing Lists"
+            title="Listas Inteligentes de Mailing"
             description="Segmentações sugeridas pela IA"
           >
             <ul className="space-y-3">
