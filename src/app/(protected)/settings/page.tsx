@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import {
@@ -29,7 +30,7 @@ const SettingsPage = () => {
   const { data, isLoading } = useUsersQuery();
   const users = data?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "system">("dark");
+  const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState("pt-BR");
   const [stockThreshold, setStockThreshold] = useState(15);
 
@@ -87,11 +88,12 @@ const SettingsPage = () => {
               </div>
               <Select
                 options={[
-                  { value: "dark", label: "Apenas escuro" },
+                  { value: "dark", label: "Escuro" },
+                  { value: "light", label: "Claro" },
                   { value: "system", label: "Sistema" },
                 ]}
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as "dark" | "system")}
+                value={theme ?? "dark"}
+                onChange={(e) => setTheme(e.target.value)}
                 className="w-32"
               />
             </li>

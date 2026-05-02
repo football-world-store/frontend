@@ -38,7 +38,8 @@ const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html
       lang="pt-BR"
-      className={`dark ${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased`}
     >
       <head>
         {/* next/font não suporta os axes variáveis do Material Symbols. Carregamos via link global no root layout — fica em todas as páginas, não é um custom-font por página. */}
