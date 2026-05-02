@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+import { VALIDATION_MESSAGES, nameField } from "./shared";
+
 export const customerSchema = z.object({
-  name: z.string().min(2, "Nome obrigatório"),
+  name: nameField,
   phone: z
     .string()
     .min(8, "Telefone inválido")
@@ -10,7 +12,7 @@ export const customerSchema = z.object({
     .optional(),
   email: z
     .string()
-    .email("Email inválido")
+    .email(VALIDATION_MESSAGES.emailInvalid)
     .or(z.literal("").transform(() => null))
     .nullable()
     .optional(),

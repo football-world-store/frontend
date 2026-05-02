@@ -24,11 +24,10 @@ type ProductErrors = ReturnType<
 
 const extractErrorMessages = (errors: ProductErrors) => ({
   name: errors.name?.message,
-  internalCode: errors.internalCode?.message,
   clubOrBrand: errors.clubOrBrand?.message,
   category: errors.category?.message,
   size: errors.size?.message,
-  quantity: errors.quantity?.message,
+  initialQuantity: errors.initialQuantity?.message,
   minStock: errors.minStock?.message,
   costPrice: errors.costPrice?.message,
   salePrice: errors.salePrice?.message,
@@ -36,13 +35,12 @@ const extractErrorMessages = (errors: ProductErrors) => ({
 
 const PRODUCT_FORM_DEFAULTS: ProductFormInput = {
   name: "",
-  internalCode: "",
   clubOrBrand: "",
   category: "CAMISA",
   size: "M",
   costPrice: 0,
   salePrice: 0,
-  quantity: 0,
+  initialQuantity: 0,
   minStock: 0,
 };
 
@@ -75,12 +73,6 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
           {...register("name")}
         />
         <FormField
-          label="Código interno"
-          placeholder="FW-CAM-001"
-          error={errorMessages.internalCode}
-          {...register("internalCode")}
-        />
-        <FormField
           label="Clube ou marca"
           placeholder="Brasil"
           error={errorMessages.clubOrBrand}
@@ -102,8 +94,8 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
           label="Quantidade inicial"
           type="number"
           min={0}
-          error={errorMessages.quantity}
-          {...register("quantity")}
+          error={errorMessages.initialQuantity}
+          {...register("initialQuantity")}
         />
         <FormField
           label="Estoque mínimo"
@@ -129,6 +121,9 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
           {...register("salePrice")}
         />
       </div>
+      <p className="font-label text-xs text-on-surface-variant">
+        O código interno (FWS-XXXX) é gerado automaticamente.
+      </p>
       <div className="flex justify-end gap-3 pt-2">
         {onCancel ? (
           <Button type="button" variant="secondary" onClick={onCancel}>

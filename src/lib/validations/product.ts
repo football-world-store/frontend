@@ -1,23 +1,17 @@
 import { z } from "zod";
 
-const PRODUCT_CATEGORIES = [
-  "CAMISA",
-  "SHORT",
-  "MEIAO",
-  "AGASALHO",
-  "ACESSORIO",
-  "CALCADO",
-] as const;
+import { PRODUCT_CATEGORIES } from "@/types";
+
+import { nameField } from "./shared";
 
 export const productSchema = z.object({
-  name: z.string().min(2, "Nome obrigatório"),
-  internalCode: z.string().min(1, "Código interno obrigatório"),
+  name: nameField,
   clubOrBrand: z.string().min(1, "Clube/marca obrigatório"),
   category: z.enum(PRODUCT_CATEGORIES, { error: "Selecione uma categoria" }),
   size: z.string().min(1, "Tamanho obrigatório"),
   costPrice: z.coerce.number().nonnegative("Custo inválido"),
   salePrice: z.coerce.number().positive("Preço de venda inválido"),
-  quantity: z.coerce.number().int().nonnegative("Quantidade inválida"),
+  initialQuantity: z.coerce.number().int().nonnegative("Quantidade inválida"),
   minStock: z.coerce.number().int().nonnegative("Mínimo inválido"),
 });
 

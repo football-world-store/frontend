@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
-import { FormField, SelectField } from "@/components/molecules";
+import { FormField, PasswordField, SelectField } from "@/components/molecules";
 import { useCreateUserMutation } from "@/hooks/mutations";
 import {
   USER_ROLE_OPTIONS,
@@ -25,7 +25,7 @@ export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: { name: "", email: "", role: "EMPLOYEE" },
+    defaultValues: { name: "", email: "", password: "", role: "EMPLOYEE" },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -50,6 +50,13 @@ export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
         error={errors.email?.message}
         {...register("email")}
       />
+      <PasswordField
+        label="Senha provisória"
+        autoComplete="new-password"
+        placeholder="Mínimo 8 caracteres"
+        error={errors.password?.message}
+        {...register("password")}
+      />
       <SelectField
         label="Perfil"
         options={USER_ROLE_OPTIONS}
@@ -57,7 +64,7 @@ export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
         {...register("role")}
       />
       <p className="font-label text-xs text-on-surface-variant">
-        O usuário receberá um email do AWS Cognito para definir a senha.
+        O usuário poderá trocar a senha após o primeiro acesso.
       </p>
       <div className="flex justify-end gap-3 pt-2">
         {onCancel ? (

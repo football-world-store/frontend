@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
@@ -11,7 +12,12 @@ import {
   type ResetPasswordFormValues,
 } from "@/lib/validations";
 
+const TOKEN_QUERY_PARAM = "token";
+
 export const ResetPasswordForm = () => {
+  const searchParams = useSearchParams();
+  const tokenFromQuery = searchParams.get(TOKEN_QUERY_PARAM) ?? "";
+
   const mutation = useResetPasswordMutation();
   const {
     register,
@@ -20,36 +26,26 @@ export const ResetPasswordForm = () => {
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email: "",
-      code: "",
+      token: tokenFromQuery,
       newPassword: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = handleSubmit(({ email, code, newPassword }) =>
-    mutation.mutate({ token: `${email}:${code}`, newPassword }),
-  );
+  const onSubmit = handleSubmit((values) => mutation.mutate(values));
 
   const isPending = mutation.isPending || isSubmitting;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
       <FormField
-        label="Email"
-        type="email"
-        autoComplete="email"
-        placeholder="seu@email.com"
-        error={errors.email?.message}
-        {...register("email")}
-      />
-      <FormField
-        label="Código de verificação"
+        label="Token de recuperação"
         type="text"
         autoComplete="one-time-code"
-        placeholder="Código enviado por email"
-        error={errors.code?.message}
-        {...register("code")}
+        placeholder="Token recebido por email"
+        readOnly={Boolean(tokenFromQuery)}
+        error={errors.token?.message}
+        {...register("token")}
       />
       <PasswordField
         label="Nova senha"

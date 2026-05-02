@@ -1,19 +1,24 @@
 import { z } from "zod";
 
-const PASSWORD_MIN_LENGTH = 8;
+import {
+  emailField,
+  passwordField,
+  PASSWORD_MIN_LENGTH,
+  VALIDATION_MESSAGES,
+} from "./shared";
 
-const VALIDATION_MESSAGES = {
-  emailInvalid: "Email inválido",
-  passwordMin: `Senha deve ter ao menos ${PASSWORD_MIN_LENGTH} caracteres`,
-  passwordConfirm: "Confirme a senha",
-  passwordsMismatch: "Senhas não conferem",
-  codeRequired: "Código é obrigatório",
-} as const;
-
-const emailField = z.string().email(VALIDATION_MESSAGES.emailInvalid);
-const passwordField = z
+const passwordConfirmField = z
   .string()
-  .min(PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.passwordMin);
+  .min(PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.passwordConfirm);
+
+const samePasswordsRule = {
+  predicate: (data: { newPassword: string; confirmPassword: string }) =>
+    data.newPassword === data.confirmPassword,
+  options: {
+    message: VALIDATION_MESSAGES.passwordsMismatch,
+    path: ["confirmPassword"],
+  },
+};
 
 export const loginSchema = z.object({
   email: emailField,
@@ -26,18 +31,21 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    email: emailField,
-    code: z.string().min(1, VALIDATION_MESSAGES.codeRequired),
+    token: z.string().min(1, VALIDATION_MESSAGES.tokenRequired),
     newPassword: passwordField,
-    confirmPassword: z
-      .string()
-      .min(PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.passwordConfirm),
+    confirmPassword: passwordConfirmField,
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: VALIDATION_MESSAGES.passwordsMismatch,
-    path: ["confirmPassword"],
-  });
+  .refine(samePasswordsRule.predicate, samePasswordsRule.options);
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: passwordField,
+    newPassword: passwordField,
+    confirmPassword: passwordConfirmField,
+  })
+  .refine(samePasswordsRule.predicate, samePasswordsRule.options);
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
