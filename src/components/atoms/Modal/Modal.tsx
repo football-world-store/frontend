@@ -51,7 +51,7 @@ export const Modal = ({
       ref={dialogRef}
       onClose={onClose}
       onClick={handleBackdropClick}
-      className={`bg-glass shadow-glass rounded-xl p-0 w-full ${SIZE_CLASSES[size]} backdrop:bg-surface/80 backdrop:backdrop-blur-sm`}
+      className={`bg-glass shadow-glass rounded-xl p-0 w-full ${SIZE_CLASSES[size]} backdrop:bg-surface/80 backdrop:backdrop-blur-sm fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0`}
     >
       <div className="flex flex-col">
         <header className="flex items-start justify-between gap-4 px-6 pt-6 pb-4">
