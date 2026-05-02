@@ -55,26 +55,34 @@ export const CustomersList = () => {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const customers = data ?? [];
+  const customers: Customer[] = (data as { items?: Customer[] })?.items ?? [];
 
   const ranking = useMemo(
     () =>
-      [...customers].sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 3),
+      [...customers]
+        .sort((a: Customer, b: Customer) => b.totalSpent - a.totalSpent)
+        .slice(0, 3),
     [customers],
   );
 
   const averageTicket = useMemo(() => {
-    const orders = customers.reduce((sum, c) => sum + c.totalOrders, 0);
+    const orders = customers.reduce(
+      (sum: number, c: Customer) => sum + c.totalOrders,
+      0,
+    );
     if (orders === 0) return 0;
-    const spent = customers.reduce((sum, c) => sum + c.totalSpent, 0);
+    const spent = customers.reduce(
+      (sum: number, c: Customer) => sum + c.totalSpent,
+      0,
+    );
     return spent / orders;
   }, [customers]);
 
   const filtered = useMemo(
     () =>
       customers
-        .filter((customer) => matchesTab(tab, customer))
-        .filter((customer) =>
+        .filter((customer: Customer) => matchesTab(tab, customer))
+        .filter((customer: Customer) =>
           search
             ? customer.name.toLowerCase().includes(search.toLowerCase())
             : true,
@@ -201,57 +209,69 @@ export const CustomersList = () => {
             />
           ) : (
             <ul className="space-y-2">
-              {filtered.map((customer) => {
+              {filtered.map((customer: Customer) => {
                 const whatsappLink = buildWhatsappLink(customer.phone);
                 const isVip = customer.totalSpent >= VIP_THRESHOLD;
                 return (
                   <li
                     key={customer.id}
-                    className="bg-surface-container-low rounded-xl px-4 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors"
+                    className="bg-surface-container-low rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-surface-bright transition-colors"
                   >
                     <Avatar name={customer.name} />
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <Link
                         href={APP_ROUTES.app.customerDetail(customer.id)}
                         className="font-body text-sm font-semibold text-on-surface hover:text-primary transition-colors"
                       >
                         {customer.name}
                       </Link>
-                      <p className="font-label text-xs text-on-surface-variant">
+                      <p className="font-label text-xs text-on-surface-variant truncate">
                         {customer.phone ?? customer.email ?? "Sem contato"}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-label text-xs text-on-surface-variant">
-                        Total gasto
-                      </p>
-                      <p className="font-body text-sm font-semibold text-on-surface">
-                        {formatCurrencyBRL(
-                          customer.totalSpent * PRICE_CENTS_MULTIPLIER,
-                        )}
-                      </p>
-                    </div>
-                    <Badge tone={STATUS_TONE[customer.status]}>
-                      {STATUS_LABEL[customer.status]}
-                    </Badge>
-                    {isVip ? <Badge tone="primary">VIP</Badge> : null}
-                    {whatsappLink ? (
-                      <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Conversar no WhatsApp"
-                        className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity"
+                    <div className="ml-auto flex-shrink-0 flex items-center gap-3">
+                      <div className="text-right hidden sm:block">
+                        <p className="font-label text-xs text-on-surface-variant">
+                          Total gasto
+                        </p>
+                        <p className="font-body text-sm font-semibold text-on-surface">
+                          {formatCurrencyBRL(
+                            customer.totalSpent * PRICE_CENTS_MULTIPLIER,
+                          )}
+                        </p>
+                      </div>
+                      <Badge
+                        tone={
+                          STATUS_TONE[
+                            customer.status as keyof typeof STATUS_TONE
+                          ]
+                        }
                       >
-                        <Icon name="forum" size="md" />
-                      </a>
-                    ) : (
-                      <IconButton
-                        iconName="forum"
-                        label="Sem telefone"
-                        disabled
-                      />
-                    )}
+                        {
+                          STATUS_LABEL[
+                            customer.status as keyof typeof STATUS_LABEL
+                          ]
+                        }
+                      </Badge>
+                      {isVip ? <Badge tone="primary">VIP</Badge> : null}
+                      {whatsappLink ? (
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Conversar no WhatsApp"
+                          className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity"
+                        >
+                          <Icon name="forum" size="md" />
+                        </a>
+                      ) : (
+                        <IconButton
+                          iconName="forum"
+                          label="Sem telefone"
+                          disabled
+                        />
+                      )}
+                    </div>
                   </li>
                 );
               })}
