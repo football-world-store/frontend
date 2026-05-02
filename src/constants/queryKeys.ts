@@ -1,3 +1,11 @@
+import type {
+  ListAuditLogsParams,
+  ListProductsParams,
+  ListSalesParams,
+  ListStockEntriesParams,
+  ListUsersParams,
+} from "@/types";
+
 export const queryKeys = {
   user: {
     all: ["user"] as const,
@@ -5,17 +13,30 @@ export const queryKeys = {
   },
   products: {
     all: ["products"] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.products.all, "list", filters ?? {}] as const,
+    list: (params?: ListProductsParams) =>
+      [...queryKeys.products.all, "list", params ?? {}] as const,
     detail: (id: string) => [...queryKeys.products.all, "detail", id] as const,
   },
   stockEntries: {
     all: ["stockEntries"] as const,
-    list: () => [...queryKeys.stockEntries.all, "list"] as const,
+    list: (params?: ListStockEntriesParams) =>
+      [...queryKeys.stockEntries.all, "list", params ?? {}] as const,
+    detail: (id: string) =>
+      [...queryKeys.stockEntries.all, "detail", id] as const,
   },
   sales: {
     all: ["sales"] as const,
-    list: () => [...queryKeys.sales.all, "list"] as const,
+    list: (params?: ListSalesParams) =>
+      [...queryKeys.sales.all, "list", params ?? {}] as const,
+    detail: (id: string) => [...queryKeys.sales.all, "detail", id] as const,
+  },
+  users: {
+    all: ["users"] as const,
+    list: (params?: ListUsersParams) =>
+      [...queryKeys.users.all, "list", params ?? {}] as const,
+    detail: (id: string) => [...queryKeys.users.all, "detail", id] as const,
+    audit: (params?: ListAuditLogsParams) =>
+      [...queryKeys.users.all, "audit", params ?? {}] as const,
   },
   customers: {
     all: ["customers"] as const,
@@ -25,10 +46,6 @@ export const queryKeys = {
   alerts: {
     all: ["alerts"] as const,
     list: () => [...queryKeys.alerts.all, "list"] as const,
-  },
-  users: {
-    all: ["users"] as const,
-    list: () => [...queryKeys.users.all, "list"] as const,
   },
   dashboard: {
     all: ["dashboard"] as const,
