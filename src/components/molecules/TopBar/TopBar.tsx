@@ -13,9 +13,13 @@ interface TopBarProps {
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut } = useAuth();
-  const { data: alerts } = useAlertsQuery();
+  // TODO: useAlertsQuery usa mock — backend não tem GET /alerts implementado
+  const { data: alertsData } = useAlertsQuery();
   const { data: productsResult } = useProductsQuery();
 
+  const alerts = Array.isArray(alertsData)
+    ? alertsData
+    : (alertsData?.items ?? []);
   const lowStockCount = (productsResult?.items ?? []).filter(
     (product) => product.quantity <= product.minStock,
   ).length;
@@ -24,7 +28,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
   ).length;
 
   return (
-    <header className="flex items-center justify-between gap-6 py-6">
+    <header className="flex flex-wrap items-center justify-between gap-3 md:gap-6 py-6">
       <div className="space-y-1">
         <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
           {title}
@@ -35,12 +39,14 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           </p>
         ) : null}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
         {lowStockCount > 0 ? (
-          <Badge tone="error" className="gap-1.5">
-            <Icon name="warning" size="sm" />
-            {lowStockCount} low stock
-          </Badge>
+          <span className="hidden md:inline-flex">
+            <Badge tone="error" className="gap-1.5">
+              <Icon name="warning" size="sm" />
+              {lowStockCount} low stock
+            </Badge>
+          </span>
         ) : null}
         <div className="relative">
           <IconButton iconName="notifications" label="Notificações" />
@@ -51,7 +57,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           ) : null}
         </div>
         <IconButton iconName="search" label="Buscar" />
-        <div className="flex items-center gap-3 pl-3 ml-1">
+        <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-3 ml-1">
           {user ? <Avatar name={user.name} /> : null}
           <IconButton
             iconName="logout"
