@@ -32,10 +32,12 @@ const EntriesPage = () => {
     <DashboardLayout
       title={
         <>
+          {/* Tradução: "Inventory · Movement Registration" → "Inventário · Registro de Movimentação" */}
+          {/* Tradução: "MOVEMENT COMMAND" → "COMANDO DE MOVIMENTAÇÃO" */}
           <span className="font-label text-xs uppercase tracking-widest text-primary block">
-            Inventory · Movement Registration
+            Inventário · Registro de Movimentação
           </span>
-          MOVEMENT COMMAND
+          COMANDO DE MOVIMENTAÇÃO
         </>
       }
       subtitle="Registre entradas e saídas com precisão de comando."
@@ -45,7 +47,8 @@ const EntriesPage = () => {
           <StockMovementForm />
         </div>
         <div className="space-y-6">
-          <Card tier="container-highest" title="Current responsible">
+          {/* Tradução: "Current responsible" → "Responsável atual" + "Last action" → "Última ação" */}
+          <Card tier="container-highest" title="Responsável atual">
             <div className="flex items-center gap-3">
               {user ? <Avatar name={user.name} className="h-12 w-12" /> : null}
               <div>
@@ -53,12 +56,13 @@ const EntriesPage = () => {
                   {user?.name ?? "—"}
                 </p>
                 <p className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
-                  Last action: agora
+                  Última ação: agora
                 </p>
               </div>
             </div>
           </Card>
-          <Card tier="container-highest" title="Stock health gauge">
+          {/* Tradução: "Stock health gauge" → "Indicador de saúde do estoque" */}
+          <Card tier="container-highest" title="Indicador de saúde do estoque">
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <span className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
