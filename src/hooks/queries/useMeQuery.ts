@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants";
-import { authService } from "@/services";
+import { usersService } from "@/services";
 
 export const useMeQuery = () =>
   useQuery({
     queryKey: queryKeys.user.me(),
-    queryFn: authService.me,
+    queryFn: usersService.me,
     retry: false,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
