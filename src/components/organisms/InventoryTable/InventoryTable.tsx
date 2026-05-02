@@ -211,62 +211,67 @@ export const InventoryTable = () => {
               description="Ajuste os filtros ou cadastre um novo produto."
             />
           ) : (
-            <div className="rounded-xl overflow-hidden">
-              <div className="grid grid-cols-12 px-4 py-2 font-label uppercase tracking-wider text-xs text-on-surface-variant gap-2">
-                <span className="col-span-3">Produto</span>
-                <span className="col-span-2">Clube</span>
-                <span className="col-span-1">Tam.</span>
-                <span className="col-span-2">Categ.</span>
-                <span className="col-span-1">Qtd.</span>
-                <span className="col-span-2 text-right">Preço</span>
-                <span className="col-span-1 text-right">Ações</span>
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="min-w-[640px] rounded-xl overflow-hidden">
+                <div className="grid grid-cols-12 px-4 py-2 font-label uppercase tracking-wider text-xs text-on-surface-variant gap-2">
+                  <span className="col-span-3">Produto</span>
+                  <span className="col-span-2">Clube</span>
+                  <span className="col-span-1">Tam.</span>
+                  <span className="col-span-2">Categ.</span>
+                  <span className="col-span-1">Qtd.</span>
+                  <span className="col-span-2 text-right">Preço</span>
+                  <span className="col-span-1 text-right">Ações</span>
+                </div>
+                {pageItems.map((product, index) => {
+                  const level = stockLevel(product);
+                  return (
+                    <div
+                      key={product.id}
+                      className={`grid grid-cols-12 items-center px-4 py-4 gap-2 transition-colors hover:bg-surface-bright ${
+                        index % 2 === 0
+                          ? "bg-surface-container-low"
+                          : "bg-surface-container"
+                      }`}
+                    >
+                      <span className="col-span-3 font-body text-sm text-on-surface">
+                        <span className="block font-semibold">
+                          {product.name}
+                        </span>
+                        <span className="block font-label text-xs text-on-surface-variant">
+                          {product.internalCode}
+                        </span>
+                      </span>
+                      <span className="col-span-2 font-body text-sm text-on-surface">
+                        {product.clubOrBrand}
+                      </span>
+                      <span className="col-span-1 font-body text-sm text-on-surface">
+                        {product.size}
+                      </span>
+                      <span className="col-span-2">
+                        <Badge>{product.category}</Badge>
+                      </span>
+                      <span className="col-span-1 flex items-center gap-2 font-body text-sm font-semibold text-on-surface">
+                        {product.quantity}
+                        <ClawIndicator level={level} />
+                      </span>
+                      <span className="col-span-2 font-body text-sm text-on-surface text-right">
+                        {formatPriceFromReais(product.salePrice)}
+                      </span>
+                      <span className="col-span-1 flex justify-end gap-1">
+                        <IconButton
+                          iconName="edit"
+                          label="Editar"
+                          filled={false}
+                        />
+                        <IconButton
+                          iconName="add_shopping_cart"
+                          label="Vender"
+                        />
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              {pageItems.map((product, index) => {
-                const level = stockLevel(product);
-                return (
-                  <div
-                    key={product.id}
-                    className={`grid grid-cols-12 items-center px-4 py-4 gap-2 transition-colors hover:bg-surface-bright ${
-                      index % 2 === 0
-                        ? "bg-surface-container-low"
-                        : "bg-surface-container"
-                    }`}
-                  >
-                    <span className="col-span-3 font-body text-sm text-on-surface">
-                      <span className="block font-semibold">
-                        {product.name}
-                      </span>
-                      <span className="block font-label text-xs text-on-surface-variant">
-                        {product.internalCode}
-                      </span>
-                    </span>
-                    <span className="col-span-2 font-body text-sm text-on-surface">
-                      {product.clubOrBrand}
-                    </span>
-                    <span className="col-span-1 font-body text-sm text-on-surface">
-                      {product.size}
-                    </span>
-                    <span className="col-span-2">
-                      <Badge>{product.category}</Badge>
-                    </span>
-                    <span className="col-span-1 flex items-center gap-2 font-body text-sm font-semibold text-on-surface">
-                      {product.quantity}
-                      <ClawIndicator level={level} />
-                    </span>
-                    <span className="col-span-2 font-body text-sm text-on-surface text-right">
-                      {formatPriceFromReais(product.salePrice)}
-                    </span>
-                    <span className="col-span-1 flex justify-end gap-1">
-                      <IconButton
-                        iconName="edit"
-                        label="Editar"
-                        filled={false}
-                      />
-                      <IconButton iconName="add_shopping_cart" label="Vender" />
-                    </span>
-                  </div>
-                );
-              })}
             </div>
           )}
 
