@@ -13,78 +13,141 @@ import {
   type StockEntryFormInput,
   type StockEntryFormValues,
 } from "@/lib/validations";
-import { formatCurrencyBRL } from "@/utils";
+import { formatPriceFromReais } from "@/utils";
 
 type ActiveTab = "ENTRY" | "REVERSE";
-
-const todayIso = () => new Date().toISOString().slice(0, 10);
+type StockForm = ReturnType<
+  typeof useForm<StockEntryFormInput, unknown, StockEntryFormValues>
+>;
 
 const STOCK_FORM_DEFAULTS: StockEntryFormInput = {
   productId: "",
-  type: "ENTRY",
   quantity: 1,
   unitCost: 0,
   supplier: "",
-  registeredAt: todayIso(),
+  notes: "",
 };
 
-type StockErrors = ReturnType<
-  typeof useForm<StockEntryFormInput, unknown, StockEntryFormValues>
->["formState"]["errors"];
+const TABS: ReadonlyArray<{ key: ActiveTab; label: string }> = [
+  { key: "ENTRY", label: "Registrar entrada" },
+  { key: "REVERSE", label: "Estornar entrada" },
+];
 
-const extractErrorMessages = (errors: StockErrors) => ({
+const extractErrorMessages = (errors: StockForm["formState"]["errors"]) => ({
   productId: errors.productId?.message,
+  quantity: errors.quantity?.message,
   unitCost: errors.unitCost?.message,
   supplier: errors.supplier?.message,
-  registeredAt: errors.registeredAt?.message,
+  notes: errors.notes?.message,
 });
+
+interface TabsProps {
+  activeTab: ActiveTab;
+  onChange: (tab: ActiveTab) => void;
+}
+
+const Tabs = ({ activeTab, onChange }: TabsProps) => (
+  <div className="flex gap-2">
+    {TABS.map((tab) => (
+      <button
+        key={tab.key}
+        type="button"
+        onClick={() => onChange(tab.key)}
+        className={`rounded-pill px-4 py-2 font-label text-xs uppercase tracking-wider font-semibold transition-colors ${
+          activeTab === tab.key
+            ? "bg-metallic text-on-primary"
+            : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
+        }`}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+);
+
+interface QuantityStepperProps {
+  value: number;
+  disabled: boolean;
+  registerProps: ReturnType<StockForm["register"]>;
+  onStep: (delta: number) => void;
+}
+
+const QuantityStepper = ({
+  disabled,
+  registerProps,
+  onStep,
+}: QuantityStepperProps) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="font-label text-on-surface-variant text-xs uppercase tracking-wider">
+      Quantidade
+    </span>
+    <div className="flex items-center gap-3">
+      <IconButton
+        iconName="remove"
+        label="Diminuir"
+        onClick={() => onStep(-1)}
+        disabled={disabled}
+      />
+      <input
+        type="number"
+        {...registerProps}
+        min={1}
+        disabled={disabled}
+        className="w-20 h-12 rounded-xl bg-surface-container-lowest text-on-surface text-center font-body text-sm focus-visible:outline-none focus-visible:ring-focus-gold disabled:opacity-50"
+      />
+      <IconButton
+        iconName="add"
+        label="Aumentar"
+        onClick={() => onStep(1)}
+        disabled={disabled}
+      />
+    </div>
+  </div>
+);
+
+const ReverseHelp = () => (
+  <p className="rounded-xl bg-surface-container-low px-4 py-3 font-body text-sm text-on-surface-variant">
+    Para estornar, selecione uma movimentação na tabela de histórico e use o
+    botão <strong>Estornar</strong>.
+  </p>
+);
 
 export const StockMovementForm = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("ENTRY");
-  const { data: products } = useProductsQuery();
+  const { data } = useProductsQuery();
+  const products = data?.items ?? [];
   const mutation = useCreateStockEntryMutation();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<StockEntryFormInput, unknown, StockEntryFormValues>({
+  const form = useForm<StockEntryFormInput, unknown, StockEntryFormValues>({
     resolver: zodResolver(stockEntrySchema),
-    defaultValues: { ...STOCK_FORM_DEFAULTS, registeredAt: todayIso() },
+    defaultValues: STOCK_FORM_DEFAULTS,
   });
 
   const productOptions = [
     { value: "", label: "Selecione um produto" },
-    ...(products ?? []).map((product) => ({
+    ...products.map((product) => ({
       value: product.id,
       label: `${product.name} — ${product.internalCode}`,
     })),
   ];
 
-  const quantity = Number(watch("quantity") ?? 0);
-  const unitCost = Number(watch("unitCost") ?? 0);
-  const estimatedImpact =
-    quantity * unitCost * (activeTab === "ENTRY" ? 1 : -1);
+  const quantity = Number(form.watch("quantity") ?? 0);
+  const unitCost = Number(form.watch("unitCost") ?? 0);
+  const estimatedImpact = quantity * unitCost;
 
-  const onSubmit = handleSubmit(async (values) => {
-    await mutation.mutateAsync({ ...values, type: activeTab });
-    reset({
-      ...STOCK_FORM_DEFAULTS,
-      type: activeTab,
-      registeredAt: todayIso(),
-    });
+  const onSubmit = form.handleSubmit(async (values) => {
+    await mutation.mutateAsync(values);
+    form.reset(STOCK_FORM_DEFAULTS);
   });
 
   const handleStep = (delta: number) => {
     const next = Math.max(1, quantity + delta);
-    setValue("quantity", next, { shouldValidate: true });
+    form.setValue("quantity", next, { shouldValidate: true });
   };
 
-  const isPending = mutation.isPending || isSubmitting;
-  const errorMessages = extractErrorMessages(errors);
+  const isPending = mutation.isPending || form.formState.isSubmitting;
+  const isReverseTab = activeTab === "REVERSE";
+  const errorMessages = extractErrorMessages(form.formState.errors);
 
   return (
     <form
@@ -92,81 +155,47 @@ export const StockMovementForm = () => {
       className="bg-surface-container-high rounded-xl p-6 shadow-ambient flex flex-col gap-5"
       noValidate
     >
-      <div className="flex gap-2">
-        {(
-          [
-            { key: "ENTRY", label: "Registrar entrada" },
-            { key: "REVERSE", label: "Registrar saída/venda" },
-          ] as const
-        ).map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => {
-              setActiveTab(tab.key);
-              setValue("type", tab.key);
-            }}
-            className={`rounded-pill px-4 py-2 font-label text-xs uppercase tracking-wider font-semibold transition-colors ${
-              activeTab === tab.key
-                ? "bg-metallic text-on-primary"
-                : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs activeTab={activeTab} onChange={setActiveTab} />
+
+      {isReverseTab ? <ReverseHelp /> : null}
 
       <SelectField
-        label="Search product"
+        label="Produto"
         options={productOptions}
         error={errorMessages.productId}
-        {...register("productId")}
+        disabled={isReverseTab}
+        {...form.register("productId")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="flex flex-col gap-1.5">
-          <span className="font-label text-on-surface-variant text-xs uppercase tracking-wider">
-            Quantidade
-          </span>
-          <div className="flex items-center gap-3">
-            <IconButton
-              iconName="remove"
-              label="Diminuir"
-              onClick={() => handleStep(-1)}
-            />
-            <input
-              type="number"
-              {...register("quantity")}
-              min={1}
-              className="w-20 h-12 rounded-xl bg-surface-container-lowest text-on-surface text-center font-body text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
-            />
-            <IconButton
-              iconName="add"
-              label="Aumentar"
-              onClick={() => handleStep(1)}
-            />
-          </div>
-        </div>
+        <QuantityStepper
+          value={quantity}
+          disabled={isReverseTab}
+          registerProps={form.register("quantity")}
+          onStep={handleStep}
+        />
         <FormField
           label="Custo por unidade (R$)"
           type="number"
           step="0.01"
           min={0}
+          disabled={isReverseTab}
           error={errorMessages.unitCost}
-          {...register("unitCost")}
+          {...form.register("unitCost")}
         />
         <FormField
           label="Fornecedor"
-          placeholder="Select Supplier"
+          placeholder="Nome do fornecedor"
+          disabled={isReverseTab}
           error={errorMessages.supplier}
-          {...register("supplier")}
+          {...form.register("supplier")}
         />
         <FormField
-          label="Data da movimentação"
-          type="date"
-          error={errorMessages.registeredAt}
-          {...register("registeredAt")}
+          label="Observações (opcional)"
+          placeholder="Ex.: Compra promocional"
+          disabled={isReverseTab}
+          error={errorMessages.notes}
+          {...form.register("notes")}
         />
       </div>
 
@@ -175,16 +204,11 @@ export const StockMovementForm = () => {
           <p className="font-label uppercase text-xs tracking-wider text-on-surface-variant">
             Impacto estimado
           </p>
-          <p
-            className={`font-headline text-2xl font-extrabold ${
-              estimatedImpact >= 0 ? "text-primary" : "text-error"
-            }`}
-          >
-            {estimatedImpact >= 0 ? "+" : ""}
-            {formatCurrencyBRL(estimatedImpact * 100)}
+          <p className="font-headline text-2xl font-extrabold text-primary">
+            +{formatPriceFromReais(estimatedImpact)}
           </p>
         </div>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || isReverseTab}>
           {isPending ? (
             <>
               <Spinner size="sm" tone="on-primary" />
@@ -193,7 +217,7 @@ export const StockMovementForm = () => {
           ) : (
             <>
               <Icon name="check_circle" size="sm" />
-              Confirmar registro
+              Confirmar entrada
             </>
           )}
         </Button>

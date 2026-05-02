@@ -3,7 +3,7 @@
 import { Badge, Spinner } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { useStockEntriesQuery } from "@/hooks/queries";
-import { formatCurrencyBRL, formatDateBR } from "@/utils";
+import { formatDateBR, formatPriceFromReais } from "@/utils";
 
 interface StockEntriesTableProps {
   inline?: boolean;
@@ -13,6 +13,7 @@ export const StockEntriesTable = ({
   inline = false,
 }: StockEntriesTableProps) => {
   const { data, isLoading } = useStockEntriesQuery();
+  const entries = data?.items ?? [];
 
   const wrapInCard = (
     children: React.ReactNode,
@@ -37,7 +38,7 @@ export const StockEntriesTable = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  if (entries.length === 0) {
     return wrapInCard(
       <EmptyState
         iconName="swap_horiz"
@@ -49,7 +50,7 @@ export const StockEntriesTable = ({
 
   const table = (
     <div className="rounded-xl overflow-hidden">
-      {data.map((entry, index) => (
+      {entries.map((entry, index) => (
         <div
           key={entry.id}
           className={`grid grid-cols-12 items-center px-4 py-4 transition-colors hover:bg-surface-bright ${
@@ -62,18 +63,22 @@ export const StockEntriesTable = ({
             {entry.productName}
           </span>
           <span className="col-span-2">
-            <Badge tone={entry.type === "ENTRY" ? "success" : "warning"}>
-              {entry.type === "ENTRY" ? "Entrada" : "Estorno"}
+            <Badge
+              tone={entry.movementType === "ENTRY" ? "success" : "warning"}
+            >
+              {entry.movementType === "ENTRY" ? "Entrada" : "Estorno"}
             </Badge>
           </span>
           <span className="col-span-2 font-body text-sm text-on-surface">
             {entry.quantity} un.
           </span>
           <span className="col-span-2 font-body text-sm text-on-surface">
-            {formatCurrencyBRL(entry.unitCost * 100)}
+            {entry.unitCost === null
+              ? "—"
+              : formatPriceFromReais(entry.unitCost)}
           </span>
           <span className="col-span-2 font-label text-xs text-on-surface-variant text-right">
-            {formatDateBR(entry.registeredAt)}
+            {formatDateBR(entry.entryDate)}
           </span>
         </div>
       ))}
@@ -82,6 +87,6 @@ export const StockEntriesTable = ({
 
   return wrapInCard(table, {
     title: "Movimentações",
-    description: `${data.length} registros`,
+    description: `${entries.length} registros`,
   });
 };

@@ -14,9 +14,9 @@ interface TopBarProps {
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut } = useAuth();
   const { data: alerts } = useAlertsQuery();
-  const { data: products } = useProductsQuery();
+  const { data: productsResult } = useProductsQuery();
 
-  const lowStockCount = (products ?? []).filter(
+  const lowStockCount = (productsResult?.items ?? []).filter(
     (product) => product.quantity <= product.minStock,
   ).length;
   const pendingAlerts = (alerts ?? []).filter(

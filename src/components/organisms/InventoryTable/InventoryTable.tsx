@@ -17,10 +17,9 @@ import { Card, EmptyState } from "@/components/molecules";
 import { ProductForm } from "@/components/organisms/ProductForm";
 import { useProductsQuery } from "@/hooks/queries";
 import type { Product } from "@/types";
-import { formatCurrencyBRL } from "@/utils";
+import { formatPriceFromReais } from "@/utils";
 
 const ITEMS_PER_PAGE = 8;
-const PRICE_CENTS_MULTIPLIER = 100;
 const STOCK_HEALTHY_MULTIPLIER = 2;
 
 const stockLevel = (product: Product): ClawLevel => {
@@ -75,7 +74,7 @@ export const InventoryTable = () => {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const products = data ?? [];
+  const products = data?.items ?? [];
 
   const clubOptions = useMemo(() => {
     const list = Array.from(new Set(products.map((p) => p.clubOrBrand)));
@@ -255,9 +254,7 @@ export const InventoryTable = () => {
                       <ClawIndicator level={level} />
                     </span>
                     <span className="col-span-2 font-body text-sm text-on-surface text-right">
-                      {formatCurrencyBRL(
-                        product.salePrice * PRICE_CENTS_MULTIPLIER,
-                      )}
+                      {formatPriceFromReais(product.salePrice)}
                     </span>
                     <span className="col-span-1 flex justify-end gap-1">
                       <IconButton
@@ -300,7 +297,7 @@ export const InventoryTable = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card tier="container-highest" title="Valor total em estoque">
             <strong className="font-headline text-2xl font-extrabold text-primary">
-              {formatCurrencyBRL(totalStockValue * PRICE_CENTS_MULTIPLIER)}
+              {formatPriceFromReais(totalStockValue)}
             </strong>
           </Card>
           <Card tier="container-highest" title="Itens em crítico">

@@ -9,10 +9,10 @@ import { useProductsQuery } from "@/hooks/queries";
 
 const EntriesPage = () => {
   const { user } = useAuth();
-  const { data: products } = useProductsQuery();
+  const { data } = useProductsQuery();
 
   const stockHealth = (() => {
-    const list = products ?? [];
+    const list = data?.items ?? [];
     if (list.length === 0) {
       return {
         critical: 0,

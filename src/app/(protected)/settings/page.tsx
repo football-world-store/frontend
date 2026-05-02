@@ -26,7 +26,8 @@ const ROLE_LABEL = {
 
 const SettingsPage = () => {
   const { user } = useAuth();
-  const { data: users, isLoading } = useUsersQuery();
+  const { data, isLoading } = useUsersQuery();
+  const users = data?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "system">("dark");
   const [language, setLanguage] = useState("pt-BR");
@@ -177,7 +178,7 @@ const SettingsPage = () => {
               </div>
             );
           }
-          if (!users || users.length === 0) {
+          if (users.length === 0) {
             return (
               <EmptyState
                 iconName="manage_accounts"
@@ -212,9 +213,7 @@ const SettingsPage = () => {
                     {ROLE_LABEL[systemUser.role]}
                   </Badge>
                   <span className="font-label text-xs text-on-surface-variant">
-                    {systemUser.lastLoginAt
-                      ? `Último: ${formatDateBR(systemUser.lastLoginAt)}`
-                      : "Sem acesso"}
+                    {`Atualizado: ${formatDateBR(systemUser.updatedAt)}`}
                   </span>
                   <IconButton iconName="edit" label="Editar" filled={false} />
                 </li>
