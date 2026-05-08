@@ -5,7 +5,7 @@ import {
   ClawIndicator,
   Icon,
   IconButton,
-  Spinner,
+  Skeleton,
 } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { useAlertsQuery } from "@/hooks/queries";
@@ -41,9 +41,13 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
 
   if (isLoading) {
     return wrap(
-      <div className="flex justify-center py-12">
-        <Spinner size="lg" />
-      </div>,
+      <ul className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <li key={i}>
+            <Skeleton className="h-16" />
+          </li>
+        ))}
+      </ul>,
     );
   }
 

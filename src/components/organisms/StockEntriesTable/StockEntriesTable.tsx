@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Spinner } from "@/components/atoms";
+import { Badge, Skeleton } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { useStockEntriesQuery } from "@/hooks/queries";
 import { formatDateBR, formatPriceFromReais } from "@/utils";
@@ -32,8 +32,10 @@ export const StockEntriesTable = ({
 
   if (isLoading) {
     return wrapInCard(
-      <div className="flex justify-center py-12">
-        <Spinner size="lg" />
+      <div className="flex flex-col gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-14" />
+        ))}
       </div>,
     );
   }

@@ -1,10 +1,12 @@
 "use client";
 
-import { Spinner } from "@/components/atoms";
+import { Skeleton } from "@/components/atoms";
 import { StatTile } from "@/components/molecules";
 import { DEFAULT_DASHBOARD_PERIOD } from "@/constants";
 import { useDashboardSummaryQuery } from "@/hooks/queries";
 import { formatPriceFromReais } from "@/utils";
+
+const KPI_SKELETON_COUNT = 4;
 
 export const DashboardKPIs = () => {
   const { data, isLoading, isError } = useDashboardSummaryQuery(
@@ -13,9 +15,11 @@ export const DashboardKPIs = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl bg-surface-container p-12 flex justify-center">
-        <Spinner size="lg" />
-      </div>
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {Array.from({ length: KPI_SKELETON_COUNT }).map((_, i) => (
+          <Skeleton key={i} className="h-[148px]" />
+        ))}
+      </section>
     );
   }
 

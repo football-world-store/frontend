@@ -10,7 +10,7 @@ import {
   IconButton,
   Modal,
   Select,
-  Spinner,
+  Skeleton,
   type ClawLevel,
 } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
@@ -131,8 +131,10 @@ export const InventoryTable = () => {
   if (isLoading) {
     return (
       <Card title="Gestão de Estoque">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-14" />
+          ))}
         </div>
       </Card>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "@/components/atoms";
+import { Skeleton } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import {
   DEFAULT_DASHBOARD_PERIOD,
@@ -26,8 +26,10 @@ export const InsightsPanel = () => {
   if (isLoading) {
     return (
       <Card title="Performance">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12" />
+          ))}
         </div>
       </Card>
     );
