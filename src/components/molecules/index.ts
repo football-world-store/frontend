@@ -1,5 +1,6 @@
 export * from "./BottomNav";
 export * from "./Card";
+export * from "./ConfirmDialog";
 export * from "./ClubProgressList";
 export * from "./EmptyState";
 export * from "./FormField";

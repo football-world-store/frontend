@@ -1,7 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
 import { Badge, ClawIndicator, Icon, IconButton } from "@/components/atoms";
-import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
+import {
+  Card,
+  ConfirmDialog,
+  EmptyState,
+  SkeletonListRow,
+} from "@/components/molecules";
 import { useAlertsQuery } from "@/hooks/queries";
 import { useResolveAlertMutation } from "@/hooks/mutations";
 
@@ -23,6 +30,18 @@ interface AlertsPanelProps {
 export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
   const { data: alerts, isLoading } = useAlertsQuery();
   const resolveMutation = useResolveAlertMutation();
+  const [pendingResolveId, setPendingResolveId] = useState<string | null>(null);
+
+  const pendingAlert =
+    pendingResolveId && alerts
+      ? (alerts.find((alert) => alert.id === pendingResolveId) ?? null)
+      : null;
+
+  const handleConfirmResolve = () => {
+    if (!pendingResolveId) return;
+    resolveMutation.mutate({ id: pendingResolveId });
+    setPendingResolveId(null);
+  };
 
   const wrap = (children: React.ReactNode, props?: { description?: string }) =>
     inline ? (
@@ -89,10 +108,10 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
                 {TYPE_LABEL[alert.type]}
               </Badge>
               <IconButton
-                iconName={isResolving ? "hourglass_empty" : "check"}
+                iconName="check"
                 label="Marcar como resolvido"
-                disabled={isResolving}
-                onClick={() => resolveMutation.mutate({ id: alert.id })}
+                isLoading={isResolving}
+                onClick={() => setPendingResolveId(alert.id)}
               />
             </div>
           </li>
@@ -101,5 +120,22 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
     </ul>
   );
 
-  return wrap(list, { description: `${alerts.length} pendentes` });
+  return (
+    <>
+      {wrap(list, { description: `${alerts.length} pendentes` })}
+      <ConfirmDialog
+        isOpen={pendingResolveId !== null}
+        onClose={() => setPendingResolveId(null)}
+        onConfirm={handleConfirmResolve}
+        title="Marcar alerta como resolvido?"
+        description={
+          pendingAlert
+            ? `O alerta "${pendingAlert.productName ?? pendingAlert.message}" sairá da lista de pendentes.`
+            : undefined
+        }
+        confirmLabel="Resolver"
+        isPending={resolveMutation.isPending}
+      />
+    </>
+  );
 };

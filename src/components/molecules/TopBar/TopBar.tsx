@@ -1,8 +1,9 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import { Avatar, Badge, Icon, IconButton } from "@/components/atoms";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { useAuth } from "@/contexts";
 import { useAlertsCountQuery, useProductsQuery } from "@/hooks/queries";
 
@@ -12,9 +13,15 @@ interface TopBarProps {
 }
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isSigningOut } = useAuth();
   const { data: alertsCount } = useAlertsCountQuery();
   const { data: productsResult } = useProductsQuery();
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+
+  const handleConfirmLogout = () => {
+    setIsLogoutConfirmOpen(false);
+    signOut();
+  };
 
   const lowStockCount = (productsResult?.items ?? []).filter(
     (product) => product.quantity <= product.minStock,
@@ -58,10 +65,21 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           <IconButton
             iconName="logout"
             label="Sair"
-            onClick={() => signOut()}
+            isLoading={isSigningOut}
+            onClick={() => setIsLogoutConfirmOpen(true)}
           />
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
+        title="Sair da conta?"
+        description="Você precisará fazer login novamente para acessar o painel."
+        confirmLabel="Sair"
+        cancelLabel="Continuar logado"
+        isPending={isSigningOut}
+      />
     </header>
   );
 };
