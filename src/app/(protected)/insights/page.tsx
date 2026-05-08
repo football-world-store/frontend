@@ -1,24 +1,69 @@
 "use client";
 
-import { Badge, Icon, Spinner } from "@/components/atoms";
+import { useMemo } from "react";
+
+import { Badge, Spinner } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
   EmptyState,
-  RevenueLineChart,
-  SizesDonutChart,
   StatTile,
 } from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
-import { useDashboardStatsQuery } from "@/hooks/queries";
-import { formatCurrencyBRL } from "@/utils";
+import {
+  DEFAULT_DASHBOARD_PERIOD,
+  DEFAULT_DASHBOARD_TOP_LIMIT,
+  DEFAULT_IDLE_DAYS,
+} from "@/constants";
+import {
+  useDashboardCapitalByClubQuery,
+  useDashboardIdleProductsQuery,
+  useDashboardMarginsQuery,
+  useDashboardPaymentMethodsQuery,
+  useDashboardReorderListQuery,
+  useDashboardStockVelocityQuery,
+  useDashboardTopClubsQuery,
+} from "@/hooks/queries";
+import { formatPriceFromReais, zebraRowTier } from "@/utils";
 
-const PRICE_CENTS_MULTIPLIER = 100;
+const TOP_LIST_PARAMS = {
+  ...DEFAULT_DASHBOARD_PERIOD,
+  limit: DEFAULT_DASHBOARD_TOP_LIMIT,
+};
+
+const RISK_TONE = {
+  CRITICAL: "error",
+  WARNING: "warning",
+  OK: "success",
+} as const;
 
 const InsightsPage = () => {
-  const { data, isLoading } = useDashboardStatsQuery();
+  const marginsQuery = useDashboardMarginsQuery(DEFAULT_DASHBOARD_PERIOD);
+  const paymentMethodsQuery = useDashboardPaymentMethodsQuery(
+    DEFAULT_DASHBOARD_PERIOD,
+  );
+  const stockVelocityQuery = useDashboardStockVelocityQuery();
+  const idleProductsQuery = useDashboardIdleProductsQuery(DEFAULT_IDLE_DAYS);
+  const reorderListQuery = useDashboardReorderListQuery();
+  const capitalByClubQuery = useDashboardCapitalByClubQuery();
+  const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
 
-  if (isLoading || !data) {
+  const isLoading =
+    marginsQuery.isLoading ||
+    paymentMethodsQuery.isLoading ||
+    stockVelocityQuery.isLoading;
+
+  const clubItems = useMemo(() => {
+    const top = topClubsQuery.data ?? [];
+    const maxSold = top.reduce((acc, c) => Math.max(acc, c.totalSold), 0);
+    return top.slice(0, 5).map((c) => ({
+      name: c.clubOrBrand,
+      units: c.totalSold,
+      percentage: maxSold > 0 ? Math.round((c.totalSold / maxSold) * 100) : 0,
+    }));
+  }, [topClubsQuery.data]);
+
+  if (isLoading) {
     return (
       <DashboardLayout title="Centro de Insights" subtitle="Carregando...">
         <div className="flex justify-center py-12">
@@ -27,6 +72,13 @@ const InsightsPage = () => {
       </DashboardLayout>
     );
   }
+
+  const margins = marginsQuery.data;
+  const paymentMethods = paymentMethodsQuery.data ?? [];
+  const stockVelocity = stockVelocityQuery.data ?? [];
+  const idleProducts = idleProductsQuery.data ?? [];
+  const reorderList = reorderListQuery.data ?? [];
+  const capitalByClub = capitalByClubQuery.data ?? [];
 
   return (
     <DashboardLayout
@@ -38,107 +90,214 @@ const InsightsPage = () => {
       subtitle="Análise em tempo real da performance do inventário."
     >
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Tradução: "Total Profit" → "Lucro Total" */}
         <StatTile
-          label="Lucro Total"
-          value={formatCurrencyBRL(data.totalProfit * PRICE_CENTS_MULTIPLIER)}
-          delta={12.4}
-          trend="up"
+          label="Lucro bruto"
+          value={
+            margins ? formatPriceFromReais(margins.overall.grossProfit) : "—"
+          }
           iconName="paid"
         />
-        {/* Tradução: "Best Selling Club" → "Clube Mais Vendido" */}
         <StatTile
-          label="Clube Mais Vendido"
-          value={data.bestSellingClub}
-          iconName="emoji_events"
+          label="Margem geral"
+          value={margins ? `${margins.overall.marginPercentage}%` : "—"}
+          iconName="percent"
         />
-        {/* Tradução: "Top Performance Size" → "Tamanho com Melhor Performance" */}
         <StatTile
-          label="Tamanho com Melhor Performance"
-          value={data.topPerformanceSize}
-          iconName="straighten"
+          label="Receita do período"
+          value={margins ? formatPriceFromReais(margins.overall.revenue) : "—"}
+          iconName="trending_up"
         />
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Tradução: "Revenue dynamics — 30D" → "Dinâmica de Receita — 30D" + "Sales" → "Vendas" + "Cost" → "Custo" */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card
-          className="lg:col-span-2"
-          tier="container-high"
-          title="Dinâmica de Receita — 30D"
-          description="Receita vs custo nos últimos 30 dias"
-          action={
-            <div className="flex items-center gap-3 font-label text-xs uppercase tracking-wider">
-              <span className="flex items-center gap-1.5 text-primary">
-                <span className="block h-2 w-2 rounded-full bg-primary" />
-                Vendas
-              </span>
-              <span className="flex items-center gap-1.5 text-tertiary">
-                <span className="block h-2 w-2 rounded-full bg-tertiary" />
-                Custo
-              </span>
-            </div>
-          }
+          title="Velocidade de estoque"
+          description="Risco de ruptura nos próximos dias"
         >
-          <RevenueLineChart data={data.revenueHistory} />
+          {stockVelocity.length === 0 ? (
+            <EmptyState
+              iconName="speed"
+              title="Sem dados"
+              description="Sem vendas suficientes para calcular velocidade."
+            />
+          ) : (
+            <ul className="space-y-2">
+              {stockVelocity.slice(0, 8).map((item, index) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {item.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {item.currentStock} em estoque ·{" "}
+                      {item.daysUntilStockout === null
+                        ? "sem giro"
+                        : `${item.daysUntilStockout} dias até zerar`}
+                    </p>
+                  </div>
+                  <Badge tone={RISK_TONE[item.risk]}>{item.risk}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
-        {/* Tradução: "Sales by category" → "Vendas por categoria" */}
-        <Card title="Vendas por categoria" description="Distribuição em volume">
-          <SizesDonutChart data={data.sizeShares} />
+        <Card
+          title="Lista de reposição"
+          description="Produtos abaixo do mínimo"
+        >
+          {reorderList.length === 0 ? (
+            <EmptyState
+              iconName="check_circle"
+              title="Tudo em dia"
+              description="Nenhum produto precisa de reposição agora."
+            />
+          ) : (
+            <ul className="space-y-2">
+              {reorderList.slice(0, 8).map((item, index) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {item.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      Déficit {item.deficit} ·{" "}
+                      {formatPriceFromReais(item.reorderCost)} para repor
+                    </p>
+                  </div>
+                  <Badge tone="warning">
+                    {item.currentStock}/{item.minStock}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Tradução: "Top 5 Clubs" → "Top 5 Clubes" */}
         <Card title="Top 5 Clubes" description="Volume de unidades vendidas">
-          {data.topClubs.length === 0 ? (
+          {clubItems.length === 0 ? (
             <EmptyState
               iconName="sports_soccer"
               title="Sem dados"
               description="Vendas aparecerão aqui."
             />
           ) : (
-            <ClubProgressList items={data.topClubs} />
+            <ClubProgressList items={clubItems} />
           )}
         </Card>
 
-        {/* Tradução: "Slow-moving items" → "Itens de Movimento Lento" + "Add insight note" → "Adicionar anotação" */}
         <Card
-          tier="container-high"
-          title="Itens de Movimento Lento"
-          description="Sem vendas há mais de 30 dias"
-          action={
-            <button className="font-label text-xs uppercase tracking-wider text-primary inline-flex items-center gap-1">
-              <Icon name="add_circle" size="sm" />
-              Adicionar anotação
-            </button>
-          }
+          title="Itens parados"
+          description={`Sem venda há ${DEFAULT_IDLE_DAYS}+ dias`}
         >
-          <ul className="space-y-2">
-            {data.slowMovingItems.map((item, index) => (
-              <li
-                key={item.productId}
-                className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${
-                  index % 2 === 0
-                    ? "bg-surface-container-low"
-                    : "bg-surface-container"
-                }`}
-              >
-                <div>
-                  <p className="font-body text-sm font-semibold text-on-surface">
-                    {item.productName}
-                  </p>
-                  <p className="font-label text-xs text-on-surface-variant">
-                    {item.daysWithoutSale} dias sem venda · {item.quantity} em
-                    estoque
-                  </p>
-                </div>
-                {/* Tradução: "Mark down" → "Redução de Preço" */}
-                <Badge tone="warning">Redução de Preço</Badge>
-              </li>
-            ))}
-          </ul>
+          {idleProducts.length === 0 ? (
+            <EmptyState
+              iconName="hourglass_disabled"
+              title="Sem itens parados"
+              description="Todo o estoque está girando."
+            />
+          ) : (
+            <ul className="space-y-2">
+              {idleProducts.slice(0, 8).map((item, index) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {item.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {item.daysIdle ?? "—"} dias · {item.quantity} em estoque ·{" "}
+                      {formatPriceFromReais(item.stuckValue)} parados
+                    </p>
+                  </div>
+                  <Badge tone="warning">Promover</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Formas de pagamento" description="Breakdown do período">
+          {paymentMethods.length === 0 ? (
+            <EmptyState
+              iconName="payments"
+              title="Sem dados"
+              description="Vendas aparecerão aqui."
+            />
+          ) : (
+            <ul className="space-y-3">
+              {paymentMethods.map((method) => (
+                <li
+                  key={method.method}
+                  className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {method.method}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {method.saleCount} vendas · {method.percentage}%
+                    </p>
+                  </div>
+                  <span className="font-body font-semibold text-primary">
+                    {formatPriceFromReais(method.totalAmount)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card
+          title="Capital por clube"
+          description="Estoque imobilizado por clube/marca"
+        >
+          {capitalByClub.length === 0 ? (
+            <EmptyState
+              iconName="account_balance_wallet"
+              title="Sem dados"
+              description="Capital aparecerá aqui."
+            />
+          ) : (
+            <ul className="space-y-3">
+              {capitalByClub.slice(0, 8).map((item) => (
+                <li
+                  key={item.clubOrBrand}
+                  className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
+                >
+                  <div>
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {item.clubOrBrand}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {item.totalStock} unidades · {item.productVariants}{" "}
+                      variantes
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-body font-semibold text-on-surface">
+                      {formatPriceFromReais(item.totalCapital)}
+                    </p>
+                    <p className="font-label text-xs text-primary">
+                      {item.capitalPercentage}%
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </DashboardLayout>

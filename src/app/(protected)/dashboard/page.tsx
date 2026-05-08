@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { Button, ClawIndicator, Icon, Spinner } from "@/components/atoms";
 import {
   Card,
@@ -10,16 +12,53 @@ import {
 } from "@/components/molecules";
 import { AlertsPanel, StockEntriesTable } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
+import {
+  DEFAULT_DASHBOARD_PERIOD,
+  DEFAULT_DASHBOARD_TOP_LIMIT,
+} from "@/constants";
 import { useAuth } from "@/contexts";
-import { useDashboardStatsQuery } from "@/hooks/queries";
+import {
+  useAlertsCountQuery,
+  useDashboardSizesQuery,
+  useDashboardSummaryQuery,
+  useDashboardTopClubsQuery,
+} from "@/hooks/queries";
+import { formatPriceFromReais } from "@/utils";
+
+const TOP_LIST_PARAMS = {
+  ...DEFAULT_DASHBOARD_PERIOD,
+  limit: DEFAULT_DASHBOARD_TOP_LIMIT,
+};
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  // TODO: Dashboard stats ainda usam mock — backend não tem GET /dashboard/stats implementado
-  const { data, isLoading } = useDashboardStatsQuery();
+  const summaryQuery = useDashboardSummaryQuery(DEFAULT_DASHBOARD_PERIOD);
+  const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
+  const sizesQuery = useDashboardSizesQuery(DEFAULT_DASHBOARD_PERIOD);
+  const alertsCountQuery = useAlertsCountQuery();
+
   const greeting = user ? `Olá, ${user.name.split(" ")[0]}.` : "Olá.";
 
-  if (isLoading || !data) {
+  const clubItems = useMemo(() => {
+    const top = topClubsQuery.data ?? [];
+    const maxSold = top.reduce((acc, c) => Math.max(acc, c.totalSold), 0);
+    return top.slice(0, 5).map((c) => ({
+      name: c.clubOrBrand,
+      units: c.totalSold,
+      percentage: maxSold > 0 ? Math.round((c.totalSold / maxSold) * 100) : 0,
+    }));
+  }, [topClubsQuery.data]);
+
+  const sizeShares = useMemo(() => {
+    const top5 = sizesQuery.data?.top5 ?? [];
+    const total = top5.reduce((acc, s) => acc + s.totalSold, 0);
+    return top5.map((s) => ({
+      size: s.size,
+      percentage: total > 0 ? Math.round((s.totalSold / total) * 100) : 0,
+    }));
+  }, [sizesQuery.data]);
+
+  if (summaryQuery.isLoading || !summaryQuery.data) {
     return (
       <DashboardLayout title="Dashboard" subtitle={`${greeting} Carregando...`}>
         <div className="flex justify-center py-12">
@@ -29,11 +68,12 @@ const DashboardPage = () => {
     );
   }
 
+  const { stock, sales } = summaryQuery.data;
+
   return (
     <DashboardLayout
       title={
         <>
-          {/* Tradução: "Operational overview" → "Visão operacional" */}
           <span className="font-label text-xs uppercase tracking-widest text-primary block">
             Visão operacional
           </span>
@@ -45,7 +85,6 @@ const DashboardPage = () => {
         <div className="flex justify-end">
           <Button>
             <Icon name="add_shopping_cart" size="sm" />
-            {/* Tradução: "Register new sale" → "Registrar nova venda" */}
             Registrar nova venda
           </Button>
         </div>
@@ -53,31 +92,23 @@ const DashboardPage = () => {
     >
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatTile
-          label={data.productsInStock.label}
-          value={data.productsInStock.formatted}
-          delta={data.productsInStock.delta}
-          trend={data.productsInStock.trend}
+          label="Em estoque"
+          value={stock.totalItems.toLocaleString("pt-BR")}
           iconName="inventory_2"
         />
         <StatTile
-          label={data.totalRevenue.label}
-          value={data.totalRevenue.formatted}
-          delta={data.totalRevenue.delta}
-          trend={data.totalRevenue.trend}
+          label="Receita do período"
+          value={formatPriceFromReais(sales.totalAmount)}
           iconName="payments"
         />
         <StatTile
-          label={data.totalSales.label}
-          value={data.totalSales.formatted}
-          delta={data.totalSales.delta}
-          trend={data.totalSales.trend}
+          label="Vendas no período"
+          value={sales.count.toLocaleString("pt-BR")}
           iconName="shopping_cart"
         />
         <StatTile
-          label={data.averageTicket.label}
-          value={data.averageTicket.formatted}
-          delta={data.averageTicket.delta}
-          trend={data.averageTicket.trend}
+          label="Ticket médio"
+          value={formatPriceFromReais(sales.averageTicket)}
           iconName="trending_up"
         />
       </section>
@@ -90,7 +121,7 @@ const DashboardPage = () => {
             description="Itens que precisam de reposição imediata"
             action={
               <span className="font-label text-xs uppercase tracking-wider text-primary">
-                {data.alerts} críticos
+                {alertsCountQuery.data?.critical ?? 0} críticos
               </span>
             }
           >
@@ -110,29 +141,27 @@ const DashboardPage = () => {
         </div>
 
         <div className="space-y-6">
-          <Card title="Visão por clube" description="Top 5 do mês">
-            {data.topClubs.length === 0 ? (
+          <Card title="Visão por clube" description="Top 5 do período">
+            {clubItems.length === 0 ? (
               <EmptyState
                 iconName="sports_soccer"
                 title="Sem dados"
                 description="Vendas aparecerão aqui."
               />
             ) : (
-              <ClubProgressList items={data.topClubs} />
+              <ClubProgressList items={clubItems} />
             )}
           </Card>
           <Card title="Vendas por tamanho" description="Distribuição">
-            <SizesDonutChart data={data.sizeShares} />
+            <SizesDonutChart data={sizeShares} />
           </Card>
           <Card tier="container-highest">
             <div className="flex items-center gap-3">
               <ClawIndicator level={3} />
               <div>
-                {/* Tradução: "System Status: Elite" → "Status do Sistema: Elite" */}
                 <p className="font-headline text-sm font-bold text-on-surface">
                   Status do Sistema: Elite
                 </p>
-                {/* Tradução: "Sincing with tiger.store API" → "Sincronizando com API tiger.store" */}
                 <p className="font-label text-xs text-on-surface-variant">
                   Sincronizando com API tiger.store
                 </p>

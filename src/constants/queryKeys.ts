@@ -1,4 +1,6 @@
 import type {
+  DashboardPeriod,
+  DashboardTopList,
   ListAuditLogsParams,
   ListProductsParams,
   ListSalesParams,
@@ -50,6 +52,24 @@ export const queryKeys = {
   },
   dashboard: {
     all: ["dashboard"] as const,
-    stats: () => [...queryKeys.dashboard.all, "stats"] as const,
+    summary: (params?: DashboardPeriod) =>
+      [...queryKeys.dashboard.all, "summary", params ?? {}] as const,
+    topProducts: (params?: DashboardTopList) =>
+      [...queryKeys.dashboard.all, "topProducts", params ?? {}] as const,
+    topClubs: (params?: DashboardTopList) =>
+      [...queryKeys.dashboard.all, "topClubs", params ?? {}] as const,
+    sizes: (params?: DashboardPeriod) =>
+      [...queryKeys.dashboard.all, "sizes", params ?? {}] as const,
+    channels: (params?: DashboardPeriod) =>
+      [...queryKeys.dashboard.all, "channels", params ?? {}] as const,
+    margins: (params?: DashboardPeriod) =>
+      [...queryKeys.dashboard.all, "margins", params ?? {}] as const,
+    idleProducts: (days?: number) =>
+      [...queryKeys.dashboard.all, "idleProducts", days ?? 30] as const,
+    paymentMethods: (params?: DashboardPeriod) =>
+      [...queryKeys.dashboard.all, "paymentMethods", params ?? {}] as const,
+    stockVelocity: () => [...queryKeys.dashboard.all, "stockVelocity"] as const,
+    reorderList: () => [...queryKeys.dashboard.all, "reorderList"] as const,
+    capitalByClub: () => [...queryKeys.dashboard.all, "capitalByClub"] as const,
   },
 } as const;

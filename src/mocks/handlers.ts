@@ -5,7 +5,7 @@ import type { PaginatedResult } from "@/types";
 
 import { alertsFixture } from "./fixtures/alerts";
 import { customersFixture } from "./fixtures/customers";
-import { dashboardStatsFixture } from "./fixtures/dashboard";
+import { dashboardSummaryFixture } from "./fixtures/dashboard";
 import { productsFixture } from "./fixtures/products";
 import { salesFixture } from "./fixtures/sales";
 import { stockEntriesFixture } from "./fixtures/stockEntries";
@@ -77,7 +77,29 @@ export const handlers = [
   }),
 
   // ----- Dashboard
-  http.get(`${baseUrl}/dashboard/stats`, () => envelope(dashboardStatsFixture)),
+  http.get(`${baseUrl}/dashboard/summary`, () =>
+    envelope(dashboardSummaryFixture),
+  ),
+  http.get(`${baseUrl}/dashboard/top-products`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/top-clubs`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/sizes`, () =>
+    envelope({ top5: [], bottom5: [] }),
+  ),
+  http.get(`${baseUrl}/dashboard/channels`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/margins`, () =>
+    envelope({
+      overall: { revenue: 0, cost: 0, grossProfit: 0, marginPercentage: 0 },
+      byProduct: [],
+    }),
+  ),
+  http.get(`${baseUrl}/dashboard/idle-products`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/payment-methods`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/stock-velocity`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/reorder-list`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/capital-by-club`, () => envelope([])),
+  http.get(`${baseUrl}/alerts/count`, () =>
+    envelope({ total: 0, critical: 0, informational: 0 }),
+  ),
 
   // ----- Stock entries
   http.get(`${baseUrl}/stock-entries`, () => envelope(paginate(stockEntries))),
@@ -139,9 +161,6 @@ export const handlers = [
 
   // ----- Alerts (mock-only por enquanto)
   http.get(`${baseUrl}/alerts`, () => envelope(alertsFixture)),
-  http.get(`${baseUrl}/alerts/count`, () =>
-    envelope({ total: 0, critical: 0, informational: 0 }),
-  ),
 
   // ----- Users
   http.get(`${baseUrl}/users`, () => envelope(paginate(users))),

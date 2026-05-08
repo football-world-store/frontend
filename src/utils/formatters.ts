@@ -17,3 +17,11 @@ export const formatDateBR = (value: string | Date): string => {
   const date = typeof value === "string" ? new Date(value) : value;
   return dateBRFormatter.format(date);
 };
+
+const ZEBRA_TIERS = [
+  "bg-surface-container-low",
+  "bg-surface-container",
+] as const;
+
+export const zebraRowTier = (index: number): string =>
+  ZEBRA_TIERS[index % ZEBRA_TIERS.length];

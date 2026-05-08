@@ -50,6 +50,16 @@ export const API_ROUTES = {
     resolve: (id: string) => `/alerts/${id}/resolve`,
   },
   dashboard: {
-    stats: "/dashboard/stats",
+    summary: "/dashboard/summary",
+    topProducts: "/dashboard/top-products",
+    topClubs: "/dashboard/top-clubs",
+    sizes: "/dashboard/sizes",
+    channels: "/dashboard/channels",
+    margins: "/dashboard/margins",
+    idleProducts: "/dashboard/idle-products",
+    paymentMethods: "/dashboard/payment-methods",
+    stockVelocity: "/dashboard/stock-velocity",
+    reorderList: "/dashboard/reorder-list",
+    capitalByClub: "/dashboard/capital-by-club",
   },
 } as const;
