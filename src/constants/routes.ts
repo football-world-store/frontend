@@ -9,10 +9,12 @@ export const APP_ROUTES = {
     dashboard: "/dashboard",
     inventory: "/inventory",
     entries: "/entries",
+    sales: "/sales",
     customers: "/customers",
     customerDetail: (id: string) => `/customers/${id}`,
     insights: "/insights",
     alerts: "/alerts",
+    audit: "/audit",
     settings: "/settings",
   },
 } as const;

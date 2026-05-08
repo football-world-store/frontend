@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import { Button, ClawIndicator, Icon } from "@/components/atoms";
+import { Button, ClawIndicator, Icon, Modal } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
@@ -12,7 +12,11 @@ import {
   SkeletonStatTile,
   StatTile,
 } from "@/components/molecules";
-import { AlertsPanel, StockEntriesTable } from "@/components/organisms";
+import {
+  AlertsPanel,
+  SaleForm,
+  StockEntriesTable,
+} from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import {
   DEFAULT_DASHBOARD_PERIOD,
@@ -73,6 +77,7 @@ const DashboardPage = () => {
   const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
   const sizesQuery = useDashboardSizesQuery(DEFAULT_DASHBOARD_PERIOD);
   const alertsCountQuery = useAlertsCountQuery();
+  const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
 
   const greeting = user ? `Olá, ${user.name.split(" ")[0]}.` : "Olá.";
 
@@ -114,7 +119,10 @@ const DashboardPage = () => {
       subtitle={`${greeting} Aqui está o pulso da loja agora.`}
       toolbar={
         <div className="flex justify-end">
-          <Button className="w-full md:w-auto">
+          <Button
+            className="w-full md:w-auto"
+            onClick={() => setIsSaleModalOpen(true)}
+          >
             <Icon name="add_shopping_cart" size="sm" />
             Registrar nova venda
           </Button>
@@ -201,6 +209,19 @@ const DashboardPage = () => {
           </Card>
         </div>
       </div>
+
+      <Modal
+        isOpen={isSaleModalOpen}
+        onClose={() => setIsSaleModalOpen(false)}
+        title="Registrar venda"
+        description="Selecione os produtos, canal e forma de pagamento."
+        size="xl"
+      >
+        <SaleForm
+          onSuccess={() => setIsSaleModalOpen(false)}
+          onCancel={() => setIsSaleModalOpen(false)}
+        />
+      </Modal>
     </DashboardLayout>
   );
 };

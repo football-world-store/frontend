@@ -18,6 +18,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Entradas e saídas",
     icon: "swap_horiz",
   },
+  { href: APP_ROUTES.app.sales, label: "Vendas", icon: "point_of_sale" },
   { href: APP_ROUTES.app.customers, label: "Clientes", icon: "groups" },
   { href: APP_ROUTES.app.insights, label: "Insights", icon: "analytics" },
   {
@@ -25,5 +26,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Alertas",
     icon: "notifications_active",
   },
+  { href: APP_ROUTES.app.audit, label: "Auditoria", icon: "history" },
   { href: APP_ROUTES.app.settings, label: "Configurações", icon: "settings" },
 ];

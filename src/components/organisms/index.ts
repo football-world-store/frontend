@@ -9,6 +9,8 @@ export * from "./InventoryTable";
 export * from "./LoginForm";
 export * from "./ProductForm";
 export * from "./ResetPasswordForm";
+export * from "./SaleForm";
+export * from "./SalesTable";
 export * from "./StockEntriesTable";
 export * from "./StockMovementForm";
 export * from "./UserForm";
