@@ -240,27 +240,33 @@ export const CustomersList = () => {
                           )}
                         </p>
                       </div>
-                      <Badge
-                        tone={
-                          STATUS_TONE[
-                            customer.status as keyof typeof STATUS_TONE
-                          ]
-                        }
-                      >
-                        {
-                          STATUS_LABEL[
-                            customer.status as keyof typeof STATUS_LABEL
-                          ]
-                        }
-                      </Badge>
-                      {isVip ? <Badge tone="primary">VIP</Badge> : null}
+                      <span className="hidden sm:inline-flex">
+                        <Badge
+                          tone={
+                            STATUS_TONE[
+                              customer.status as keyof typeof STATUS_TONE
+                            ]
+                          }
+                        >
+                          {
+                            STATUS_LABEL[
+                              customer.status as keyof typeof STATUS_LABEL
+                            ]
+                          }
+                        </Badge>
+                      </span>
+                      {isVip ? (
+                        <span className="hidden sm:inline-flex">
+                          <Badge tone="primary">VIP</Badge>
+                        </span>
+                      ) : null}
                       {whatsappLink ? (
                         <a
                           href={whatsappLink}
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="Conversar no WhatsApp"
-                          className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity"
+                          className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-focus-gold"
                         >
                           <Icon name="forum" size="md" />
                         </a>
