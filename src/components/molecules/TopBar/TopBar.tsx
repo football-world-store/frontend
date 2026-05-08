@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 
 import { Avatar, Badge, Icon, IconButton } from "@/components/atoms";
 import { useAuth } from "@/contexts";
-import { useAlertsQuery, useProductsQuery } from "@/hooks/queries";
+import { useAlertsCountQuery, useProductsQuery } from "@/hooks/queries";
 
 interface TopBarProps {
   title: ReactNode;
@@ -13,19 +13,13 @@ interface TopBarProps {
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut } = useAuth();
-  // TODO: useAlertsQuery usa mock — backend não tem GET /alerts implementado
-  const { data: alertsData } = useAlertsQuery();
+  const { data: alertsCount } = useAlertsCountQuery();
   const { data: productsResult } = useProductsQuery();
 
-  const alerts = Array.isArray(alertsData)
-    ? alertsData
-    : (alertsData?.items ?? []);
   const lowStockCount = (productsResult?.items ?? []).filter(
     (product) => product.quantity <= product.minStock,
   ).length;
-  const pendingAlerts = (alerts ?? []).filter(
-    (alert) => !alert.acknowledgedAt,
-  ).length;
+  const pendingAlerts = alertsCount?.total ?? 0;
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 md:gap-6 py-6">

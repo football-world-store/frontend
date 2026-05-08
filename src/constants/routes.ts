@@ -12,6 +12,7 @@ export const APP_ROUTES = {
     customers: "/customers",
     customerDetail: (id: string) => `/customers/${id}`,
     insights: "/insights",
+    alerts: "/alerts",
     settings: "/settings",
   },
 } as const;

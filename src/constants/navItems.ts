@@ -20,5 +20,10 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { href: APP_ROUTES.app.customers, label: "Clientes", icon: "groups" },
   { href: APP_ROUTES.app.insights, label: "Insights", icon: "analytics" },
+  {
+    href: APP_ROUTES.app.alerts,
+    label: "Alertas",
+    icon: "notifications_active",
+  },
   { href: APP_ROUTES.app.settings, label: "Configurações", icon: "settings" },
 ];

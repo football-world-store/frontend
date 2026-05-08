@@ -46,6 +46,7 @@ export const queryKeys = {
   alerts: {
     all: ["alerts"] as const,
     list: () => [...queryKeys.alerts.all, "list"] as const,
+    count: () => [...queryKeys.alerts.all, "count"] as const,
   },
   dashboard: {
     all: ["dashboard"] as const,

@@ -1,8 +1,15 @@
 "use client";
 
-import { Badge, ClawIndicator, Icon, Spinner } from "@/components/atoms";
+import {
+  Badge,
+  ClawIndicator,
+  Icon,
+  IconButton,
+  Spinner,
+} from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { useAlertsQuery } from "@/hooks/queries";
+import { useResolveAlertMutation } from "@/hooks/mutations";
 
 const SEVERITY_TONE = {
   CRITICAL: "error",
@@ -20,12 +27,8 @@ interface AlertsPanelProps {
 }
 
 export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
-  // TODO: useAlertsQuery usa mock — backend não tem GET /alerts implementado
-  const { data: alertsData, isLoading } = useAlertsQuery();
-
-  const alerts = Array.isArray(alertsData)
-    ? alertsData
-    : (alertsData?.items ?? []);
+  const { data: alerts, isLoading } = useAlertsQuery();
+  const resolveMutation = useResolveAlertMutation();
 
   const wrap = (children: React.ReactNode, props?: { description?: string }) =>
     inline ? (
@@ -56,34 +59,45 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
 
   const list = (
     <ul className="space-y-3">
-      {alerts.map((alert) => (
-        <li
-          key={alert.id}
-          className="flex items-start gap-3 bg-surface-container-low rounded-xl px-4 py-3 border-l-4 border-primary"
-        >
-          <Icon
-            name={alert.severity === "CRITICAL" ? "warning" : "info"}
-            className={
-              alert.severity === "CRITICAL" ? "text-error" : "text-primary"
-            }
-            size="md"
-          />
-          <div className="flex-1 space-y-1">
-            <p className="font-body text-sm font-semibold text-on-surface">
-              {alert.productName ?? alert.message}
-            </p>
-            <p className="font-label text-xs text-on-surface-variant">
-              {alert.message}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
-            <Badge tone={SEVERITY_TONE[alert.severity]}>
-              {TYPE_LABEL[alert.type]}
-            </Badge>
-          </div>
-        </li>
-      ))}
+      {alerts.map((alert) => {
+        const isResolving =
+          resolveMutation.isPending &&
+          resolveMutation.variables?.id === alert.id;
+        return (
+          <li
+            key={alert.id}
+            className="flex items-start gap-3 bg-surface-container-low rounded-xl px-4 py-3 border-l-4 border-primary"
+          >
+            <Icon
+              name={alert.severity === "CRITICAL" ? "warning" : "info"}
+              className={
+                alert.severity === "CRITICAL" ? "text-error" : "text-primary"
+              }
+              size="md"
+            />
+            <div className="flex-1 space-y-1">
+              <p className="font-body text-sm font-semibold text-on-surface">
+                {alert.productName ?? alert.message}
+              </p>
+              <p className="font-label text-xs text-on-surface-variant">
+                {alert.message}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
+              <Badge tone={SEVERITY_TONE[alert.severity]}>
+                {TYPE_LABEL[alert.type]}
+              </Badge>
+              <IconButton
+                iconName={isResolving ? "hourglass_empty" : "check"}
+                label="Marcar como resolvido"
+                disabled={isResolving}
+                onClick={() => resolveMutation.mutate({ id: alert.id })}
+              />
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 

@@ -45,6 +45,8 @@ export const API_ROUTES = {
   },
   alerts: {
     list: "/alerts",
+    count: "/alerts/count",
+    resolve: (id: string) => `/alerts/${id}/resolve`,
   },
   dashboard: {
     stats: "/dashboard/stats",

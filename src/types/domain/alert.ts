@@ -8,6 +8,18 @@ export interface Alert {
   productId: string | null;
   productName: string | null;
   message: string;
+  isResolved: boolean;
+  resolvedAt: string | null;
   createdAt: string;
-  acknowledgedAt: string | null;
+}
+
+export interface AlertCount {
+  total: number;
+  critical: number;
+  informational: number;
+}
+
+export interface ResolveAlertBody {
+  id: string;
+  note?: string;
 }

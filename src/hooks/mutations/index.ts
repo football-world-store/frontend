@@ -13,6 +13,7 @@ export * from "./useForgotPasswordMutation";
 export * from "./useLoginMutation";
 export * from "./useLogoutMutation";
 export * from "./useResetPasswordMutation";
+export * from "./useResolveAlertMutation";
 export * from "./useRestoreProductMutation";
 export * from "./useReverseStockEntryMutation";
 export * from "./useUpdateProductMutation";

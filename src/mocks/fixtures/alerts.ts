@@ -9,7 +9,8 @@ export const alertsFixture: Alert[] = [
     productName: "Camisa Flamengo Retrô 1981",
     message: "Estoque abaixo do mínimo (3 unidades, mínimo 4).",
     createdAt: "2026-04-26T08:00:00.000Z",
-    acknowledgedAt: null,
+    isResolved: false,
+    resolvedAt: null,
   },
   {
     id: "a-002",
@@ -19,7 +20,8 @@ export const alertsFixture: Alert[] = [
     productName: "Short Palmeiras Treino",
     message: "Estoque zerado.",
     createdAt: "2026-04-26T08:30:00.000Z",
-    acknowledgedAt: null,
+    isResolved: false,
+    resolvedAt: null,
   },
   {
     id: "a-003",
@@ -29,6 +31,7 @@ export const alertsFixture: Alert[] = [
     productName: "Short Palmeiras Treino",
     message: "Produto sem vendas há mais de 30 dias.",
     createdAt: "2026-04-26T08:45:00.000Z",
-    acknowledgedAt: null,
+    isResolved: false,
+    resolvedAt: null,
   },
 ];

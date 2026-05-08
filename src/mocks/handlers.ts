@@ -139,6 +139,9 @@ export const handlers = [
 
   // ----- Alerts (mock-only por enquanto)
   http.get(`${baseUrl}/alerts`, () => envelope(alertsFixture)),
+  http.get(`${baseUrl}/alerts/count`, () =>
+    envelope({ total: 0, critical: 0, informational: 0 }),
+  ),
 
   // ----- Users
   http.get(`${baseUrl}/users`, () => envelope(paginate(users))),
