@@ -1,7 +1,6 @@
 "use client";
 
-import { Skeleton } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
 import {
   DEFAULT_DASHBOARD_PERIOD,
   DEFAULT_DASHBOARD_TOP_LIMIT,
@@ -25,13 +24,14 @@ export const InsightsPanel = () => {
 
   if (isLoading) {
     return (
-      <Card title="Performance">
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-12" />
-          ))}
-        </div>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Vendas por canal" description="Distribuição da receita">
+          <SkeletonListRow count={4} />
+        </Card>
+        <Card title="Top produtos" description="Mais vendidos no período">
+          <SkeletonListRow count={4} />
+        </Card>
+      </div>
     );
   }
 

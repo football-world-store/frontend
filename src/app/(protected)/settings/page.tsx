@@ -11,9 +11,8 @@ import {
   IconButton,
   Modal,
   Select,
-  Spinner,
 } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
 import { UserForm } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import { useAuth } from "@/contexts";
@@ -182,11 +181,7 @@ const SettingsPage = () => {
       >
         {(() => {
           if (isLoading) {
-            return (
-              <div className="flex justify-center py-8">
-                <Spinner size="lg" />
-              </div>
-            );
+            return <SkeletonListRow count={4} withAvatar />;
           }
           if (users.length === 0) {
             return (

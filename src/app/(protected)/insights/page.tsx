@@ -2,11 +2,13 @@
 
 import { useMemo } from "react";
 
-import { Badge, Spinner } from "@/components/atoms";
+import { Badge } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
   EmptyState,
+  SkeletonCard,
+  SkeletonStatTile,
   StatTile,
 } from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
@@ -37,6 +39,35 @@ const RISK_TONE = {
   OK: "success",
 } as const;
 
+const InsightsSkeleton = () => (
+  <DashboardLayout
+    title={
+      <>
+        INSIGHTS <span className="text-primary italic">CENTER</span>
+      </>
+    }
+    subtitle="Sincronizando análise em tempo real…"
+  >
+    <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <SkeletonStatTile />
+      <SkeletonStatTile />
+      <SkeletonStatTile />
+    </section>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <SkeletonCard bodyLines={5} />
+      <SkeletonCard bodyLines={5} />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <SkeletonCard bodyLines={5} />
+      <SkeletonCard bodyLines={5} />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <SkeletonCard bodyLines={4} />
+      <SkeletonCard bodyLines={4} />
+    </div>
+  </DashboardLayout>
+);
+
 const InsightsPage = () => {
   const marginsQuery = useDashboardMarginsQuery(DEFAULT_DASHBOARD_PERIOD);
   const paymentMethodsQuery = useDashboardPaymentMethodsQuery(
@@ -64,13 +95,7 @@ const InsightsPage = () => {
   }, [topClubsQuery.data]);
 
   if (isLoading) {
-    return (
-      <DashboardLayout title="Centro de Insights" subtitle="Carregando...">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
-        </div>
-      </DashboardLayout>
-    );
+    return <InsightsSkeleton />;
   }
 
   const margins = marginsQuery.data;

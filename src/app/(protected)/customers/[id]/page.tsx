@@ -2,8 +2,13 @@
 
 import { useParams } from "next/navigation";
 
-import { Avatar, Badge, Button, Icon, Spinner } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Avatar, Badge, Button, Icon } from "@/components/atoms";
+import {
+  Card,
+  EmptyState,
+  SkeletonCard,
+  SkeletonListRow,
+} from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
 import { useCustomerQuery } from "@/hooks/queries";
 import { formatCurrencyBRL, formatDateBR } from "@/utils";
@@ -66,12 +71,32 @@ const CustomerDetailPage = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout title="Cliente" subtitle="Carregando ficha...">
-        <Card>
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+      <DashboardLayout
+        title={
+          <>
+            Ficha do <span className="text-primary italic">Campeão</span>
+          </>
+        }
+        subtitle="Carregando ficha…"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <SkeletonCard tier="container-high" bodyLines={3} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <SkeletonCard tier="container-highest" bodyLines={1} />
+              <SkeletonCard tier="container-highest" bodyLines={1} />
+              <SkeletonCard tier="container-highest" bodyLines={1} />
+            </div>
+            <SkeletonCard bodyLines={2} />
+            <Card title="Últimos pedidos" description="Histórico recente">
+              <SkeletonListRow count={3} />
+            </Card>
           </div>
-        </Card>
+          <div className="space-y-6">
+            <SkeletonCard tier="container-high" bodyLines={5} />
+            <SkeletonCard bodyLines={3} />
+          </div>
+        </div>
       </DashboardLayout>
     );
   }

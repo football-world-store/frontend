@@ -2,12 +2,14 @@
 
 import { useMemo } from "react";
 
-import { Button, ClawIndicator, Icon, Spinner } from "@/components/atoms";
+import { Button, ClawIndicator, Icon } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
   EmptyState,
   SizesDonutChart,
+  SkeletonCard,
+  SkeletonStatTile,
   StatTile,
 } from "@/components/molecules";
 import { AlertsPanel, StockEntriesTable } from "@/components/organisms";
@@ -29,6 +31,41 @@ const TOP_LIST_PARAMS = {
   ...DEFAULT_DASHBOARD_PERIOD,
   limit: DEFAULT_DASHBOARD_TOP_LIMIT,
 };
+
+const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
+  <DashboardLayout
+    title={
+      <>
+        <span className="font-label text-xs uppercase tracking-widest text-primary block">
+          Visão operacional
+        </span>
+        DASHBOARD
+      </>
+    }
+    subtitle={subtitle}
+  >
+    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <SkeletonStatTile key={i} />
+      ))}
+    </section>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-6">
+        <SkeletonCard tier="container-high" bodyLines={4} />
+        <SkeletonCard bodyLines={5} />
+      </div>
+      <div className="space-y-6">
+        <SkeletonCard bodyLines={4} />
+        <SkeletonCard bodyLines={3} />
+        <SkeletonCard
+          tier="container-highest"
+          withHeader={false}
+          bodyLines={2}
+        />
+      </div>
+    </div>
+  </DashboardLayout>
+);
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -59,13 +96,7 @@ const DashboardPage = () => {
   }, [sizesQuery.data]);
 
   if (summaryQuery.isLoading || !summaryQuery.data) {
-    return (
-      <DashboardLayout title="Dashboard" subtitle={`${greeting} Carregando...`}>
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
-        </div>
-      </DashboardLayout>
-    );
+    return <DashboardSkeleton subtitle={`${greeting} Sincronizando dados…`} />;
   }
 
   const { stock, sales } = summaryQuery.data;

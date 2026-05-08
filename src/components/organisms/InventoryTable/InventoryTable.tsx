@@ -10,10 +10,14 @@ import {
   IconButton,
   Modal,
   Select,
-  Skeleton,
   type ClawLevel,
 } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import {
+  Card,
+  EmptyState,
+  SkeletonCard,
+  SkeletonTableRow,
+} from "@/components/molecules";
 import { ProductForm } from "@/components/organisms/ProductForm";
 import { useProductsQuery } from "@/hooks/queries";
 import type { Product } from "@/types";
@@ -130,13 +134,20 @@ export const InventoryTable = () => {
 
   if (isLoading) {
     return (
-      <Card title="Gestão de Estoque">
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-14" />
-          ))}
+      <div className="space-y-6">
+        <Card
+          tier="container-high"
+          title="Gestão de Estoque"
+          description="Catálogo, filtros e disponibilidade em tempo real."
+        >
+          <SkeletonTableRow count={6} cells={6} />
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SkeletonCard tier="container-highest" bodyLines={1} />
+          <SkeletonCard tier="container-highest" bodyLines={1} />
+          <SkeletonCard tier="container-highest" bodyLines={1} />
         </div>
-      </Card>
+      </div>
     );
   }
 

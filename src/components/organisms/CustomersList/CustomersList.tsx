@@ -10,9 +10,8 @@ import {
   Icon,
   IconButton,
   Modal,
-  Spinner,
 } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
 import { APP_ROUTES } from "@/constants";
 import { useCustomersQuery } from "@/hooks/queries";
@@ -92,11 +91,28 @@ export const CustomersList = () => {
 
   if (isLoading) {
     return (
-      <Card title="Gestão de Elite">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+          <Card
+            tier="container-highest"
+            title="Ranking de Elite"
+            description="Top 3 do faturamento"
+          >
+            <SkeletonListRow count={3} withAvatar />
+          </Card>
+          <Card title="Ticket médio mensal">
+            <SkeletonListRow count={1} withTrailingValue={false} />
+          </Card>
         </div>
-      </Card>
+        <Card
+          className="lg:col-span-2"
+          tier="container-high"
+          title="Gestão de Elite"
+          description="Controle de performance e ranking de clientes."
+        >
+          <SkeletonListRow count={6} withAvatar />
+        </Card>
+      </div>
     );
   }
 

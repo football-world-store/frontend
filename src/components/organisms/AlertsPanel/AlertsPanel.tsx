@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Badge,
-  ClawIndicator,
-  Icon,
-  IconButton,
-  Skeleton,
-} from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Badge, ClawIndicator, Icon, IconButton } from "@/components/atoms";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
 import { useAlertsQuery } from "@/hooks/queries";
 import { useResolveAlertMutation } from "@/hooks/mutations";
 
@@ -40,15 +34,7 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
     );
 
   if (isLoading) {
-    return wrap(
-      <ul className="space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <li key={i}>
-            <Skeleton className="h-16" />
-          </li>
-        ))}
-      </ul>,
-    );
+    return wrap(<SkeletonListRow count={3} withAvatar />);
   }
 
   if (!alerts || alerts.length === 0) {

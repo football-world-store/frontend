@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Skeleton } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Badge } from "@/components/atoms";
+import { Card, EmptyState, SkeletonTableRow } from "@/components/molecules";
 import { useStockEntriesQuery } from "@/hooks/queries";
 import { formatDateBR, formatPriceFromReais } from "@/utils";
 
@@ -31,13 +31,7 @@ export const StockEntriesTable = ({
     );
 
   if (isLoading) {
-    return wrapInCard(
-      <div className="flex flex-col gap-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-14" />
-        ))}
-      </div>,
-    );
+    return wrapInCard(<SkeletonTableRow count={5} cells={5} />);
   }
 
   if (entries.length === 0) {
