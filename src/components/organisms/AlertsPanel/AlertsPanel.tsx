@@ -66,19 +66,25 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
         return (
           <li
             key={alert.id}
-            className={`flex items-start gap-3 rounded-xl px-4 py-3 ${
+            className={`flex items-start gap-3 rounded-xl px-4 py-4 ${
               alert.severity === "CRITICAL"
                 ? "bg-error-container/40"
                 : "bg-surface-container-low"
             }`}
           >
-            <Icon
-              name={alert.severity === "CRITICAL" ? "warning" : "info"}
-              className={
-                alert.severity === "CRITICAL" ? "text-error" : "text-primary"
-              }
-              size="md"
-            />
+            <span
+              className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${
+                alert.severity === "CRITICAL"
+                  ? "bg-error text-on-error"
+                  : "bg-primary-container text-on-primary-container"
+              }`}
+              aria-hidden
+            >
+              <Icon
+                name={alert.severity === "CRITICAL" ? "warning" : "info"}
+                size="md"
+              />
+            </span>
             <div className="flex-1 space-y-1">
               <p className="font-body text-sm font-semibold text-on-surface">
                 {alert.productName ?? alert.message}
