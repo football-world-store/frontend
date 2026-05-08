@@ -28,7 +28,7 @@ export const Card = ({
   return (
     <div
       className={[
-        "rounded-xl p-6 shadow-ambient",
+        "rounded-xl px-6 pt-5 pb-7 shadow-ambient",
         TIER_CLASSES[tier],
         className,
       ]
@@ -37,7 +37,7 @@ export const Card = ({
       {...rest}
     >
       {hasHeader ? (
-        <header className="flex items-start justify-between gap-4 mb-4">
+        <header className="flex items-start justify-between gap-4 mb-5">
           <div className="space-y-1">
             {title ? (
               <h3 className="font-headline text-lg font-bold text-on-surface tracking-[-0.03em]">
