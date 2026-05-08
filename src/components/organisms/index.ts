@@ -1,4 +1,5 @@
 export * from "./AlertsPanel";
+export * from "./ChangePasswordForm";
 export * from "./CustomerForm";
 export * from "./CustomersList";
 export * from "./DashboardKPIs";

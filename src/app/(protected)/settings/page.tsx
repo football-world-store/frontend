@@ -13,7 +13,7 @@ import {
   Select,
 } from "@/components/atoms";
 import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
-import { UserForm } from "@/components/organisms";
+import { ChangePasswordForm, UserForm } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import { useAuth } from "@/contexts";
 import { useUsersQuery } from "@/hooks/queries";
@@ -29,6 +29,7 @@ const SettingsPage = () => {
   const { data, isLoading } = useUsersQuery();
   const users = data?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState("pt-BR");
   const [stockThreshold, setStockThreshold] = useState(15);
@@ -65,7 +66,11 @@ const SettingsPage = () => {
                 Acesso primário
               </Badge>
             </div>
-            <Button variant="secondary" className="w-full">
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => setIsChangePasswordOpen(true)}
+            >
               <Icon name="lock_reset" size="sm" filled={false} />
               Trocar senha
             </Button>
@@ -238,6 +243,19 @@ const SettingsPage = () => {
         <UserForm
           onSuccess={() => setIsUserModalOpen(false)}
           onCancel={() => setIsUserModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        title="Trocar senha"
+        description="Após salvar, você precisará entrar novamente com a nova senha."
+        size="md"
+      >
+        <ChangePasswordForm
+          onSuccess={() => setIsChangePasswordOpen(false)}
+          onCancel={() => setIsChangePasswordOpen(false)}
         />
       </Modal>
     </DashboardLayout>
