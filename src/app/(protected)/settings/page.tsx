@@ -12,10 +12,19 @@ import {
   Modal,
   Select,
 } from "@/components/atoms";
-import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
+import {
+  Card,
+  ConfirmDialog,
+  EmptyState,
+  SkeletonListRow,
+} from "@/components/molecules";
 import { ChangePasswordForm, UserForm } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import { useAuth } from "@/contexts";
+import {
+  useClearSessionsMutation,
+  useDeleteUserMutation,
+} from "@/hooks/mutations";
 import { useUsersQuery } from "@/hooks/queries";
 import { formatDateBR } from "@/utils";
 
@@ -30,9 +39,33 @@ const SettingsPage = () => {
   const users = data?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [pendingDeleteUserId, setPendingDeleteUserId] = useState<string | null>(
+    null,
+  );
+  const [isClearSessionsOpen, setIsClearSessionsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState("pt-BR");
   const [stockThreshold, setStockThreshold] = useState(15);
+
+  const deleteUserMutation = useDeleteUserMutation();
+  const clearSessionsMutation = useClearSessionsMutation();
+
+  const pendingDeleteUser = pendingDeleteUserId
+    ? (users.find((u) => u.id === pendingDeleteUserId) ?? null)
+    : null;
+
+  const handleConfirmDeleteUser = () => {
+    if (!pendingDeleteUserId) return;
+    deleteUserMutation.mutate(pendingDeleteUserId, {
+      onSettled: () => setPendingDeleteUserId(null),
+    });
+  };
+
+  const handleConfirmClearSessions = () => {
+    clearSessionsMutation.mutate(undefined, {
+      onSettled: () => setIsClearSessionsOpen(false),
+    });
+  };
 
   return (
     <DashboardLayout
@@ -157,14 +190,17 @@ const SettingsPage = () => {
             <h4 className="font-label uppercase tracking-wider text-xs text-on-surface-variant pt-3">
               Ações críticas
             </h4>
-            <Button variant="ghost" className="w-full justify-start gap-3">
-              <Icon name="cleaning_services" size="sm" />
-              Limpar cache de transações
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3"
+              onClick={() => setIsClearSessionsOpen(true)}
+            >
+              <Icon name="logout" size="sm" />
+              Encerrar todas as sessões
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-3">
-              <Icon name="restart_alt" size="sm" />
-              Redefinir métricas de performance
-            </Button>
+            <p className="font-label text-xs text-on-surface-variant">
+              Desconecta todos os dispositivos. Você precisará entrar novamente.
+            </p>
           </div>
         </Card>
       </div>
@@ -226,6 +262,14 @@ const SettingsPage = () => {
                     {`Atualizado: ${formatDateBR(systemUser.updatedAt)}`}
                   </span>
                   <IconButton iconName="edit" label="Editar" filled={false} />
+                  {systemUser.id !== user?.id ? (
+                    <IconButton
+                      iconName="delete"
+                      label={`Excluir ${systemUser.name}`}
+                      filled={false}
+                      onClick={() => setPendingDeleteUserId(systemUser.id)}
+                    />
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -258,6 +302,32 @@ const SettingsPage = () => {
           onCancel={() => setIsChangePasswordOpen(false)}
         />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={pendingDeleteUserId !== null}
+        onClose={() => setPendingDeleteUserId(null)}
+        onConfirm={handleConfirmDeleteUser}
+        title="Excluir usuário?"
+        description={
+          pendingDeleteUser
+            ? `O usuário "${pendingDeleteUser.name}" perderá acesso imediatamente. Esta ação não pode ser desfeita.`
+            : undefined
+        }
+        confirmLabel="Excluir"
+        tone="danger"
+        isPending={deleteUserMutation.isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={isClearSessionsOpen}
+        onClose={() => setIsClearSessionsOpen(false)}
+        onConfirm={handleConfirmClearSessions}
+        title="Encerrar todas as sessões?"
+        description="Todos os dispositivos (incluindo este) serão deslogados. Você precisará entrar novamente."
+        confirmLabel="Encerrar tudo"
+        tone="danger"
+        isPending={clearSessionsMutation.isPending}
+      />
     </DashboardLayout>
   );
 };
