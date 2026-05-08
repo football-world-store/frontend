@@ -66,7 +66,11 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
         return (
           <li
             key={alert.id}
-            className="flex items-start gap-3 bg-surface-container-low rounded-xl px-4 py-3 border-l-4 border-primary"
+            className={`flex items-start gap-3 rounded-xl px-4 py-3 ${
+              alert.severity === "CRITICAL"
+                ? "bg-error-container/40"
+                : "bg-surface-container-low"
+            }`}
           >
             <Icon
               name={alert.severity === "CRITICAL" ? "warning" : "info"}

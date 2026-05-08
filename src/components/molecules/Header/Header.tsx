@@ -7,7 +7,7 @@ import { APP_ROUTES } from "@/constants";
 
 export const Header = () => {
   return (
-    <header className="flex items-center justify-center bg-surface-container-low px-4 py-4 border-b border-outline-variant">
+    <header className="flex items-center justify-center bg-surface-container-low px-4 py-4">
       <Link
         href={APP_ROUTES.app.dashboard}
         className="focus-visible:outline-none focus-visible:ring-focus-gold rounded-lg"
