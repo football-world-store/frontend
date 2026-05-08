@@ -34,7 +34,7 @@ export const AuthLayout = ({
         </aside>
         <div className="md:col-span-8 p-8 md:p-16 bg-surface-container-low flex flex-col gap-12">
           <header className="space-y-2">
-            <h1 className="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-tight leading-tight">
+            <h1 className="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-[-0.04em] leading-[0.95]">
               {title}
             </h1>
             {description ? (

@@ -40,7 +40,7 @@ export const Card = ({
         <header className="flex items-start justify-between gap-4 mb-4">
           <div className="space-y-1">
             {title ? (
-              <h3 className="font-headline text-lg font-bold text-on-surface tracking-tight">
+              <h3 className="font-headline text-lg font-bold text-on-surface tracking-[-0.03em]">
                 {title}
               </h3>
             ) : null}
