@@ -25,6 +25,7 @@ export const API_ROUTES = {
     delete: "/products",
     restore: "/products/restore",
     photo: "/products/photo",
+    photoUploadUrl: "/products/photo/upload-url",
   },
   stockEntries: {
     list: "/stock-entries",

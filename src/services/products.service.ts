@@ -1,5 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
-import { HTTP_CONTENT_TYPE, HTTP_HEADER } from "@/constants";
+import { apiClient, API_ROUTES, s3PutObject } from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
   CreateProductBody,
@@ -14,8 +13,20 @@ interface UploadProductPhotoParams {
 }
 
 interface ProductPhotoResponse {
-  url: string;
+  uploadUrl: string;
 }
+
+const ALLOWED_PHOTO_CONTENT_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+] as const;
+
+const isAllowedContentType = (
+  contentType: string,
+): contentType is (typeof ALLOWED_PHOTO_CONTENT_TYPES)[number] =>
+  (ALLOWED_PHOTO_CONTENT_TYPES as readonly string[]).includes(contentType);
 
 export const productsService = {
   list: async (
@@ -64,17 +75,20 @@ export const productsService = {
     return data.data;
   },
 
-  uploadPhoto: async (
-    params: UploadProductPhotoParams,
-  ): Promise<ProductPhotoResponse> => {
-    const form = new FormData();
-    form.append("id", params.id);
-    form.append("file", params.file);
+  uploadPhoto: async ({
+    id,
+    file,
+  }: UploadProductPhotoParams): Promise<ProductPhotoResponse> => {
+    if (!isAllowedContentType(file.type)) {
+      throw new Error("Formato inválido. Use JPG, JPEG, PNG ou WEBP.");
+    }
+
     const { data } = await apiClient.post<ApiEnvelope<ProductPhotoResponse>>(
-      API_ROUTES.products.photo,
-      form,
-      { headers: { [HTTP_HEADER.contentType]: HTTP_CONTENT_TYPE.multipart } },
+      API_ROUTES.products.photoUploadUrl,
+      { id, filename: file.name, contentType: file.type },
     );
+
+    await s3PutObject(data.data.uploadUrl, file);
     return data.data;
   },
 
