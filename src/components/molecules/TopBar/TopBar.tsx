@@ -23,12 +23,12 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 md:gap-6 py-6">
-      <div className="space-y-1">
-        <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
+      <div className="min-w-0 space-y-1">
+        <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-[-0.04em]">
           {title}
         </h1>
         {subtitle ? (
-          <p className="font-body text-sm text-on-surface-variant">
+          <p className="hidden sm:block font-body text-sm text-on-surface-variant">
             {subtitle}
           </p>
         ) : null}
@@ -50,8 +50,10 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
             </span>
           ) : null}
         </div>
-        <IconButton iconName="search" label="Buscar" />
-        <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-3 ml-1">
+        <span className="hidden md:inline-flex">
+          <IconButton iconName="search" label="Buscar" />
+        </span>
+        <div className="hidden md:flex items-center gap-2 md:gap-3 pl-2 md:pl-3 ml-1">
           {user ? <Avatar name={user.name} /> : null}
           <IconButton
             iconName="logout"
