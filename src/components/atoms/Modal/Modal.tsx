@@ -51,9 +51,9 @@ export const Modal = ({
       ref={dialogRef}
       onClose={onClose}
       onClick={handleBackdropClick}
-      className={`bg-glass shadow-glass rounded-xl p-0 w-full ${SIZE_CLASSES[size]} backdrop:bg-surface/80 backdrop:backdrop-blur-sm fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0`}
+      className={`bg-glass shadow-glass p-0 backdrop:bg-surface/80 backdrop:backdrop-blur-sm fixed inset-0 m-0 h-full max-h-screen w-full max-w-full rounded-none md:inset-auto md:top-1/2 md:left-1/2 md:h-auto md:max-h-[90vh] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-xl md:w-full ${SIZE_CLASSES[size]}`}
     >
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full md:h-auto md:max-h-[90vh] overflow-y-auto">
         <header className="flex items-start justify-between gap-4 px-6 pt-6 pb-4">
           <div className="space-y-1">
             <h2 className="font-headline text-xl font-bold text-on-surface tracking-tight">
