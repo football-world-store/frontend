@@ -1,11 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-import { Button, Spinner } from "@/components/atoms";
+import { Button, Icon, Spinner } from "@/components/atoms";
 import { FormField, SelectField } from "@/components/molecules";
-import { useCreateProductMutation } from "@/hooks/mutations";
+import {
+  useCreateProductMutation,
+  useUploadProductPhotoMutation,
+} from "@/hooks/mutations";
 import {
   PRODUCT_CATEGORY_OPTIONS,
   productSchema,
@@ -46,6 +51,10 @@ const PRODUCT_FORM_DEFAULTS: ProductFormInput = {
 
 export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
   const mutation = useCreateProductMutation();
+  const uploadMutation = useUploadProductPhotoMutation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -55,16 +64,104 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
     defaultValues: PRODUCT_FORM_DEFAULTS,
   });
 
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 5MB.");
+      return;
+    }
+    setPendingPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const clearPhoto = () => {
+    setPendingPhoto(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const onSubmit = handleSubmit(async (values) => {
-    await mutation.mutateAsync(values);
+    const created = await mutation.mutateAsync(values);
+    if (pendingPhoto) {
+      try {
+        await uploadMutation.mutateAsync({
+          id: created.id,
+          file: pendingPhoto,
+        });
+      } catch {
+        // Toast já é exibido pelo interceptor; o produto foi criado mesmo assim.
+      }
+    }
+    setPendingPhoto(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
     onSuccess?.();
   });
 
-  const isPending = mutation.isPending || isSubmitting;
+  const isPending =
+    mutation.isPending || uploadMutation.isPending || isSubmitting;
   const errorMessages = extractErrorMessages(errors);
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
+      <div className="flex flex-col gap-2">
+        <span className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
+          Foto do produto (opcional)
+        </span>
+        <div className="flex items-center gap-4">
+          <div className="h-24 w-24 rounded-xl bg-surface-container-low overflow-hidden flex items-center justify-center">
+            {photoPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoPreview}
+                alt="Pré-visualização da foto do produto"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Icon
+                name="photo_camera"
+                size="lg"
+                className="text-on-surface-variant"
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handlePhotoChange}
+              className="hidden"
+              aria-label="Selecionar foto do produto"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isPending}
+            >
+              <Icon name="upload" size="sm" />
+              {pendingPhoto ? "Trocar foto" : "Escolher foto"}
+            </Button>
+            {pendingPhoto ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={clearPhoto}
+                disabled={isPending}
+              >
+                Remover
+              </Button>
+            ) : (
+              <span className="font-label text-xs text-on-surface-variant">
+                JPG, PNG ou WEBP até 5MB.
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <FormField
           label="Nome"
