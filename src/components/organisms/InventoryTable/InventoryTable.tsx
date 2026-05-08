@@ -158,7 +158,10 @@ export const InventoryTable = () => {
           title="Gestão de Estoque"
           description="Catálogo, filtros e disponibilidade em tempo real."
           action={
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full md:w-auto"
+            >
               <Icon name="add" size="sm" />
               Adicionar produto
             </Button>

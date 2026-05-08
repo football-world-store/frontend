@@ -83,7 +83,7 @@ const DashboardPage = () => {
       subtitle={`${greeting} Aqui está o pulso da loja agora.`}
       toolbar={
         <div className="flex justify-end">
-          <Button>
+          <Button className="w-full md:w-auto">
             <Icon name="add_shopping_cart" size="sm" />
             Registrar nova venda
           </Button>

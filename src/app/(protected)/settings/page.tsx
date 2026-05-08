@@ -171,7 +171,10 @@ const SettingsPage = () => {
         title="Gestão de acesso"
         description="Usuários do sistema e seus perfis"
         action={
-          <Button onClick={() => setIsUserModalOpen(true)}>
+          <Button
+            onClick={() => setIsUserModalOpen(true)}
+            className="w-full md:w-auto"
+          >
             <Icon name="person_add" size="sm" />
             Novo usuário
           </Button>

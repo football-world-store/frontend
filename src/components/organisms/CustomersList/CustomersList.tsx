@@ -157,7 +157,10 @@ export const CustomersList = () => {
           title="Gestão de Elite"
           description="Controle de performance e ranking de clientes."
           action={
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full md:w-auto"
+            >
               <Icon name="add" size="sm" />
               Novo cliente
             </Button>
