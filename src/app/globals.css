@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@variant dark (&:where(.dark, .dark *));
+@variant dark (&:where(:not(.light), :not(.light) *));
 
 /* =============================================================================
    FOOTBALL WORLD STORE — Design Tokens
@@ -272,6 +272,10 @@ html.light {
 html {
   color-scheme: dark;
   background-color: var(--color-surface);
+}
+
+html.light {
+  color-scheme: light;
 }
 
 body {

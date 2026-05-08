@@ -45,7 +45,12 @@ export const Providers = ({ children }: ProvidersProps) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        value={{ light: "light", dark: "dark" }}
+      >
         <AuthProvider>
           {children}
           <Toaster richColors position="top-right" closeButton />
