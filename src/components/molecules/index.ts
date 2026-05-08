@@ -10,5 +10,6 @@ export * from "./SalesByChannelChart";
 export * from "./SelectField";
 export * from "./Sidebar";
 export * from "./SizesDonutChart";
+export * from "./Skeletons";
 export * from "./StatTile";
 export * from "./TopBar";
