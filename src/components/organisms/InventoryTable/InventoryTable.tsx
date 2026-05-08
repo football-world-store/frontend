@@ -14,11 +14,13 @@ import {
 } from "@/components/atoms";
 import {
   Card,
+  ConfirmDialog,
   EmptyState,
   SkeletonCard,
   SkeletonTableRow,
 } from "@/components/molecules";
 import { ProductForm } from "@/components/organisms/ProductForm";
+import { useDeleteProductMutation } from "@/hooks/mutations";
 import { useProductsQuery } from "@/hooks/queries";
 import type { Product } from "@/types";
 import { formatPriceFromReais } from "@/utils";
@@ -84,8 +86,21 @@ export const InventoryTable = () => {
   });
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const products = data?.items ?? [];
+  const deleteMutation = useDeleteProductMutation();
+
+  const pendingDeleteProduct = pendingDeleteId
+    ? (products.find((p) => p.id === pendingDeleteId) ?? null)
+    : null;
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteId) return;
+    deleteMutation.mutate(pendingDeleteId, {
+      onSettled: () => setPendingDeleteId(null),
+    });
+  };
 
   const clubOptions = useMemo(() => {
     const list = Array.from(new Set(products.map((p) => p.clubOrBrand)));
@@ -326,7 +341,12 @@ export const InventoryTable = () => {
                           </span>
                         </span>
                       </div>
-                      <IconButton iconName="add_shopping_cart" label="Vender" />
+                      <IconButton
+                        iconName="delete"
+                        label={`Excluir ${product.name}`}
+                        filled={false}
+                        onClick={() => setPendingDeleteId(product.id)}
+                      />
                     </div>
                   );
                 })}
@@ -384,8 +404,10 @@ export const InventoryTable = () => {
                             filled={false}
                           />
                           <IconButton
-                            iconName="add_shopping_cart"
-                            label="Vender"
+                            iconName="delete"
+                            label={`Excluir ${product.name}`}
+                            filled={false}
+                            onClick={() => setPendingDeleteId(product.id)}
                           />
                         </span>
                       </div>
@@ -451,6 +473,21 @@ export const InventoryTable = () => {
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Excluir produto?"
+        description={
+          pendingDeleteProduct
+            ? `O produto "${pendingDeleteProduct.name}" (${pendingDeleteProduct.internalCode}) será desativado e não aparecerá mais nas listagens. Essa ação pode ser revertida.`
+            : undefined
+        }
+        confirmLabel="Excluir"
+        tone="danger"
+        isPending={deleteMutation.isPending}
+      />
     </>
   );
 };
