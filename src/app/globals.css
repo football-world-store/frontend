@@ -313,27 +313,31 @@ h6 {
 
 /* Cursor: elementos interativos reais sempre mostram pointer; disabled some.
    Vale para <button>, <a href>, <summary>, [role="button"] e inputs de
-   seleção (checkbox/radio/file). Inputs de texto seguem com caret nativo. */
-button:not(:disabled),
-a[href],
-summary,
-[role="button"]:not([aria-disabled="true"]),
-input[type="button"]:not(:disabled),
-input[type="submit"]:not(:disabled),
-input[type="reset"]:not(:disabled),
-input[type="checkbox"]:not(:disabled),
-input[type="radio"]:not(:disabled),
-input[type="file"]:not(:disabled),
-label[for],
-select:not(:disabled) {
-  cursor: pointer;
-}
+   seleção (checkbox/radio/file). Inputs de texto seguem com caret nativo.
+   Dentro de @layer base para sobrepor o preflight do Tailwind v4 (que zera
+   o cursor de <button> com `cursor: default`). */
+@layer base {
+  button:not(:disabled),
+  a[href],
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  label[for],
+  select:not(:disabled) {
+    cursor: pointer;
+  }
 
-button:disabled,
-[role="button"][aria-disabled="true"],
-input:disabled,
-select:disabled {
-  cursor: not-allowed;
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
 }
 
 /* Focus ring global — acessibilidade sem ser feio */
