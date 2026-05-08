@@ -120,7 +120,7 @@ const DashboardPage = () => {
             title="Alertas de estoque crítico"
             description="Itens que precisam de reposição imediata"
             action={
-              <span className="font-label text-xs uppercase tracking-wider text-primary">
+              <span className="font-label text-xs uppercase tracking-wider text-error">
                 {alertsCountQuery.data?.critical ?? 0} críticos
               </span>
             }

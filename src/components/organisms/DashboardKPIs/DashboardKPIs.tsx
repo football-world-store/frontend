@@ -28,21 +28,25 @@ export const DashboardKPIs = () => {
       label: "Receita total",
       value: formatPriceFromReais(data.sales.totalAmount),
       iconName: "payments",
+      hero: true,
     },
     {
       label: "Total de vendas",
       value: data.sales.count.toString(),
       iconName: "shopping_cart",
+      hero: false,
     },
     {
       label: "Ticket médio",
       value: formatPriceFromReais(data.sales.averageTicket),
       iconName: "receipt_long",
+      hero: false,
     },
     {
       label: "Em estoque",
       value: data.stock.totalItems.toLocaleString("pt-BR"),
       iconName: "inventory_2",
+      hero: false,
     },
   ];
 
@@ -54,6 +58,7 @@ export const DashboardKPIs = () => {
           label={tile.label}
           value={tile.value}
           iconName={tile.iconName}
+          hero={tile.hero}
         />
       ))}
     </section>
