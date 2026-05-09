@@ -54,7 +54,7 @@ export const CustomersList = () => {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const customers: Customer[] = (data as { items?: Customer[] })?.items ?? [];
+  const customers: Customer[] = data?.items ?? [];
 
   const ranking = useMemo(
     () =>
@@ -176,6 +176,8 @@ export const CustomersList = () => {
             <Button
               onClick={() => setIsModalOpen(true)}
               className="w-full md:w-auto"
+              disabled
+              title="Cadastro de clientes em desenvolvimento no backend"
             >
               <Icon name="add" size="sm" />
               Novo cliente
@@ -223,8 +225,8 @@ export const CustomersList = () => {
           {filtered.length === 0 ? (
             <EmptyState
               iconName="groups"
-              title="Sem clientes"
-              description="Cadastre o primeiro cliente para começar."
+              title="Cadastro de clientes em breve"
+              description="A integração de clientes ainda está em desenvolvimento no backend. Por enquanto, registre vendas avulsas no PDV."
             />
           ) : (
             <ul className="space-y-2">

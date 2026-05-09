@@ -1,36 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { queryKeys } from "@/constants";
-import { customersService } from "@/services";
-
-// TODO: Backend endpoint POST /customers não está implementado ainda
-// Descomente quando o backend implementar o endpoint
-/*
-export const useCreateCustomerMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: customersService.create,
-    onSuccess: () => {
-      toast.success("Cliente cadastrado com sucesso.");
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
-    },
-  });
-};
-*/
-
-// Versão mockada para desenvolvimento
-export const useCreateCustomerMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
+// O backend ainda não expõe POST /customers. Este hook fica como
+// placeholder para preservar a API do CustomerForm; troque a mutationFn
+// por `customersService.create` quando o endpoint estiver pronto.
+export const useCreateCustomerMutation = () =>
+  useMutation({
     mutationFn: async () => {
       toast.info(
-        "Endpoint de criação de clientes ainda não foi implementado no backend.",
+        "Cadastro de clientes ainda não está disponível. Aguardando o backend.",
       );
-      return {};
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+      throw new Error("customers backend not implemented");
     },
   });
-};
