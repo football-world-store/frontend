@@ -87,12 +87,16 @@ export const InventoryTable = () => {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
   const products = data?.items ?? [];
   const deleteMutation = useDeleteProductMutation();
 
   const pendingDeleteProduct = pendingDeleteId
     ? (products.find((p) => p.id === pendingDeleteId) ?? null)
+    : null;
+  const editingProduct = editingProductId
+    ? (products.find((p) => p.id === editingProductId) ?? null)
     : null;
 
   const handleConfirmDelete = () => {
@@ -341,12 +345,20 @@ export const InventoryTable = () => {
                           </span>
                         </span>
                       </div>
-                      <IconButton
-                        iconName="delete"
-                        label={`Excluir ${product.name}`}
-                        filled={false}
-                        onClick={() => setPendingDeleteId(product.id)}
-                      />
+                      <div className="flex flex-col gap-1">
+                        <IconButton
+                          iconName="edit"
+                          label={`Editar ${product.name}`}
+                          filled={false}
+                          onClick={() => setEditingProductId(product.id)}
+                        />
+                        <IconButton
+                          iconName="delete"
+                          label={`Excluir ${product.name}`}
+                          filled={false}
+                          onClick={() => setPendingDeleteId(product.id)}
+                        />
+                      </div>
                     </div>
                   );
                 })}
@@ -400,8 +412,9 @@ export const InventoryTable = () => {
                         <span className="col-span-1 flex justify-end gap-1">
                           <IconButton
                             iconName="edit"
-                            label="Editar"
+                            label={`Editar ${product.name}`}
                             filled={false}
+                            onClick={() => setEditingProductId(product.id)}
                           />
                           <IconButton
                             iconName="delete"
@@ -472,6 +485,26 @@ export const InventoryTable = () => {
           onSuccess={() => setIsModalOpen(false)}
           onCancel={() => setIsModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={editingProduct !== null}
+        onClose={() => setEditingProductId(null)}
+        title="Editar produto"
+        description={
+          editingProduct
+            ? `${editingProduct.name} (${editingProduct.internalCode})`
+            : undefined
+        }
+        size="xl"
+      >
+        {editingProduct ? (
+          <ProductForm
+            product={editingProduct}
+            onSuccess={() => setEditingProductId(null)}
+            onCancel={() => setEditingProductId(null)}
+          />
+        ) : null}
       </Modal>
 
       <ConfirmDialog

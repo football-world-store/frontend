@@ -9,6 +9,7 @@ import { Button, Icon, Spinner } from "@/components/atoms";
 import { FormField, SelectField } from "@/components/molecules";
 import {
   useCreateProductMutation,
+  useUpdateProductMutation,
   useUploadProductPhotoMutation,
 } from "@/hooks/mutations";
 import {
@@ -17,10 +18,12 @@ import {
   type ProductFormInput,
   type ProductFormValues,
 } from "@/lib/validations";
+import type { Product } from "@/types";
 
 interface ProductFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  product?: Product;
 }
 
 type ProductErrors = ReturnType<
@@ -49,19 +52,40 @@ const PRODUCT_FORM_DEFAULTS: ProductFormInput = {
   minStock: 0,
 };
 
-export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
-  const mutation = useCreateProductMutation();
+const buildDefaultsFromProduct = (product: Product): ProductFormInput => ({
+  name: product.name,
+  clubOrBrand: product.clubOrBrand,
+  category: product.category,
+  size: product.size,
+  costPrice: product.costPrice ?? 0,
+  salePrice: product.salePrice,
+  initialQuantity: product.quantity,
+  minStock: product.minStock,
+});
+
+export const ProductForm = ({
+  onSuccess,
+  onCancel,
+  product,
+}: ProductFormProps) => {
+  const isEditing = Boolean(product);
+  const createMutation = useCreateProductMutation();
+  const updateMutation = useUpdateProductMutation();
   const uploadMutation = useUploadProductPhotoMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    product?.photoUrl ?? null,
+  );
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormInput, unknown, ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: PRODUCT_FORM_DEFAULTS,
+    defaultValues: product
+      ? buildDefaultsFromProduct(product)
+      : PRODUCT_FORM_DEFAULTS,
   });
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,25 +107,41 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
   };
 
   const onSubmit = handleSubmit(async (values) => {
-    const created = await mutation.mutateAsync(values);
+    const saved = isEditing
+      ? await updateMutation.mutateAsync({
+          id: product!.id,
+          name: values.name,
+          clubOrBrand: values.clubOrBrand,
+          category: values.category,
+          size: values.size,
+          costPrice: values.costPrice,
+          salePrice: values.salePrice,
+          minStock: values.minStock,
+        })
+      : await createMutation.mutateAsync(values);
     if (pendingPhoto) {
       try {
         await uploadMutation.mutateAsync({
-          id: created.id,
+          id: saved.id,
           file: pendingPhoto,
         });
       } catch {
-        // Toast já é exibido pelo interceptor; o produto foi criado mesmo assim.
+        // Toast já é exibido pelo interceptor; o produto foi salvo mesmo assim.
       }
     }
     setPendingPhoto(null);
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    if (photoPreview && photoPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(photoPreview);
+    }
     setPhotoPreview(null);
     onSuccess?.();
   });
 
   const isPending =
-    mutation.isPending || uploadMutation.isPending || isSubmitting;
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    uploadMutation.isPending ||
+    isSubmitting;
   const errorMessages = extractErrorMessages(errors);
 
   return (
@@ -187,13 +227,15 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
           error={errorMessages.size}
           {...register("size")}
         />
-        <FormField
-          label="Quantidade inicial"
-          type="number"
-          min={0}
-          error={errorMessages.initialQuantity}
-          {...register("initialQuantity")}
-        />
+        {isEditing ? null : (
+          <FormField
+            label="Quantidade inicial"
+            type="number"
+            min={0}
+            error={errorMessages.initialQuantity}
+            {...register("initialQuantity")}
+          />
+        )}
         <FormField
           label="Estoque mínimo"
           type="number"
@@ -219,7 +261,9 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
         />
       </div>
       <p className="font-label text-xs text-on-surface-variant">
-        O código interno (FWS-XXXX) é gerado automaticamente.
+        {isEditing
+          ? `Código interno: ${product?.internalCode}. A quantidade em estoque só muda via entradas/saídas.`
+          : "O código interno (FWS-XXXX) é gerado automaticamente."}
       </p>
       <div className="flex justify-end gap-3 pt-2">
         {onCancel ? (
@@ -233,6 +277,8 @@ export const ProductForm = ({ onSuccess, onCancel }: ProductFormProps) => {
               <Spinner size="sm" tone="on-primary" />
               Salvando...
             </>
+          ) : isEditing ? (
+            "Salvar alterações"
           ) : (
             "Cadastrar produto"
           )}
