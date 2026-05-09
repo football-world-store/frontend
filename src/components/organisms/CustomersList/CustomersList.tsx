@@ -9,16 +9,16 @@ import {
   Button,
   Icon,
   IconButton,
-  Input,
   Modal,
-  Spinner,
 } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
-import { APP_ROUTES, PRICE_CENTS_MULTIPLIER, VIP_THRESHOLD } from "@/constants";
+import { APP_ROUTES } from "@/constants";
 import { useCustomersQuery } from "@/hooks/queries";
 import type { Customer } from "@/types";
 import { formatCurrencyBRL } from "@/utils";
+
+const PRICE_CENTS_MULTIPLIER = 100;
 
 const STATUS_TONE = {
   ACTIVE: "success",
@@ -33,6 +33,8 @@ const STATUS_LABEL = {
 } as const;
 
 type TabKey = "all" | "active" | "vip";
+
+const VIP_THRESHOLD = 2000;
 
 const matchesTab = (tab: TabKey, customer: Customer): boolean => {
   if (tab === "active") return customer.status === "ACTIVE";
@@ -52,26 +54,34 @@ export const CustomersList = () => {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const customers = data ?? [];
+  const customers: Customer[] = data?.items ?? [];
 
   const ranking = useMemo(
     () =>
-      [...customers].sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 3),
+      [...customers]
+        .sort((a: Customer, b: Customer) => b.totalSpent - a.totalSpent)
+        .slice(0, 3),
     [customers],
   );
 
   const averageTicket = useMemo(() => {
-    const orders = customers.reduce((sum, c) => sum + c.totalOrders, 0);
+    const orders = customers.reduce(
+      (sum: number, c: Customer) => sum + c.totalOrders,
+      0,
+    );
     if (orders === 0) return 0;
-    const spent = customers.reduce((sum, c) => sum + c.totalSpent, 0);
+    const spent = customers.reduce(
+      (sum: number, c: Customer) => sum + c.totalSpent,
+      0,
+    );
     return spent / orders;
   }, [customers]);
 
   const filtered = useMemo(
     () =>
       customers
-        .filter((customer) => matchesTab(tab, customer))
-        .filter((customer) =>
+        .filter((customer: Customer) => matchesTab(tab, customer))
+        .filter((customer: Customer) =>
           search
             ? customer.name.toLowerCase().includes(search.toLowerCase())
             : true,
@@ -81,11 +91,28 @@ export const CustomersList = () => {
 
   if (isLoading) {
     return (
-      <Card title="Gestão de Elite">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+          <Card
+            tier="container-highest"
+            title="Ranking de Elite"
+            description="Top 3 do faturamento"
+          >
+            <SkeletonListRow count={3} withAvatar />
+          </Card>
+          <Card title="Ticket médio mensal">
+            <SkeletonListRow count={1} withTrailingValue={false} />
+          </Card>
         </div>
-      </Card>
+        <Card
+          className="lg:col-span-2"
+          tier="container-high"
+          title="Gestão de Elite"
+          description="Controle de performance e ranking de clientes."
+        >
+          <SkeletonListRow count={6} withAvatar />
+        </Card>
+      </div>
     );
   }
 
@@ -146,7 +173,12 @@ export const CustomersList = () => {
           title="Gestão de Elite"
           description="Controle de performance e ranking de clientes."
           action={
-            <Button type="button" onClick={() => setIsModalOpen(true)}>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full md:w-auto"
+              disabled
+              title="Cadastro de clientes em desenvolvimento no backend"
+            >
               <Icon name="add" size="sm" />
               Novo cliente
             </Button>
@@ -180,12 +212,12 @@ export const CustomersList = () => {
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
                 <Icon name="search" size="sm" />
               </span>
-              <Input
+              <input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar cliente..."
-                className="pl-11 h-10"
+                className="w-full h-10 pl-11 pr-4 rounded-xl bg-surface-container-lowest text-on-surface text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
               />
             </div>
           </div>
@@ -193,62 +225,80 @@ export const CustomersList = () => {
           {filtered.length === 0 ? (
             <EmptyState
               iconName="groups"
-              title="Sem clientes"
-              description="Cadastre o primeiro cliente para começar."
+              title="Cadastro de clientes em breve"
+              description="A integração de clientes ainda está em desenvolvimento no backend. Por enquanto, registre vendas avulsas no PDV."
             />
           ) : (
             <ul className="space-y-2">
-              {filtered.map((customer) => {
+              {filtered.map((customer: Customer) => {
                 const whatsappLink = buildWhatsappLink(customer.phone);
                 const isVip = customer.totalSpent >= VIP_THRESHOLD;
                 return (
                   <li
                     key={customer.id}
-                    className="bg-surface-container-low rounded-xl px-4 py-3 flex items-center gap-4 hover:bg-surface-bright transition-colors"
+                    className="bg-surface-container-low rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-surface-bright transition-colors"
                   >
                     <Avatar name={customer.name} />
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <Link
                         href={APP_ROUTES.app.customerDetail(customer.id)}
                         className="font-body text-sm font-semibold text-on-surface hover:text-primary transition-colors"
                       >
                         {customer.name}
                       </Link>
-                      <p className="font-label text-xs text-on-surface-variant">
+                      <p className="font-label text-xs text-on-surface-variant truncate">
                         {customer.phone ?? customer.email ?? "Sem contato"}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-label text-xs text-on-surface-variant">
-                        Total gasto
-                      </p>
-                      <p className="font-body text-sm font-semibold text-on-surface">
-                        {formatCurrencyBRL(
-                          customer.totalSpent * PRICE_CENTS_MULTIPLIER,
-                        )}
-                      </p>
+                    <div className="ml-auto flex-shrink-0 flex items-center gap-3">
+                      <div className="text-right hidden sm:block">
+                        <p className="font-label text-xs text-on-surface-variant">
+                          Total gasto
+                        </p>
+                        <p className="font-body text-sm font-semibold text-on-surface">
+                          {formatCurrencyBRL(
+                            customer.totalSpent * PRICE_CENTS_MULTIPLIER,
+                          )}
+                        </p>
+                      </div>
+                      <span className="hidden sm:inline-flex">
+                        <Badge
+                          tone={
+                            STATUS_TONE[
+                              customer.status as keyof typeof STATUS_TONE
+                            ]
+                          }
+                        >
+                          {
+                            STATUS_LABEL[
+                              customer.status as keyof typeof STATUS_LABEL
+                            ]
+                          }
+                        </Badge>
+                      </span>
+                      {isVip ? (
+                        <span className="hidden sm:inline-flex">
+                          <Badge tone="primary">VIP</Badge>
+                        </span>
+                      ) : null}
+                      {whatsappLink ? (
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Conversar no WhatsApp"
+                          className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-focus-gold"
+                        >
+                          <Icon name="forum" size="md" />
+                        </a>
+                      ) : (
+                        <IconButton
+                          iconName="forum"
+                          label="Sem telefone"
+                          disabled
+                        />
+                      )}
                     </div>
-                    <Badge tone={STATUS_TONE[customer.status]}>
-                      {STATUS_LABEL[customer.status]}
-                    </Badge>
-                    {isVip ? <Badge tone="primary">VIP</Badge> : null}
-                    {whatsappLink ? (
-                      <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Conversar no WhatsApp"
-                        className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-tertiary-container text-on-tertiary hover:opacity-90 transition-opacity"
-                      >
-                        <Icon name="forum" size="md" />
-                      </a>
-                    ) : (
-                      <IconButton
-                        iconName="forum"
-                        label="Sem telefone"
-                        disabled
-                      />
-                    )}
                   </li>
                 );
               })}

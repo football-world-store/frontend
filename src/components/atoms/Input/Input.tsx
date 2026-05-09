@@ -9,7 +9,7 @@ const BASE_CLASSES =
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ hasError = false, className = "", ...rest }, ref) => {
-    const errorClasses = hasError ? "ring-2 ring-error/40" : "";
+    const errorClasses = hasError ? "ring-focus-gold" : "";
     return (
       <input
         ref={ref}

@@ -1,8 +1,16 @@
 "use client";
 
-import { Badge, ClawIndicator, Icon, Spinner } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import { useState } from "react";
+
+import { Badge, ClawIndicator, Icon, IconButton } from "@/components/atoms";
+import {
+  Card,
+  ConfirmDialog,
+  EmptyState,
+  SkeletonListRow,
+} from "@/components/molecules";
 import { useAlertsQuery } from "@/hooks/queries";
+import { useResolveAlertMutation } from "@/hooks/mutations";
 
 const SEVERITY_TONE = {
   CRITICAL: "error",
@@ -20,7 +28,20 @@ interface AlertsPanelProps {
 }
 
 export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
-  const { data, isLoading } = useAlertsQuery();
+  const { data: alerts, isLoading } = useAlertsQuery();
+  const resolveMutation = useResolveAlertMutation();
+  const [pendingResolveId, setPendingResolveId] = useState<string | null>(null);
+
+  const pendingAlert =
+    pendingResolveId && alerts
+      ? (alerts.find((alert) => alert.id === pendingResolveId) ?? null)
+      : null;
+
+  const handleConfirmResolve = () => {
+    if (!pendingResolveId) return;
+    resolveMutation.mutate({ id: pendingResolveId });
+    setPendingResolveId(null);
+  };
 
   const wrap = (children: React.ReactNode, props?: { description?: string }) =>
     inline ? (
@@ -32,14 +53,10 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
     );
 
   if (isLoading) {
-    return wrap(
-      <div className="flex justify-center py-12">
-        <Spinner size="lg" />
-      </div>,
-    );
+    return wrap(<SkeletonListRow count={3} withAvatar />);
   }
 
-  if (!data || data.length === 0) {
+  if (!alerts || alerts.length === 0) {
     return wrap(
       <EmptyState
         iconName="notifications_active"
@@ -51,36 +68,74 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
 
   const list = (
     <ul className="space-y-3">
-      {data.map((alert) => (
-        <li
-          key={alert.id}
-          className="flex items-start gap-3 bg-surface-container-low rounded-xl px-4 py-3 border-l-4 border-primary"
-        >
-          <Icon
-            name={alert.severity === "CRITICAL" ? "warning" : "info"}
-            className={
-              alert.severity === "CRITICAL" ? "text-error" : "text-primary"
-            }
-            size="md"
-          />
-          <div className="flex-1 space-y-1">
-            <p className="font-body text-sm font-semibold text-on-surface">
-              {alert.productName ?? alert.message}
-            </p>
-            <p className="font-label text-xs text-on-surface-variant">
-              {alert.message}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
-            <Badge tone={SEVERITY_TONE[alert.severity]}>
-              {TYPE_LABEL[alert.type]}
-            </Badge>
-          </div>
-        </li>
-      ))}
+      {alerts.map((alert) => {
+        const isResolving =
+          resolveMutation.isPending &&
+          resolveMutation.variables?.id === alert.id;
+        return (
+          <li
+            key={alert.id}
+            className={`flex items-start gap-3 rounded-xl px-4 py-4 ${
+              alert.severity === "CRITICAL"
+                ? "bg-error-container/40"
+                : "bg-surface-container-low"
+            }`}
+          >
+            <span
+              className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${
+                alert.severity === "CRITICAL"
+                  ? "bg-error text-on-error"
+                  : "bg-primary-container text-on-primary-container"
+              }`}
+              aria-hidden
+            >
+              <Icon
+                name={alert.severity === "CRITICAL" ? "warning" : "info"}
+                size="md"
+              />
+            </span>
+            <div className="flex-1 space-y-1">
+              <p className="font-body text-sm font-semibold text-on-surface">
+                {alert.productName ?? alert.message}
+              </p>
+              <p className="font-label text-xs text-on-surface-variant">
+                {alert.message}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
+              <Badge tone={SEVERITY_TONE[alert.severity]}>
+                {TYPE_LABEL[alert.type]}
+              </Badge>
+              <IconButton
+                iconName="check"
+                label="Marcar como resolvido"
+                isLoading={isResolving}
+                onClick={() => setPendingResolveId(alert.id)}
+              />
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 
-  return wrap(list, { description: `${data.length} pendentes` });
+  return (
+    <>
+      {wrap(list, { description: `${alerts.length} pendentes` })}
+      <ConfirmDialog
+        isOpen={pendingResolveId !== null}
+        onClose={() => setPendingResolveId(null)}
+        onConfirm={handleConfirmResolve}
+        title="Marcar alerta como resolvido?"
+        description={
+          pendingAlert
+            ? `O alerta "${pendingAlert.productName ?? pendingAlert.message}" sairá da lista de pendentes.`
+            : undefined
+        }
+        confirmLabel="Resolver"
+        isPending={resolveMutation.isPending}
+      />
+    </>
+  );
 };

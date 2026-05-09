@@ -1,9 +1,14 @@
 import { z } from "zod";
 
+import { emailField, nameField, passwordField } from "./shared";
+
+const USER_ROLES = ["OWNER", "EMPLOYEE"] as const;
+
 export const userSchema = z.object({
-  name: z.string().min(2, "Nome obrigatório"),
-  email: z.email("Email inválido"),
-  role: z.enum(["OWNER", "EMPLOYEE"], { error: "Selecione um perfil" }),
+  name: nameField,
+  email: emailField,
+  password: passwordField,
+  role: z.enum(USER_ROLES, { error: "Selecione um perfil" }),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;

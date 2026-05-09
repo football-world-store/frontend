@@ -11,4 +11,5 @@ export * from "./Label";
 export * from "./Logo";
 export * from "./Modal";
 export * from "./Select";
+export * from "./Skeleton";
 export * from "./Spinner";

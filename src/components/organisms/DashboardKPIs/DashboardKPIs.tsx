@@ -1,17 +1,25 @@
 "use client";
 
-import { Spinner } from "@/components/atoms";
+import { Skeleton } from "@/components/atoms";
 import { StatTile } from "@/components/molecules";
-import { useDashboardStatsQuery } from "@/hooks/queries";
+import { DEFAULT_DASHBOARD_PERIOD } from "@/constants";
+import { useDashboardSummaryQuery } from "@/hooks/queries";
+import { formatPriceFromReais } from "@/utils";
+
+const KPI_SKELETON_COUNT = 4;
 
 export const DashboardKPIs = () => {
-  const { data, isLoading, isError } = useDashboardStatsQuery();
+  const { data, isLoading, isError } = useDashboardSummaryQuery(
+    DEFAULT_DASHBOARD_PERIOD,
+  );
 
   if (isLoading) {
     return (
-      <div className="rounded-xl bg-surface-container p-12 flex justify-center">
-        <Spinner size="lg" />
-      </div>
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {Array.from({ length: KPI_SKELETON_COUNT }).map((_, i) => (
+          <Skeleton key={i} className="h-[148px]" />
+        ))}
+      </section>
     );
   }
 
@@ -20,22 +28,41 @@ export const DashboardKPIs = () => {
   }
 
   const tiles = [
-    { stat: data.totalRevenue, icon: "payments" },
-    { stat: data.totalSales, icon: "shopping_cart" },
-    { stat: data.averageTicket, icon: "receipt_long" },
-    { stat: data.productsInStock, icon: "inventory_2" },
+    {
+      label: "Receita total",
+      value: formatPriceFromReais(data.sales.totalAmount),
+      iconName: "payments",
+      hero: true,
+    },
+    {
+      label: "Total de vendas",
+      value: data.sales.count.toString(),
+      iconName: "shopping_cart",
+      hero: false,
+    },
+    {
+      label: "Ticket médio",
+      value: formatPriceFromReais(data.sales.averageTicket),
+      iconName: "receipt_long",
+      hero: false,
+    },
+    {
+      label: "Em estoque",
+      value: data.stock.totalItems.toLocaleString("pt-BR"),
+      iconName: "inventory_2",
+      hero: false,
+    },
   ];
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {tiles.map(({ stat, icon }) => (
+      {tiles.map((tile) => (
         <StatTile
-          key={stat.label}
-          label={stat.label}
-          value={stat.formatted}
-          delta={stat.delta}
-          trend={stat.trend}
-          iconName={icon}
+          key={tile.label}
+          label={tile.label}
+          value={tile.value}
+          iconName={tile.iconName}
+          hero={tile.hero}
         />
       ))}
     </section>

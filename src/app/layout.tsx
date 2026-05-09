@@ -28,16 +28,6 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Football World Store",
   description: "A loja oficial dos torcedores apaixonados.",
-  icons: {
-    icon: [{ url: "/brand/logo-compact.png", type: "image/png" }],
-    shortcut: "/brand/logo-compact.png",
-    apple: "/brand/logo-compact.png",
-  },
-  openGraph: {
-    title: "Football World Store",
-    description: "A loja oficial dos torcedores apaixonados.",
-    images: [{ url: "/brand/logo.png" }],
-  },
 };
 
 interface RootLayoutProps {
@@ -48,7 +38,8 @@ const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html
       lang="pt-BR"
-      className={`dark ${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased`}
     >
       <head>
         {/* next/font não suporta os axes variáveis do Material Symbols. Carregamos via link global no root layout — fica em todas as páginas, não é um custom-font por página. */}

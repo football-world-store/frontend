@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Badge,
@@ -8,17 +8,63 @@ import {
   ClawIndicator,
   Icon,
   IconButton,
-  Input,
   Modal,
   Select,
-  Spinner,
+  type ClawLevel,
 } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
+import {
+  Card,
+  ConfirmDialog,
+  EmptyState,
+  SkeletonCard,
+  SkeletonTableRow,
+} from "@/components/molecules";
 import { ProductForm } from "@/components/organisms/ProductForm";
+import {
+  useDeleteProductMutation,
+  useRestoreProductMutation,
+} from "@/hooks/mutations";
 import { useProductsQuery } from "@/hooks/queries";
-import { useInventoryFilters, stockLevel } from "@/hooks/useInventoryFilters";
-import { formatCurrencyBRL } from "@/utils";
-import { PRICE_CENTS_MULTIPLIER } from "@/constants";
+import type { Product } from "@/types";
+import { formatPriceFromReais } from "@/utils";
+
+const ITEMS_PER_PAGE = 8;
+const STOCK_HEALTHY_MULTIPLIER = 2;
+
+const stockLevel = (product: Product): ClawLevel => {
+  if (product.quantity === 0) return 0;
+  if (product.quantity <= product.minStock) return 1;
+  if (product.quantity <= product.minStock * STOCK_HEALTHY_MULTIPLIER) return 2;
+  return 3;
+};
+
+type FilterStatus = "all" | "healthy" | "critical" | "out";
+
+interface FilterValues {
+  search: string;
+  clubOrBrand: string;
+  size: string;
+  status: FilterStatus;
+}
+
+const matchesSearch = (product: Product, search: string): boolean => {
+  if (!search) return true;
+  return product.name.toLowerCase().includes(search.toLowerCase());
+};
+
+const matchesClubOrBrand = (product: Product, club: string): boolean =>
+  !club || product.clubOrBrand === club;
+
+const matchesSize = (product: Product, size: string): boolean =>
+  !size || product.size === size;
+
+const STATUS_PREDICATES: Record<FilterStatus, (product: Product) => boolean> = {
+  all: () => true,
+  out: (product) => product.quantity === 0,
+  critical: (product) =>
+    product.quantity > 0 && product.quantity <= product.minStock,
+  healthy: (product) => product.quantity > product.minStock,
+};
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Todos status" },
@@ -27,34 +73,105 @@ const STATUS_OPTIONS = [
   { value: "out", label: "Esgotado" },
 ];
 
-export const InventoryTable = () => {
-  const { data, isLoading, isError } = useProductsQuery();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const matchesFilter = (product: Product, filter: FilterValues): boolean =>
+  matchesSearch(product, filter.search) &&
+  matchesClubOrBrand(product, filter.clubOrBrand) &&
+  matchesSize(product, filter.size) &&
+  STATUS_PREDICATES[filter.status](product);
 
-  const products = data ?? [];
-  const {
-    filter,
-    updateFilter,
-    resetFilters,
-    clubOptions,
-    sizeOptions,
-    filtered,
-    pageItems,
-    currentPage,
-    totalPages,
-    setPage,
-    totalStockValue,
-    criticalCount,
-    totalSold,
-  } = useInventoryFilters(products);
+export const InventoryTable = () => {
+  const [includeInactive, setIncludeInactive] = useState(false);
+  const { data, isLoading, isError } = useProductsQuery({ includeInactive });
+  const [filter, setFilter] = useState<FilterValues>({
+    search: "",
+    clubOrBrand: "",
+    size: "",
+    status: "all",
+  });
+  const [page, setPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+
+  const products = data?.items ?? [];
+  const deleteMutation = useDeleteProductMutation();
+  const restoreMutation = useRestoreProductMutation();
+
+  const pendingDeleteProduct = pendingDeleteId
+    ? (products.find((p) => p.id === pendingDeleteId) ?? null)
+    : null;
+  const editingProduct = editingProductId
+    ? (products.find((p) => p.id === editingProductId) ?? null)
+    : null;
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteId) return;
+    deleteMutation.mutate(pendingDeleteId, {
+      onSettled: () => setPendingDeleteId(null),
+    });
+  };
+
+  const clubOptions = useMemo(() => {
+    const list = Array.from(new Set(products.map((p) => p.clubOrBrand)));
+    return [
+      { value: "", label: "Clube / Marca" },
+      ...list.map((club) => ({ value: club, label: club })),
+    ];
+  }, [products]);
+
+  const sizeOptions = useMemo(() => {
+    const list = Array.from(new Set(products.map((p) => p.size)));
+    return [
+      { value: "", label: "Tamanho" },
+      ...list.map((size) => ({ value: size, label: size })),
+    ];
+  }, [products]);
+
+  const filtered = useMemo(
+    () => products.filter((product) => matchesFilter(product, filter)),
+    [products, filter],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  const totalStockValue = products.reduce(
+    (sum, p) => sum + p.salePrice * p.quantity,
+    0,
+  );
+  const criticalCount = products.filter(
+    (p) => p.quantity > 0 && p.quantity <= p.minStock,
+  ).length;
+  const totalSold = products.reduce((sum, p) => sum + p.totalSold, 0);
+
+  const activeFilterCount =
+    (filter.clubOrBrand ? 1 : 0) +
+    (filter.size ? 1 : 0) +
+    (filter.status !== "all" ? 1 : 0);
+
+  const resetFilters = () =>
+    setFilter({ search: "", clubOrBrand: "", size: "", status: "all" });
 
   if (isLoading) {
     return (
-      <Card title="Gestão de Estoque">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+      <div className="space-y-6">
+        <Card
+          tier="container-high"
+          title="Gestão de Estoque"
+          description="Catálogo, filtros e disponibilidade em tempo real."
+        >
+          <SkeletonTableRow count={6} cells={6} />
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SkeletonCard tier="container-highest" bodyLines={1} />
+          <SkeletonCard tier="container-highest" bodyLines={1} />
+          <SkeletonCard tier="container-highest" bodyLines={1} />
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -78,50 +195,131 @@ export const InventoryTable = () => {
           title="Gestão de Estoque"
           description="Catálogo, filtros e disponibilidade em tempo real."
           action={
-            <Button type="button" onClick={() => setIsModalOpen(true)}>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full md:w-auto"
+            >
               <Icon name="add" size="sm" />
               Adicionar produto
             </Button>
           }
         >
-          <div className="flex flex-col md:flex-row gap-3 mb-6">
-            <div className="relative flex-1">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                <Icon name="search" size="sm" />
-              </span>
-              <Input
-                type="search"
-                value={filter.search}
-                onChange={(e) => updateFilter({ search: e.target.value })}
-                placeholder="Filtrar por nome..."
-                className="pl-11"
-              />
+          <div className="mb-6 space-y-3">
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                  <Icon name="search" size="sm" />
+                </span>
+                <input
+                  type="search"
+                  value={filter.search}
+                  onChange={(e) =>
+                    setFilter((prev) => ({ ...prev, search: e.target.value }))
+                  }
+                  placeholder="Filtrar por nome..."
+                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-surface-container-lowest text-on-surface text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
+                />
+              </div>
+              {activeFilterCount > 0 ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={resetFilters}
+                  className="md:hidden"
+                >
+                  Limpar
+                </Button>
+              ) : null}
             </div>
-            <Select
-              options={clubOptions}
-              value={filter.clubOrBrand}
-              onChange={(e) => updateFilter({ clubOrBrand: e.target.value })}
-              className="md:max-w-xs"
-            />
-            <Select
-              options={sizeOptions}
-              value={filter.size}
-              onChange={(e) => updateFilter({ size: e.target.value })}
-              className="md:max-w-[10rem]"
-            />
-            <Select
-              options={STATUS_OPTIONS}
-              value={filter.status}
-              onChange={(e) =>
-                updateFilter({
-                  status: e.target.value as typeof filter.status,
-                })
-              }
-              className="md:max-w-[10rem]"
-            />
-            <Button type="button" variant="ghost" onClick={resetFilters}>
-              Limpar
-            </Button>
+            <details className="md:hidden group">
+              <summary className="flex h-11 cursor-pointer items-center justify-between rounded-xl bg-surface-container-lowest px-4 font-label text-xs uppercase tracking-wider text-on-surface-variant focus-visible:outline-none focus-visible:ring-focus-gold [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-2">
+                  <Icon name="tune" size="sm" />
+                  Filtros
+                  {activeFilterCount > 0 ? (
+                    <Badge tone="primary">{activeFilterCount}</Badge>
+                  ) : null}
+                </span>
+                <Icon
+                  name="expand_more"
+                  size="sm"
+                  className="transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <div className="mt-3 flex flex-col gap-3">
+                <Select
+                  options={clubOptions}
+                  value={filter.clubOrBrand}
+                  onChange={(e) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      clubOrBrand: e.target.value,
+                    }))
+                  }
+                />
+                <Select
+                  options={sizeOptions}
+                  value={filter.size}
+                  onChange={(e) =>
+                    setFilter((prev) => ({ ...prev, size: e.target.value }))
+                  }
+                />
+                <Select
+                  options={STATUS_OPTIONS}
+                  value={filter.status}
+                  onChange={(e) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      status: e.target.value as FilterValues["status"],
+                    }))
+                  }
+                />
+              </div>
+            </details>
+            <div className="hidden md:flex gap-3">
+              <Select
+                options={clubOptions}
+                value={filter.clubOrBrand}
+                onChange={(e) =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    clubOrBrand: e.target.value,
+                  }))
+                }
+                className="md:max-w-xs"
+              />
+              <Select
+                options={sizeOptions}
+                value={filter.size}
+                onChange={(e) =>
+                  setFilter((prev) => ({ ...prev, size: e.target.value }))
+                }
+                className="md:max-w-[10rem]"
+              />
+              <Select
+                options={STATUS_OPTIONS}
+                value={filter.status}
+                onChange={(e) =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    status: e.target.value as FilterValues["status"],
+                  }))
+                }
+                className="md:max-w-[10rem]"
+              />
+              <Button type="button" variant="ghost" onClick={resetFilters}>
+                Limpar
+              </Button>
+            </div>
+            <label className="flex items-center gap-2 font-label text-xs uppercase tracking-wider text-on-surface-variant cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeInactive}
+                onChange={(event) => setIncludeInactive(event.target.checked)}
+                className="h-4 w-4 rounded bg-surface-container-lowest accent-primary focus-visible:outline-none focus-visible:ring-focus-gold"
+              />
+              Incluir produtos inativos
+            </label>
           </div>
 
           {pageItems.length === 0 ? (
@@ -131,78 +329,146 @@ export const InventoryTable = () => {
               description="Ajuste os filtros ou cadastre um novo produto."
             />
           ) : (
-            <div className="rounded-xl overflow-x-auto">
-              <table className="w-full min-w-[48rem]">
-                <thead>
-                  <tr className="font-label uppercase tracking-wider text-xs text-on-surface-variant">
-                    <th className="text-left px-4 py-2 font-medium">Produto</th>
-                    <th className="text-left px-4 py-2 font-medium">Clube</th>
-                    <th className="text-left px-4 py-2 font-medium">Tam.</th>
-                    <th className="text-left px-4 py-2 font-medium">Categ.</th>
-                    <th className="text-left px-4 py-2 font-medium">Qtd.</th>
-                    <th className="text-right px-4 py-2 font-medium">Preço</th>
-                    <th className="text-right px-4 py-2 font-medium">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <>
+              <div className="md:hidden flex flex-col gap-2 rounded-xl overflow-hidden">
+                {pageItems.map((product, index) => {
+                  const level = stockLevel(product);
+                  return (
+                    <div
+                      key={product.id}
+                      className={`flex items-start gap-3 px-4 py-3 ${
+                        index % 2 === 0
+                          ? "bg-surface-container-low"
+                          : "bg-surface-container"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <span className="block font-body text-sm font-semibold text-on-surface truncate">
+                          {product.name}
+                        </span>
+                        <span className="block font-label text-xs text-on-surface-variant">
+                          {product.internalCode} · {product.clubOrBrand} ·{" "}
+                          {product.size}
+                        </span>
+                        <span className="flex items-center gap-2 font-body text-sm font-semibold text-on-surface">
+                          <ClawIndicator level={level} />
+                          {product.quantity} un.
+                          <span className="text-on-surface-variant">·</span>
+                          <span className="text-primary">
+                            {formatPriceFromReais(product.salePrice)}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <IconButton
+                          iconName="edit"
+                          label={`Editar ${product.name}`}
+                          filled={false}
+                          onClick={() => setEditingProductId(product.id)}
+                        />
+                        {product.isActive ? (
+                          <IconButton
+                            iconName="delete"
+                            label={`Excluir ${product.name}`}
+                            filled={false}
+                            onClick={() => setPendingDeleteId(product.id)}
+                          />
+                        ) : (
+                          <IconButton
+                            iconName="restore_from_trash"
+                            label={`Restaurar ${product.name}`}
+                            filled={false}
+                            isLoading={
+                              restoreMutation.isPending &&
+                              restoreMutation.variables === product.id
+                            }
+                            onClick={() => restoreMutation.mutate(product.id)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="hidden md:block overflow-x-auto -mx-4 md:mx-0">
+                <div className="min-w-[640px] rounded-xl overflow-hidden">
+                  <div className="grid grid-cols-12 px-4 py-2 font-label uppercase tracking-wider text-xs text-on-surface-variant gap-2">
+                    <span className="col-span-3">Produto</span>
+                    <span className="col-span-2">Clube</span>
+                    <span className="col-span-1">Tam.</span>
+                    <span className="col-span-2">Categ.</span>
+                    <span className="col-span-1">Qtd.</span>
+                    <span className="col-span-2 text-right">Preço</span>
+                    <span className="col-span-1 text-right">Ações</span>
+                  </div>
                   {pageItems.map((product, index) => {
                     const level = stockLevel(product);
                     return (
-                      <tr
+                      <div
                         key={product.id}
-                        className={`transition-colors hover:bg-surface-bright ${
+                        className={`grid grid-cols-12 items-center px-4 py-4 gap-2 transition-colors hover:bg-surface-bright ${
                           index % 2 === 0
                             ? "bg-surface-container-low"
                             : "bg-surface-container"
                         }`}
                       >
-                        <td className="px-4 py-4">
-                          <span className="block font-body text-sm font-semibold text-on-surface">
+                        <span className="col-span-3 font-body text-sm text-on-surface">
+                          <span className="block font-semibold">
                             {product.name}
                           </span>
                           <span className="block font-label text-xs text-on-surface-variant">
                             {product.internalCode}
                           </span>
-                        </td>
-                        <td className="px-4 py-4 font-body text-sm text-on-surface">
+                        </span>
+                        <span className="col-span-2 font-body text-sm text-on-surface">
                           {product.clubOrBrand}
-                        </td>
-                        <td className="px-4 py-4 font-body text-sm text-on-surface">
+                        </span>
+                        <span className="col-span-1 font-body text-sm text-on-surface">
                           {product.size}
-                        </td>
-                        <td className="px-4 py-4">
+                        </span>
+                        <span className="col-span-2">
                           <Badge>{product.category}</Badge>
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className="flex items-center gap-2 font-body text-sm font-semibold text-on-surface">
-                            {product.quantity}
-                            <ClawIndicator level={level} />
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 font-body text-sm text-on-surface text-right">
-                          {formatCurrencyBRL(
-                            product.salePrice * PRICE_CENTS_MULTIPLIER,
-                          )}
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className="flex justify-end gap-1">
+                        </span>
+                        <span className="col-span-1 flex items-center gap-2 font-body text-sm font-semibold text-on-surface">
+                          {product.quantity}
+                          <ClawIndicator level={level} />
+                        </span>
+                        <span className="col-span-2 font-body text-sm text-on-surface text-right">
+                          {formatPriceFromReais(product.salePrice)}
+                        </span>
+                        <span className="col-span-1 flex justify-end gap-1">
+                          <IconButton
+                            iconName="edit"
+                            label={`Editar ${product.name}`}
+                            filled={false}
+                            onClick={() => setEditingProductId(product.id)}
+                          />
+                          {product.isActive ? (
                             <IconButton
-                              iconName="edit"
-                              label="Editar"
+                              iconName="delete"
+                              label={`Excluir ${product.name}`}
                               filled={false}
+                              onClick={() => setPendingDeleteId(product.id)}
                             />
+                          ) : (
                             <IconButton
-                              iconName="add_shopping_cart"
-                              label="Vender"
+                              iconName="restore_from_trash"
+                              label={`Restaurar ${product.name}`}
+                              filled={false}
+                              isLoading={
+                                restoreMutation.isPending &&
+                                restoreMutation.variables === product.id
+                              }
+                              onClick={() => restoreMutation.mutate(product.id)}
                             />
-                          </span>
-                        </td>
-                      </tr>
+                          )}
+                        </span>
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            </>
           )}
 
           <footer className="flex items-center justify-between pt-4">
@@ -232,7 +498,7 @@ export const InventoryTable = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card tier="container-highest" title="Valor total em estoque">
             <strong className="font-headline text-2xl font-extrabold text-primary">
-              {formatCurrencyBRL(totalStockValue)}
+              {formatPriceFromReais(totalStockValue)}
             </strong>
           </Card>
           <Card tier="container-highest" title="Itens em crítico">
@@ -260,6 +526,41 @@ export const InventoryTable = () => {
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <Modal
+        isOpen={editingProduct !== null}
+        onClose={() => setEditingProductId(null)}
+        title="Editar produto"
+        description={
+          editingProduct
+            ? `${editingProduct.name} (${editingProduct.internalCode})`
+            : undefined
+        }
+        size="xl"
+      >
+        {editingProduct ? (
+          <ProductForm
+            product={editingProduct}
+            onSuccess={() => setEditingProductId(null)}
+            onCancel={() => setEditingProductId(null)}
+          />
+        ) : null}
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Excluir produto?"
+        description={
+          pendingDeleteProduct
+            ? `O produto "${pendingDeleteProduct.name}" (${pendingDeleteProduct.internalCode}) será desativado e não aparecerá mais nas listagens. Essa ação pode ser revertida.`
+            : undefined
+        }
+        confirmLabel="Excluir"
+        tone="danger"
+        isPending={deleteMutation.isPending}
+      />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { apiClient, API_ROUTES } from "@/services/api";
 import type {
-  ApiEnvelope,
   AuthUser,
+  ApiEnvelope,
   ForgotPasswordRequest,
   LoginRequest,
   LoginResponseData,
@@ -21,11 +21,8 @@ export const authService = {
     await apiClient.post(API_ROUTES.auth.logout);
   },
 
-  me: async (): Promise<AuthUser> => {
-    const { data } = await apiClient.get<ApiEnvelope<AuthUser>>(
-      API_ROUTES.auth.me,
-    );
-    return data.data;
+  refresh: async (): Promise<void> => {
+    await apiClient.post(API_ROUTES.auth.refresh);
   },
 
   forgotPassword: async (body: ForgotPasswordRequest): Promise<void> => {
@@ -34,5 +31,9 @@ export const authService = {
 
   resetPassword: async (body: ResetPasswordRequest): Promise<void> => {
     await apiClient.post(API_ROUTES.auth.resetPassword, body);
+  },
+
+  clearSessions: async (): Promise<void> => {
+    await apiClient.post(API_ROUTES.auth.clearSessions);
   },
 };

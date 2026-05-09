@@ -10,6 +10,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isSigningOut: boolean;
   signOut: () => void;
 }
 
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       user: meQuery.data ?? null,
       isAuthenticated: Boolean(meQuery.data),
       isLoading: meQuery.isPending,
+      isSigningOut: logoutMutation.isPending,
       signOut: () => logoutMutation.mutate(),
     }),
     [meQuery.data, meQuery.isPending, logoutMutation],

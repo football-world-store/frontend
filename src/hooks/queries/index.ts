@@ -1,4 +1,5 @@
 export * from "./useAlertsQuery";
+export * from "./useAuditLogsQuery";
 export * from "./useCustomersQuery";
 export * from "./useDashboardQuery";
 export * from "./useMeQuery";

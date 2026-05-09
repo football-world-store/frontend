@@ -2,22 +2,98 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button, Spinner } from "@/components/atoms";
-import { FormField, SelectField } from "@/components/molecules";
-import { useCreateUserMutation } from "@/hooks/mutations";
+import { FormField, PasswordField, SelectField } from "@/components/molecules";
+import {
+  useCreateUserMutation,
+  useUpdateUserMutation,
+} from "@/hooks/mutations";
 import {
   USER_ROLE_OPTIONS,
   userSchema,
   type UserFormValues,
 } from "@/lib/validations";
+import type { SystemUser } from "@/types";
 
 interface UserFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  user?: SystemUser;
 }
 
-export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
+const editUserSchema = userSchema.omit({ password: true });
+type EditUserFormValues = z.infer<typeof editUserSchema>;
+
+const CreateUserFields = ({
+  register,
+  errors,
+}: {
+  register: ReturnType<typeof useForm<UserFormValues>>["register"];
+  errors: ReturnType<typeof useForm<UserFormValues>>["formState"]["errors"];
+}) => (
+  <>
+    <FormField
+      label="Nome"
+      placeholder="Nome completo"
+      error={errors.name?.message}
+      {...register("name")}
+    />
+    <FormField
+      label="Email"
+      type="email"
+      placeholder="email@footballworld.com"
+      error={errors.email?.message}
+      {...register("email")}
+    />
+    <PasswordField
+      label="Senha provisória"
+      autoComplete="new-password"
+      placeholder="Mínimo 8 caracteres"
+      error={errors.password?.message}
+      {...register("password")}
+    />
+    <SelectField
+      label="Perfil"
+      options={USER_ROLE_OPTIONS}
+      error={errors.role?.message}
+      {...register("role")}
+    />
+  </>
+);
+
+const EditUserFields = ({
+  register,
+  errors,
+}: {
+  register: ReturnType<typeof useForm<EditUserFormValues>>["register"];
+  errors: ReturnType<typeof useForm<EditUserFormValues>>["formState"]["errors"];
+}) => (
+  <>
+    <FormField
+      label="Nome"
+      placeholder="Nome completo"
+      error={errors.name?.message}
+      {...register("name")}
+    />
+    <FormField
+      label="Email"
+      type="email"
+      placeholder="email@footballworld.com"
+      error={errors.email?.message}
+      {...register("email")}
+    />
+    <SelectField
+      label="Perfil"
+      options={USER_ROLE_OPTIONS}
+      error={errors.role?.message}
+      {...register("role")}
+    />
+  </>
+);
+
+const CreateUserForm = ({ onSuccess, onCancel }: UserFormProps) => {
   const mutation = useCreateUserMutation();
   const {
     register,
@@ -25,7 +101,7 @@ export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: { name: "", email: "", role: "EMPLOYEE" },
+    defaultValues: { name: "", email: "", password: "", role: "EMPLOYEE" },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -37,45 +113,96 @@ export const UserForm = ({ onSuccess, onCancel }: UserFormProps) => {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
-      <FormField
-        label="Nome"
-        placeholder="Nome completo"
-        error={errors.name?.message}
-        {...register("name")}
-      />
-      <FormField
-        label="Email"
-        type="email"
-        placeholder="email@footballworld.com"
-        error={errors.email?.message}
-        {...register("email")}
-      />
-      <SelectField
-        label="Perfil"
-        options={USER_ROLE_OPTIONS}
-        error={errors.role?.message}
-        {...register("role")}
-      />
+      <CreateUserFields register={register} errors={errors} />
       <p className="font-label text-xs text-on-surface-variant">
-        O usuário receberá um email do AWS Cognito para definir a senha.
+        O usuário poderá trocar a senha após o primeiro acesso.
       </p>
-      <div className="flex justify-end gap-3 pt-2">
-        {onCancel ? (
-          <Button type="button" variant="secondary" onClick={onCancel}>
-            Cancelar
-          </Button>
-        ) : null}
-        <Button type="submit" disabled={isPending}>
-          {isPending ? (
-            <>
-              <Spinner size="sm" tone="on-primary" />
-              Criando...
-            </>
-          ) : (
-            "Criar usuário"
-          )}
-        </Button>
-      </div>
+      <FormFooter
+        onCancel={onCancel}
+        isPending={isPending}
+        submitLabel="Criar usuário"
+        pendingLabel="Criando..."
+      />
     </form>
   );
+};
+
+const EditUserForm = ({
+  onSuccess,
+  onCancel,
+  user,
+}: UserFormProps & { user: SystemUser }) => {
+  const mutation = useUpdateUserMutation();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EditUserFormValues>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
+
+  const onSubmit = handleSubmit(async (values) => {
+    await mutation.mutateAsync({ id: user.id, ...values });
+    onSuccess?.();
+  });
+
+  const isPending = mutation.isPending || isSubmitting;
+
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
+      <EditUserFields register={register} errors={errors} />
+      <FormFooter
+        onCancel={onCancel}
+        isPending={isPending}
+        submitLabel="Salvar alterações"
+        pendingLabel="Salvando..."
+      />
+    </form>
+  );
+};
+
+interface FormFooterProps {
+  onCancel?: () => void;
+  isPending: boolean;
+  submitLabel: string;
+  pendingLabel: string;
+}
+
+const FormFooter = ({
+  onCancel,
+  isPending,
+  submitLabel,
+  pendingLabel,
+}: FormFooterProps) => (
+  <div className="flex justify-end gap-3 pt-2">
+    {onCancel ? (
+      <Button type="button" variant="secondary" onClick={onCancel}>
+        Cancelar
+      </Button>
+    ) : null}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? (
+        <>
+          <Spinner size="sm" tone="on-primary" />
+          {pendingLabel}
+        </>
+      ) : (
+        submitLabel
+      )}
+    </Button>
+  </div>
+);
+
+export const UserForm = ({ onSuccess, onCancel, user }: UserFormProps) => {
+  if (user) {
+    return (
+      <EditUserForm user={user} onSuccess={onSuccess} onCancel={onCancel} />
+    );
+  }
+  return <CreateUserForm onSuccess={onSuccess} onCancel={onCancel} />;
 };

@@ -24,9 +24,13 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
     defaultValues: { name: "", phone: "", email: "", notes: "" },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    await mutation.mutateAsync(values);
-    onSuccess?.();
+  const onSubmit = handleSubmit(async () => {
+    try {
+      await mutation.mutateAsync();
+      onSuccess?.();
+    } catch {
+      // Backend ainda não suporta criação — mensagem já foi exibida via toast.
+    }
   });
 
   const isPending = mutation.isPending || isSubmitting;

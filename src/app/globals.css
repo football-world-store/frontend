@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(:not(.light), :not(.light) *));
 
 /* =============================================================================
    FOOTBALL WORLD STORE — Design Tokens
@@ -103,6 +104,10 @@
 
   /* ---------- Backdrop blur (Glass Rule, DESIGN.md §2) ---------- */
   --blur-glass: 1.25rem; /* 20px @ 16px base */
+
+  /* ---------- Utilities que dependem de valores de tema ---------- */
+  --color-glass-bg: rgb(57 57 57 / 0.8);
+  --color-ghost-border: rgb(77 70 53 / 0.15);
 }
 
 /* =============================================================================
@@ -179,12 +184,98 @@
 }
 
 /* =============================================================================
-   Reset / base — dark-first SEMPRE (não usa prefers-color-scheme)
+   Light mode — tokens sobrescritos quando next-themes aplica class="light"
+   ========================================================================== */
+html.light {
+  color-scheme: light;
+
+  /* Surfaces: branco limpo com separação sutil entre tiers */
+  --color-background: #f8f7f4;
+  --color-surface: #f8f7f4;
+  --color-surface-dim: #eeece8;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f0ec;
+  --color-surface-container: #eceae6;
+  --color-surface-container-high: #e4e2dd;
+  --color-surface-container-highest: #dbd9d4;
+  --color-surface-variant: #e8e5e0;
+  --color-surface-tint: #8b6914;
+
+  /* Texto: preto quente de alta legibilidade */
+  --color-on-background: #1c1b18;
+  --color-on-surface: #1c1b18;
+  --color-on-surface-variant: #504e49;
+  --color-inverse-surface: #32302c;
+  --color-inverse-on-surface: #f5f3ef;
+
+  /* Primary: dourado escuro — ratio ~5.2:1 sobre branco (WCAG AA) */
+  --color-primary: #8b6914;
+  --color-primary-container: #f2ca50;
+  --color-primary-fixed: #f9df8a;
+  --color-primary-fixed-dim: #f2ca50;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #2c1f00;
+  --color-inverse-primary: #f2ca50;
+
+  /* Gradiente metálico no light: dourado escuro → médio */
+  --gradient-primary-metallic: linear-gradient(45deg, #8b6914 0%, #b8860b 100%);
+  --gradient-primary-metallic-hover: linear-gradient(
+    225deg,
+    #8b6914 0%,
+    #b8860b 100%
+  );
+
+  /* Secondary: neutros warm legíveis */
+  --color-secondary: #5c5a55;
+  --color-secondary-container: #e4e1db;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #1a1916;
+  --color-secondary-fixed: #e4e2e1;
+  --color-secondary-fixed-dim: #c8c6c5;
+
+  /* Tertiary: azul escuro para acentos */
+  --color-tertiary: #1a4ab5;
+  --color-tertiary-container: #dce5ff;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #001849;
+
+  /* Error: vermelho escuro legível */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #410002;
+
+  /* Outlines */
+  --color-outline: #79776f;
+  --color-outline-variant: #cac7bf;
+
+  /* Tertiary: corrige combinação container/on-tertiary para badges */
+  --color-on-tertiary-container: #0a2e5c;
+
+  /* Secondary fixed: corrige badge warning no light */
+  --color-primary-fixed-dim: #c9a000;
+  --color-on-primary-fixed: #ffffff;
+
+  /* Utilities dependentes de tema */
+  --color-glass-bg: rgb(255 255 255 / 0.88);
+  --color-ghost-border: rgb(121 119 111 / 0.2);
+
+  --shadow-ambient: 0 0 2rem 0 rgb(28 27 24 / 0.07);
+  --shadow-glass: 0 0.5rem 2rem 0 rgb(0 0 0 / 0.1);
+  --shadow-focus-gold: 0 0 0 0.25rem rgb(139 105 20 / 0.2);
+}
+
+/* =============================================================================
+   Reset / base
    ========================================================================== */
 html {
   color-scheme: dark;
   background-color: var(--color-surface);
-  /* Prevenção contra flash branco em transições de página */
+}
+
+html.light {
+  color-scheme: light;
 }
 
 body {
@@ -220,6 +311,35 @@ h6 {
   color: var(--color-on-primary);
 }
 
+/* Cursor: elementos interativos reais sempre mostram pointer; disabled some.
+   Vale para <button>, <a href>, <summary>, [role="button"] e inputs de
+   seleção (checkbox/radio/file). Inputs de texto seguem com caret nativo.
+   Dentro de @layer base para sobrepor o preflight do Tailwind v4 (que zera
+   o cursor de <button> com `cursor: default`). */
+@layer base {
+  button:not(:disabled),
+  a[href],
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  label[for],
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+}
+
 /* Focus ring global — acessibilidade sem ser feio */
 :focus-visible {
   outline: 0.125rem solid var(--color-primary);
@@ -247,7 +367,7 @@ h6 {
 }
 
 @utility bg-glass {
-  background-color: rgb(57 57 57 / 0.8); /* surface-bright @ 80% */
+  background-color: var(--color-glass-bg);
   backdrop-filter: blur(var(--blur-glass));
   -webkit-backdrop-filter: blur(var(--blur-glass));
 }
@@ -266,5 +386,5 @@ h6 {
 
 /* Ghost border (DESIGN.md §4) — outline_variant @ 15% opacity */
 @utility border-ghost {
-  border: 0.0625rem solid rgb(77 70 53 / 0.15);
+  border: 0.0625rem solid var(--color-ghost-border);
 }

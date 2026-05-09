@@ -1,30 +1,50 @@
 "use client";
 
-import { Spinner } from "@/components/atoms";
-import { Card, EmptyState } from "@/components/molecules";
-import { useDashboardStatsQuery } from "@/hooks/queries";
-import { formatCurrencyBRL } from "@/utils";
+import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
+import {
+  DEFAULT_DASHBOARD_PERIOD,
+  DEFAULT_DASHBOARD_TOP_LIMIT,
+} from "@/constants";
+import {
+  useDashboardChannelsQuery,
+  useDashboardTopProductsQuery,
+} from "@/hooks/queries";
+import { formatPriceFromReais } from "@/utils";
+
+const TOP_LIST_PARAMS = {
+  ...DEFAULT_DASHBOARD_PERIOD,
+  limit: DEFAULT_DASHBOARD_TOP_LIMIT,
+};
 
 export const InsightsPanel = () => {
-  const { data, isLoading } = useDashboardStatsQuery();
+  const channelsQuery = useDashboardChannelsQuery(DEFAULT_DASHBOARD_PERIOD);
+  const topProductsQuery = useDashboardTopProductsQuery(TOP_LIST_PARAMS);
+
+  const isLoading = channelsQuery.isLoading || topProductsQuery.isLoading;
 
   if (isLoading) {
     return (
-      <Card title="Performance">
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
-        </div>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Vendas por canal" description="Distribuição da receita">
+          <SkeletonListRow count={4} />
+        </Card>
+        <Card title="Top produtos" description="Mais vendidos no período">
+          <SkeletonListRow count={4} />
+        </Card>
+      </div>
     );
   }
 
-  if (!data) {
+  const channels = channelsQuery.data ?? [];
+  const topProducts = topProductsQuery.data ?? [];
+
+  if (channels.length === 0 && topProducts.length === 0) {
     return (
       <Card title="Performance">
         <EmptyState
           iconName="analytics"
           title="Sem dados ainda"
-          description="Os insights de performance aparecerão aqui assim que houver vendas."
+          description="Os insights aparecerão aqui assim que houver vendas."
         />
       </Card>
     );
@@ -34,7 +54,7 @@ export const InsightsPanel = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card title="Vendas por canal" description="Distribuição da receita">
         <ul className="space-y-3">
-          {data.salesByChannel.map((channel) => (
+          {channels.map((channel) => (
             <li
               key={channel.channel}
               className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
@@ -43,7 +63,7 @@ export const InsightsPanel = () => {
                 {channel.channel}
               </span>
               <span className="font-body font-semibold text-on-surface">
-                {formatCurrencyBRL(channel.total * 100)}
+                {formatPriceFromReais(channel.totalAmount)}
               </span>
             </li>
           ))}
@@ -51,21 +71,21 @@ export const InsightsPanel = () => {
       </Card>
       <Card title="Top produtos" description="Mais vendidos no período">
         <ul className="space-y-3">
-          {data.topProducts.map((product) => (
+          {topProducts.map((product) => (
             <li
-              key={product.productId}
+              key={product.id}
               className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
             >
               <div>
                 <p className="font-body text-sm font-semibold text-on-surface">
-                  {product.productName}
+                  {product.name}
                 </p>
                 <p className="font-label text-xs text-on-surface-variant">
-                  {product.soldQuantity} unidades
+                  {product.totalSold} unidades · {product.clubOrBrand}
                 </p>
               </div>
               <span className="font-body font-semibold text-primary">
-                {formatCurrencyBRL(product.revenue * 100)}
+                {formatPriceFromReais(product.totalRevenue)}
               </span>
             </li>
           ))}

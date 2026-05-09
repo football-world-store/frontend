@@ -7,10 +7,13 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  primary: "bg-primary-container text-on-primary",
-  neutral: "bg-surface-container-highest text-on-surface-variant",
-  success: "bg-tertiary-container text-on-tertiary",
-  warning: "bg-primary-fixed-dim text-on-primary-fixed",
+  primary:
+    "bg-primary text-on-primary dark:bg-primary-container dark:text-on-primary-container",
+  neutral:
+    "bg-surface-container-high text-on-surface-variant dark:bg-surface-container-highest dark:text-on-surface-variant",
+  success: "bg-tertiary-container text-on-tertiary-container",
+  warning:
+    "bg-primary-container text-on-primary-container dark:bg-primary-fixed-dim dark:text-on-primary-fixed",
   error: "bg-error-container text-on-error-container",
 };
 

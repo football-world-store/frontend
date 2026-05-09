@@ -23,8 +23,10 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
+  confirmPassword: string;
 }
 
-export interface ApiEnvelope<T> {
-  data: T;
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
