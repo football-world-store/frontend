@@ -9,6 +9,7 @@ import { Button, Icon, Spinner } from "@/components/atoms";
 import { FormField, SelectField } from "@/components/molecules";
 import {
   useCreateProductMutation,
+  useDeleteProductPhotoMutation,
   useUpdateProductMutation,
   useUploadProductPhotoMutation,
 } from "@/hooks/mutations";
@@ -72,6 +73,7 @@ export const ProductForm = ({
   const createMutation = useCreateProductMutation();
   const updateMutation = useUpdateProductMutation();
   const uploadMutation = useUploadProductPhotoMutation();
+  const deletePhotoMutation = useDeleteProductPhotoMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(
@@ -101,9 +103,18 @@ export const ProductForm = ({
 
   const clearPhoto = () => {
     setPendingPhoto(null);
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    if (photoPreview && photoPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(photoPreview);
+    }
     setPhotoPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveExistingPhoto = () => {
+    if (!product) return;
+    deletePhotoMutation.mutate(product.id, {
+      onSuccess: clearPhoto,
+    });
   };
 
   const onSubmit = handleSubmit(async (values) => {
@@ -192,7 +203,16 @@ export const ProductForm = ({
                 onClick={clearPhoto}
                 disabled={isPending}
               >
-                Remover
+                Descartar troca
+              </Button>
+            ) : isEditing && product?.photoUrl && photoPreview ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleRemoveExistingPhoto}
+                disabled={isPending || deletePhotoMutation.isPending}
+              >
+                {deletePhotoMutation.isPending ? "Removendo…" : "Remover foto"}
               </Button>
             ) : (
               <span className="font-label text-xs text-on-surface-variant">

@@ -20,7 +20,10 @@ import {
   SkeletonTableRow,
 } from "@/components/molecules";
 import { ProductForm } from "@/components/organisms/ProductForm";
-import { useDeleteProductMutation } from "@/hooks/mutations";
+import {
+  useDeleteProductMutation,
+  useRestoreProductMutation,
+} from "@/hooks/mutations";
 import { useProductsQuery } from "@/hooks/queries";
 import type { Product } from "@/types";
 import { formatPriceFromReais } from "@/utils";
@@ -77,7 +80,8 @@ const matchesFilter = (product: Product, filter: FilterValues): boolean =>
   STATUS_PREDICATES[filter.status](product);
 
 export const InventoryTable = () => {
-  const { data, isLoading, isError } = useProductsQuery();
+  const [includeInactive, setIncludeInactive] = useState(false);
+  const { data, isLoading, isError } = useProductsQuery({ includeInactive });
   const [filter, setFilter] = useState<FilterValues>({
     search: "",
     clubOrBrand: "",
@@ -91,6 +95,7 @@ export const InventoryTable = () => {
 
   const products = data?.items ?? [];
   const deleteMutation = useDeleteProductMutation();
+  const restoreMutation = useRestoreProductMutation();
 
   const pendingDeleteProduct = pendingDeleteId
     ? (products.find((p) => p.id === pendingDeleteId) ?? null)
@@ -306,6 +311,15 @@ export const InventoryTable = () => {
                 Limpar
               </Button>
             </div>
+            <label className="flex items-center gap-2 font-label text-xs uppercase tracking-wider text-on-surface-variant cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeInactive}
+                onChange={(event) => setIncludeInactive(event.target.checked)}
+                className="h-4 w-4 rounded bg-surface-container-lowest accent-primary focus-visible:outline-none focus-visible:ring-focus-gold"
+              />
+              Incluir produtos inativos
+            </label>
           </div>
 
           {pageItems.length === 0 ? (
@@ -352,12 +366,25 @@ export const InventoryTable = () => {
                           filled={false}
                           onClick={() => setEditingProductId(product.id)}
                         />
-                        <IconButton
-                          iconName="delete"
-                          label={`Excluir ${product.name}`}
-                          filled={false}
-                          onClick={() => setPendingDeleteId(product.id)}
-                        />
+                        {product.isActive ? (
+                          <IconButton
+                            iconName="delete"
+                            label={`Excluir ${product.name}`}
+                            filled={false}
+                            onClick={() => setPendingDeleteId(product.id)}
+                          />
+                        ) : (
+                          <IconButton
+                            iconName="restore_from_trash"
+                            label={`Restaurar ${product.name}`}
+                            filled={false}
+                            isLoading={
+                              restoreMutation.isPending &&
+                              restoreMutation.variables === product.id
+                            }
+                            onClick={() => restoreMutation.mutate(product.id)}
+                          />
+                        )}
                       </div>
                     </div>
                   );
@@ -416,12 +443,25 @@ export const InventoryTable = () => {
                             filled={false}
                             onClick={() => setEditingProductId(product.id)}
                           />
-                          <IconButton
-                            iconName="delete"
-                            label={`Excluir ${product.name}`}
-                            filled={false}
-                            onClick={() => setPendingDeleteId(product.id)}
-                          />
+                          {product.isActive ? (
+                            <IconButton
+                              iconName="delete"
+                              label={`Excluir ${product.name}`}
+                              filled={false}
+                              onClick={() => setPendingDeleteId(product.id)}
+                            />
+                          ) : (
+                            <IconButton
+                              iconName="restore_from_trash"
+                              label={`Restaurar ${product.name}`}
+                              filled={false}
+                              isLoading={
+                                restoreMutation.isPending &&
+                                restoreMutation.variables === product.id
+                              }
+                              onClick={() => restoreMutation.mutate(product.id)}
+                            />
+                          )}
                         </span>
                       </div>
                     );
