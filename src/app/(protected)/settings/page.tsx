@@ -42,6 +42,7 @@ const SettingsPage = () => {
   const [pendingDeleteUserId, setPendingDeleteUserId] = useState<string | null>(
     null,
   );
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [isClearSessionsOpen, setIsClearSessionsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState("pt-BR");
@@ -52,6 +53,9 @@ const SettingsPage = () => {
 
   const pendingDeleteUser = pendingDeleteUserId
     ? (users.find((u) => u.id === pendingDeleteUserId) ?? null)
+    : null;
+  const editingUser = editingUserId
+    ? (users.find((u) => u.id === editingUserId) ?? null)
     : null;
 
   const handleConfirmDeleteUser = () => {
@@ -261,7 +265,12 @@ const SettingsPage = () => {
                   <span className="font-label text-xs text-on-surface-variant">
                     {`Atualizado: ${formatDateBR(systemUser.updatedAt)}`}
                   </span>
-                  <IconButton iconName="edit" label="Editar" filled={false} />
+                  <IconButton
+                    iconName="edit"
+                    label={`Editar ${systemUser.name}`}
+                    filled={false}
+                    onClick={() => setEditingUserId(systemUser.id)}
+                  />
                   {systemUser.id !== user?.id ? (
                     <IconButton
                       iconName="delete"
@@ -288,6 +297,22 @@ const SettingsPage = () => {
           onSuccess={() => setIsUserModalOpen(false)}
           onCancel={() => setIsUserModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={editingUser !== null}
+        onClose={() => setEditingUserId(null)}
+        title="Editar usuário"
+        description={editingUser ? editingUser.email : undefined}
+        size="lg"
+      >
+        {editingUser ? (
+          <UserForm
+            user={editingUser}
+            onSuccess={() => setEditingUserId(null)}
+            onCancel={() => setEditingUserId(null)}
+          />
+        ) : null}
       </Modal>
 
       <Modal
