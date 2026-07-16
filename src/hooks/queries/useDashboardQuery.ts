@@ -69,3 +69,9 @@ export const useDashboardCapitalByClubQuery = () =>
     queryKey: queryKeys.dashboard.capitalByClub(),
     queryFn: dashboardService.capitalByClub,
   });
+
+export const useDashboardClubTrendQuery = (months?: number) =>
+  useQuery({
+    queryKey: queryKeys.dashboard.clubTrend(months),
+    queryFn: () => dashboardService.clubTrend(months),
+  });

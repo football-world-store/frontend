@@ -5,7 +5,10 @@ import type { PaginatedResult } from "@/types";
 
 import { alertsFixture } from "./fixtures/alerts";
 import { customersFixture } from "./fixtures/customers";
-import { dashboardSummaryFixture } from "./fixtures/dashboard";
+import {
+  clubTrendFixture,
+  dashboardSummaryFixture,
+} from "./fixtures/dashboard";
 import { productsFixture } from "./fixtures/products";
 import { salesFixture } from "./fixtures/sales";
 import { stockEntriesFixture } from "./fixtures/stockEntries";
@@ -98,6 +101,7 @@ export const handlers = [
   http.get(`${baseUrl}/dashboard/stock-velocity`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/reorder-list`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/capital-by-club`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/club-trend`, () => envelope(clubTrendFixture)),
   http.get(`${baseUrl}/alerts/count`, () =>
     envelope({ total: 0, critical: 0, informational: 0 }),
   ),

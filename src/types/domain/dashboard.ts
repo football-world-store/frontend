@@ -1,9 +1,5 @@
 export type DashboardPeriodKind =
-  | "TODAY"
-  | "LAST_7_DAYS"
-  | "LAST_30_DAYS"
-  | "CURRENT_MONTH"
-  | "CUSTOM";
+  "TODAY" | "LAST_7_DAYS" | "LAST_30_DAYS" | "CURRENT_MONTH" | "CUSTOM";
 
 export interface DashboardPeriod {
   period: DashboardPeriodKind;
@@ -142,6 +138,17 @@ export interface DashboardCapitalByClub {
   totalCapital: number;
   capitalPercentage: number;
   criticalVariants: number;
+}
+
+export interface DashboardClubTrendPoint {
+  month: string;
+  totalSold: number;
+  totalRevenue: number;
+}
+
+export interface DashboardClubTrend {
+  clubOrBrand: string;
+  points: DashboardClubTrendPoint[];
 }
 
 export type DashboardStockVelocityRisk = "CRITICAL" | "WARNING" | "OK";

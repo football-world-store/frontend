@@ -2,6 +2,7 @@ export * from "./BottomNav";
 export * from "./Card";
 export * from "./ConfirmDialog";
 export * from "./ClubProgressList";
+export * from "./ClubTrendChart";
 export * from "./EmptyState";
 export * from "./FormField";
 export * from "./Header";

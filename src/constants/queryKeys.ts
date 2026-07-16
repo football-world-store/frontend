@@ -86,5 +86,7 @@ export const queryKeys = {
     stockVelocity: () => [...queryKeys.dashboard.all, "stockVelocity"] as const,
     reorderList: () => [...queryKeys.dashboard.all, "reorderList"] as const,
     capitalByClub: () => [...queryKeys.dashboard.all, "capitalByClub"] as const,
+    clubTrend: (months?: number) =>
+      [...queryKeys.dashboard.all, "clubTrend", months ?? null] as const,
   },
 } as const;

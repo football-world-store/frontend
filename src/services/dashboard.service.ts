@@ -3,6 +3,7 @@ import type {
   ApiEnvelope,
   DashboardCapitalByClub,
   DashboardChannel,
+  DashboardClubTrend,
   DashboardIdleProduct,
   DashboardMargins,
   DashboardPaymentMethod,
@@ -54,4 +55,7 @@ export const dashboardService = {
 
   capitalByClub: () =>
     get<DashboardCapitalByClub[]>(API_ROUTES.dashboard.capitalByClub),
+
+  clubTrend: (months?: number) =>
+    get<DashboardClubTrend[]>(API_ROUTES.dashboard.clubTrend, { months }),
 };
