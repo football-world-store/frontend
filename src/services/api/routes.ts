@@ -1,3 +1,5 @@
+const CUSTOMERS_BASE = "/customers";
+
 export const API_ROUTES = {
   auth: {
     login: "/auth/login",
@@ -15,7 +17,9 @@ export const API_ROUTES = {
     find: "/users/find",
     update: "/users",
     delete: "/users",
-    audit: "/users/audit",
+  },
+  audit: {
+    list: "/audit",
   },
   products: {
     list: "/products",
@@ -41,8 +45,15 @@ export const API_ROUTES = {
   },
 
   customers: {
-    list: "/customers",
-    byId: (id: string) => `/customers/${id}`,
+    list: CUSTOMERS_BASE,
+    create: CUSTOMERS_BASE,
+    find: `${CUSTOMERS_BASE}/find`,
+    update: CUSTOMERS_BASE,
+    delete: CUSTOMERS_BASE,
+    export: `${CUSTOMERS_BASE}/export`,
+    purchases: (id: string) => `${CUSTOMERS_BASE}/${id}/purchases`,
+    rankingByAmount: `${CUSTOMERS_BASE}/ranking/by-amount`,
+    rankingByPurchases: `${CUSTOMERS_BASE}/ranking/by-purchases`,
   },
   alerts: {
     list: "/alerts",

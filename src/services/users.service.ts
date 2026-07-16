@@ -6,9 +6,7 @@ import type {
   PaginatedResult,
 } from "@/types";
 import type {
-  AuditLog,
   CreateUserBody,
-  ListAuditLogsParams,
   ListUsersParams,
   SystemUser,
   UpdateUserBody,
@@ -61,14 +59,5 @@ export const usersService = {
 
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(API_ROUTES.users.delete, { data: { id } });
-  },
-
-  audit: async (
-    params?: ListAuditLogsParams,
-  ): Promise<PaginatedResult<AuditLog>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<AuditLog>>
-    >(API_ROUTES.users.audit, { params });
-    return data.data;
   },
 };

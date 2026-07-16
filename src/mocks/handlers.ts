@@ -15,6 +15,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 const HTTP_CREATED = 201;
 const HTTP_NOT_FOUND = 404;
+const CUSTOMER_NOT_FOUND_MESSAGE = "Cliente não encontrado";
 
 const rawBase = ENV.API_URL.replace(/\/$/, "");
 const baseUrl = rawBase.startsWith("/") ? `*${rawBase}` : rawBase;
@@ -136,20 +137,25 @@ export const handlers = [
   // ----- Sales
   http.get(`${baseUrl}/sales`, () => envelope(paginate(salesFixture))),
 
-  // ----- Customers (mock-only por enquanto)
-  http.get(`${baseUrl}/customers`, () => envelope(customers)),
-  http.get(`${baseUrl}/customers/:id`, ({ params }) => {
-    const customer = customers.find((c) => c.id === params.id);
-    return customer ? envelope(customer) : notFound("Cliente não encontrado");
+  // ----- Customers
+  http.get(`${baseUrl}/customers`, () => envelope(paginate(customers))),
+  http.post(`${baseUrl}/customers/find`, async ({ request }) => {
+    const body = (await request.json()) as { id?: string };
+    const customer = customers.find((c) => c.id === body.id);
+    return customer ? envelope(customer) : notFound(CUSTOMER_NOT_FOUND_MESSAGE);
   }),
   http.post(`${baseUrl}/customers`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     const customer = {
       id: generateId("c"),
       name: String(body.name ?? ""),
-      phone: (body.phone as string | null) ?? null,
+      whatsapp: (body.whatsapp as string | null) ?? null,
       email: (body.email as string | null) ?? null,
       status: "ACTIVE" as const,
+      favoriteTeam: (body.favoriteTeam as string | null) ?? null,
+      preferredSizes: (body.preferredSizes as string[] | undefined) ?? [],
+      birthDate: (body.birthDate as string | null) ?? null,
+      notes: (body.notes as string | null) ?? null,
       totalSpent: 0,
       totalOrders: 0,
       lastPurchaseAt: null,
@@ -157,6 +163,22 @@ export const handlers = [
     };
     customers.unshift(customer);
     return HttpResponse.json({ data: customer }, { status: HTTP_CREATED });
+  }),
+  http.patch(`${baseUrl}/customers`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown> & {
+      id: string;
+    };
+    const index = customers.findIndex((c) => c.id === body.id);
+    if (index === -1) return notFound(CUSTOMER_NOT_FOUND_MESSAGE);
+    customers[index] = { ...customers[index], ...body };
+    return envelope(customers[index]);
+  }),
+  http.delete(`${baseUrl}/customers`, async ({ request }) => {
+    const body = (await request.json()) as { id?: string };
+    const index = customers.findIndex((c) => c.id === body.id);
+    if (index === -1) return notFound(CUSTOMER_NOT_FOUND_MESSAGE);
+    customers[index] = { ...customers[index], status: "INACTIVE" };
+    return envelope(customers[index]);
   }),
 
   // ----- Alerts (mock-only por enquanto)

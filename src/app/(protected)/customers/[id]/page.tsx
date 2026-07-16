@@ -63,7 +63,7 @@ const CustomerDetailPage = () => {
           <EmptyState
             iconName="person_off"
             title="Cliente não encontrado"
-            description="A ficha de clientes ainda não está disponível. Aguardando integração do backend."
+            description="Verifique se o link está correto ou volte para a lista de clientes."
           />
         </Card>
       </DashboardLayout>
@@ -103,7 +103,11 @@ const CustomerDetailPage = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-2 md:items-end">
-                <Button variant="secondary" disabled>
+                <Button
+                  variant="secondary"
+                  disabled
+                  title="Edição de cliente ainda não implementada nesta tela"
+                >
                   <Icon name="edit" size="sm" filled={false} />
                   Editar perfil
                 </Button>

@@ -1,0 +1,3486 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso"
+          },
+          "401": {
+            "description": "INVALID_CREDENTIALS"
+          },
+          "403": {
+            "description": "ACCOUNT_INACTIVE"
+          }
+        },
+        "summary": "Autenticar e criar sessão",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Logout realizado"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Invalidar sessão e revogar tokens",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sempre retorna sucesso"
+          }
+        },
+        "summary": "Iniciar recuperação de senha",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Senha redefinida com sucesso"
+          },
+          "400": {
+            "description": "INVALID_OR_EXPIRED_TOKEN"
+          }
+        },
+        "summary": "Redefinir senha com token recebido por e-mail",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Novo access token gerado"
+          },
+          "401": {
+            "description": "INVALID_REFRESH_TOKEN | REFRESH_TOKEN_EXPIRED"
+          }
+        },
+        "summary": "Renovar access token via refresh token",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/auth/clear-sessions": {
+      "post": {
+        "operationId": "AuthController_clearSessions",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Todas as sessões foram encerradas"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Revogar todas as sessões ativas do usuário",
+        "tags": ["Auth"]
+      }
+    },
+    "/api/v1/users/register": {
+      "post": {
+        "operationId": "UsersController_registerUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cadastro criado, pendente de aprovação"
+          },
+          "401": {
+            "description": "Não autenticado"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[Público] Solicita cadastro de funcionário — fica inativo até um OWNER aprovar (PATCH isActive:true)",
+        "tags": ["Users"]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_getMeHandler",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Perfil do usuário atual"
+          },
+          "401": {
+            "description": "Não autenticado"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Retorna o perfil do usuário autenticado",
+        "tags": ["Users"]
+      }
+    },
+    "/api/v1/users/me/password": {
+      "patch": {
+        "operationId": "UsersController_changePasswordHandler",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Senha alterada. Sessões encerradas."
+          },
+          "401": {
+            "description": "Não autenticado"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Troca a senha do usuário autenticado",
+        "tags": ["Users"]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "operationId": "UsersController_listUsers",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["OWNER", "EMPLOYEE"]
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de usuários"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Lista usuários com filtros e paginação",
+        "tags": ["Users"]
+      },
+      "post": {
+        "operationId": "UsersController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Cria um novo usuário (Cognito + banco)",
+        "tags": ["Users"]
+      },
+      "patch": {
+        "operationId": "UsersController_updateUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Edita usuário (ID + campos no body — IDOR mitigation)",
+        "tags": ["Users"]
+      },
+      "delete": {
+        "operationId": "UsersController_deleteUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Usuário desativado. Sessões encerradas."
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Desativa usuário (soft delete — ID no body — IDOR mitigation)",
+        "tags": ["Users"]
+      }
+    },
+    "/api/v1/users/find": {
+      "post": {
+        "operationId": "UsersController_findUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados do usuário encontrado"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Busca usuário por ID (ID no body — IDOR mitigation)",
+        "tags": ["Users"]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "description": "Retorna lista paginada de produtos. EMPLOYEE não recebe costPrice. Filtro por status é calculado em runtime (OUT_OF_STOCK, CRITICAL, IDLE, IN_STOCK). Apenas OWNER pode usar includeInactive=true.",
+        "operationId": "ProductsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Busca em nome ou código interno",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "clubOrBrand",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Flamengo",
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CAMISA",
+                "SHORT",
+                "MEIAO",
+                "AGASALHO",
+                "ACESSORIO",
+                "CALCADO"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "M",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["IN_STOCK", "CRITICAL", "OUT_OF_STOCK", "IDLE"]
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "description": "Incluir inativos (OWNER only)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de produtos"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista produtos com filtros e paginação",
+        "tags": ["Products"]
+      },
+      "post": {
+        "description": "Gera código interno automático (FWS-XXXX). Se initialQuantity > 0, cria StockEntry com supplier \"CADASTRO_INICIAL\". Não permite duplicidade (nome + clube + tamanho).",
+        "operationId": "ProductsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso"
+          },
+          "400": {
+            "description": "VALIDATION_FAILED"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "409": {
+            "description": "PRODUCT_DUPLICATE"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Cria um novo produto",
+        "tags": ["Products"]
+      },
+      "patch": {
+        "description": "EMPLOYEE não pode alterar costPrice nem salePrice (campos ignorados silenciosamente). Quantidade NUNCA é alterada por esta rota — apenas via StockEntry ou Sale.",
+        "operationId": "ProductsController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produto atualizado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          },
+          "409": {
+            "description": "PRODUCT_DUPLICATE"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Edita produto (ID + campos no body — IDOR mitigation)",
+        "tags": ["Products"]
+      },
+      "delete": {
+        "description": "Desativa o produto (isActive = false). Preserva integridade do histórico de vendas e entradas.",
+        "operationId": "ProductsController_delete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Produto desativado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Soft delete de produto (ID no body — IDOR mitigation)",
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/products/find": {
+      "post": {
+        "description": "EMPLOYEE não recebe costPrice na resposta.",
+        "operationId": "ProductsController_find",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados do produto encontrado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Busca produto por ID (ID no body — IDOR mitigation)",
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/products/restore": {
+      "patch": {
+        "description": "Reverte um soft delete, tornando o produto visível novamente.",
+        "operationId": "ProductsController_restore",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produto reativado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          },
+          "409": {
+            "description": "PRODUCT_ALREADY_ACTIVE"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Reativa produto desativado (ID no body — IDOR mitigation)",
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/products/photo/upload-url": {
+      "post": {
+        "description": "Salva a URL da foto no banco e retorna `uploadUrl` para PUT direto no S3 (expira em 5 min). Fluxo: (1) chamar este endpoint → (2) PUT do arquivo binário no `uploadUrl` com header `Content-Type` correto. Foto anterior é deletada do S3 automaticamente. Formatos aceitos: jpg, jpeg, png, webp.",
+        "operationId": "ProductsController_getUploadUrl",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "filename", "contentType"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "ID do produto"
+                  },
+                  "filename": {
+                    "type": "string",
+                    "example": "camisa-flamengo.jpg",
+                    "description": "Nome original do arquivo"
+                  },
+                  "contentType": {
+                    "type": "string",
+                    "enum": [
+                      "image/jpeg",
+                      "image/jpg",
+                      "image/png",
+                      "image/webp"
+                    ],
+                    "description": "MIME type do arquivo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "URL pré-assinada gerada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "uploadUrl": {
+                          "type": "string",
+                          "description": "URL para PUT direto no S3 (expira em 5 min)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_FILE_FORMAT"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Gera URL pré-assinada para upload de foto no S3",
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/products/photo": {
+      "delete": {
+        "description": "Deleta a foto do S3 e limpa o campo photoUrl.",
+        "operationId": "ProductsController_deletePhotoHandler",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "ID do produto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Foto removida"
+          },
+          "400": {
+            "description": "NO_PHOTO_TO_DELETE"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Remove a foto do produto (ID no body)",
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/stock-entries": {
+      "get": {
+        "description": "Histórico cronológico de entradas e estornos. Filtros por produto, responsável, fornecedor e período. EMPLOYEE não recebe unitCost nem totalCost.",
+        "operationId": "StockEntriesController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "productId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por produto",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por responsável",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "supplier",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por fornecedor",
+            "schema": {
+              "example": "Distribuidora ABC",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data inicial (ISO)",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data final (ISO)",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de entradas"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista entradas de mercadoria com filtros e paginação",
+        "tags": ["StockEntries"]
+      },
+      "post": {
+        "description": "Operação transacional: cria StockEntry e incrementa Product.quantity. Atualiza o costPrice do produto com o unitCost informado. Não é permitido criar entrada para produto inativo.",
+        "operationId": "StockEntriesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entrada registrada com sucesso"
+          },
+          "400": {
+            "description": "PRODUCT_INACTIVE / VALIDATION_FAILED"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Registra uma nova entrada de mercadoria",
+        "tags": ["StockEntries"]
+      }
+    },
+    "/api/v1/stock-entries/find": {
+      "post": {
+        "description": "EMPLOYEE não recebe unitCost nem totalCost.",
+        "operationId": "StockEntriesController_find",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindStockEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados da entrada encontrada"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "STOCK_ENTRY_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Busca entrada por ID (ID no body — IDOR mitigation)",
+        "tags": ["StockEntries"]
+      }
+    },
+    "/api/v1/stock-entries/reverse": {
+      "post": {
+        "description": "Cria um registro de estorno (isReverse: true) e decrementa a quantidade do produto. Não é possível estornar uma entrada já estornada. Estorno é bloqueado se deixaria o estoque negativo.",
+        "operationId": "StockEntriesController_reverse",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReverseStockEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Estorno registrado com sucesso"
+          },
+          "400": {
+            "description": "STOCK_REVERSE_NEGATIVE / STOCK_ENTRY_ALREADY_REVERSED / CANNOT_REVERSE_REVERSAL"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          },
+          "404": {
+            "description": "STOCK_ENTRY_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Estorna uma entrada de mercadoria",
+        "tags": ["StockEntries"]
+      }
+    },
+    "/api/v1/sales": {
+      "get": {
+        "description": "Histórico cronológico de vendas. Filtros por período, produto, canal, responsável, cliente e status.",
+        "operationId": "SalesController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "productId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por produto (presente nos itens)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "customerId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por cliente",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por responsável",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["LOJA_FISICA", "INSTAGRAM", "WHATSAPP", "SITE"]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["CONFIRMED", "CANCELLED"]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data inicial (ISO)",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data final (ISO)",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de vendas"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista vendas com filtros e paginação",
+        "tags": ["Sales"]
+      },
+      "post": {
+        "description": "Decrementa automaticamente o estoque dos produtos. Bloqueia vendas que deixariam estoque negativo. Preço unitário é preenchido automaticamente se omitido. Apenas OWNER pode editar a data da venda (saleDate). Atualiza campos desnormalizados do produto (lastSaleAt, totalSold) e do cliente.",
+        "operationId": "SalesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Venda registrada com sucesso"
+          },
+          "400": {
+            "description": "INSUFFICIENT_STOCK / PRODUCT_INACTIVE / CUSTOMER_INACTIVE"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND / CUSTOMER_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Registra uma nova venda",
+        "tags": ["Sales"]
+      }
+    },
+    "/api/v1/sales/find": {
+      "post": {
+        "description": "Retorna a venda com todos os itens incluídos.",
+        "operationId": "SalesController_find",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindSaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados da venda encontrada"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "SALE_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Busca venda por ID (ID no body — IDOR mitigation)",
+        "tags": ["Sales"]
+      }
+    },
+    "/api/v1/sales/cancel": {
+      "post": {
+        "description": "Cancela a venda e devolve o estoque de todos os itens. Reverte campos desnormalizados do produto e do cliente. Não é possível cancelar uma venda já cancelada.",
+        "operationId": "SalesController_cancel",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Venda cancelada com sucesso"
+          },
+          "400": {
+            "description": "SALE_ALREADY_CANCELLED"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          },
+          "404": {
+            "description": "SALE_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Cancela uma venda",
+        "tags": ["Sales"]
+      }
+    },
+    "/api/v1/public/products": {
+      "get": {
+        "description": "Endpoint para chatbot (n8n / Gemini). Retorna produtos ativos com status de estoque simplificado. Autenticado via header x-api-key.",
+        "operationId": "PublicController_search",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Busca por nome, código (FWS-XXXX) ou clube/marca",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CAMISA",
+                "SHORT",
+                "MEIAO",
+                "AGASALHO",
+                "ACESSORIO",
+                "CALCADO"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "description": "Tamanho (P, M, G, GG, 38, 42...)",
+            "schema": {
+              "example": "M",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clubOrBrand",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Flamengo",
+              "type": "string"
+            }
+          },
+          {
+            "name": "stockStatus",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por disponibilidade",
+            "schema": {
+              "type": "string",
+              "enum": ["AVAILABLE", "LOW_STOCK", "OUT_OF_STOCK"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de produtos com status de estoque"
+          },
+          "401": {
+            "description": "INVALID_API_KEY"
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Buscar produtos disponíveis",
+        "tags": ["Public — Chatbot API"]
+      }
+    },
+    "/api/v1/public/reservations": {
+      "post": {
+        "description": "Cria uma reserva pendente por 24h. Não desconta estoque — a loja confirma manualmente. Ideal para fluxo: WhatsApp → n8n → Gemini → reserva.",
+        "operationId": "PublicController_reserve",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReservationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reserva criada com confirmação e prazo de validade"
+          },
+          "400": {
+            "description": "PRODUCT_OUT_OF_STOCK / INSUFFICIENT_STOCK"
+          },
+          "401": {
+            "description": "INVALID_API_KEY"
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ],
+        "summary": "Criar reserva de produto via chatbot",
+        "tags": ["Public — Chatbot API"]
+      }
+    },
+    "/api/v1/dashboard/summary": {
+      "get": {
+        "description": "Retorna snapshot do estoque (total, valor investido, críticos, zerados) e métricas de vendas do período (faturamento, ticket médio, lucro bruto, margem).",
+        "operationId": "DashboardController_summary",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumo do dashboard"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Cards de resumo do dashboard",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/top-products": {
+      "get": {
+        "description": "Ranking por quantidade vendida. Máximo 20 resultados.",
+        "operationId": "DashboardController_topProducts",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Máximo de resultados (default: 10, max: 20)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking de produtos"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Top produtos mais vendidos no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/top-clubs": {
+      "get": {
+        "description": "Agrupa por clube/marca. Útil para decidir quais times repor com mais urgência.",
+        "operationId": "DashboardController_topClubs",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Máximo de resultados (default: 10, max: 20)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking de clubes/marcas"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Top clubes/marcas com maior giro no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/sizes": {
+      "get": {
+        "description": "Retorna top 5 (mais vendidos) e bottom 5 (menos vendidos) no período. Aceita clubOrBrand/category opcionais para calibrar o mix de tamanhos de um time ou categoria específica na hora de repor o estoque.",
+        "operationId": "DashboardController_sizes",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clubOrBrand",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por clube/marca",
+            "schema": {
+              "example": "Flamengo",
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por categoria",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CAMISA",
+                "SHORT",
+                "MEIAO",
+                "AGASALHO",
+                "ACESSORIO",
+                "CALCADO"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking de tamanhos"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Ranking de tamanhos — resolve a Dor 2 do cliente",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/channels": {
+      "get": {
+        "description": "Loja física vs Instagram vs WhatsApp — quantidade, faturamento e percentual de cada canal.",
+        "operationId": "DashboardController_channels",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Breakdown por canal"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Comparativo de canais de venda no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/margins": {
+      "get": {
+        "description": "Margem geral + top 20 produtos por lucro bruto. Cálculo: receita − (quantidade × custo). Apenas OWNER.",
+        "operationId": "DashboardController_margins",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Margens geral e por produto"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Análise de margens de lucro no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/idle-products": {
+      "get": {
+        "description": "Lista produtos com estoque > 0 e sem venda há X dias, ordenados pelo maior valor parado (quantidade × custo). Ajuda a priorizar promoções e liquidações.",
+        "operationId": "DashboardController_idleProducts",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "description": "Dias sem venda (default: 30)",
+            "schema": {
+              "example": 30,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produtos parados com valor imobilizado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Produtos parados sem venda no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/payment-methods": {
+      "get": {
+        "description": "Dinheiro, PIX, débito e crédito — faturamento e % de cada um. Útil para planejamento de fluxo de caixa.",
+        "operationId": "DashboardController_paymentMethods",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Breakdown por forma de pagamento"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Breakdown por forma de pagamento no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/stock-velocity": {
+      "get": {
+        "description": "Com base nas vendas dos últimos 30 dias, calcula a taxa diária de saída de cada produto e estima em quantos dias o estoque vai zerar. Risk: CRITICAL (≤7 dias), WARNING (≤15 dias), OK. Endpoint estratégico: permite repor antes da ruptura.",
+        "operationId": "DashboardController_stockVelocity",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Produtos ordenados por urgência de reposição"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Velocidade de saída — previsão de ruptura",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/reorder-list": {
+      "get": {
+        "description": "Produtos com estoque atual abaixo do estoque mínimo, ordenados pelo maior déficit. Inclui custo estimado para repor cada item até o mínimo (reorderCost = deficit × costPrice).",
+        "operationId": "DashboardController_reorderList",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de reposição com déficit e custo de reposição"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista de reposição — o que precisa ser pedido agora",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/capital-by-club": {
+      "get": {
+        "description": "Quanto do capital em estoque está concentrado em cada clube ou marca. Inclui percentual do total, variantes críticas (abaixo do mínimo) e quantidade total em estoque.",
+        "operationId": "DashboardController_capitalByClub",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Capital por clube ordenado do maior para o menor"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Capital imobilizado por clube/marca",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/club-trend": {
+      "get": {
+        "description": "Série mensal de quantidade vendida e faturamento por clube/marca. Ajuda a identificar picos ligados a evento (clássico, final de campeonato, contratação de jogador, lançamento de camisa nova) e planejar reposição antes do próximo pico.",
+        "operationId": "DashboardController_clubTrend",
+        "parameters": [
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "description": "Janela em meses (default: 6, max: 12)",
+            "schema": {
+              "example": 6,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Série mensal por clube/marca"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Sazonalidade — vendas por clube mês a mês",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/customers-by-team": {
+      "get": {
+        "description": "Quantidade de clientes, gasto total, ticket médio e total de compras por time do coração (favoriteTeam). Guia campanhas segmentadas — ex: torcedor de qual time vale mais a pena avisar quando chega camisa nova.",
+        "operationId": "DashboardController_customersByTeam",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ranking de times por valor de cliente"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Clientes agrupados por time do coração",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/dashboard/reservation-conversion": {
+      "get": {
+        "description": "Quantas reservas viraram venda de fato (CONFIRMADA) vs foram canceladas ou expiraram, entre as já resolvidas (exclui as ainda pendentes). Se a taxa for baixa, o processo de reserva pode estar sendo usado só como \"deixa eu pensar\", não como compromisso real.",
+        "operationId": "DashboardController_reservationConversion",
+        "parameters": [
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "LAST_30_DAYS",
+              "type": "string",
+              "enum": [
+                "TODAY",
+                "LAST_7_DAYS",
+                "LAST_30_DAYS",
+                "CURRENT_MONTH",
+                "CUSTOM"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Obrigatório quando period=CUSTOM. Formato ISO 8601.",
+            "schema": {
+              "example": "2026-04-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Breakdown de status e taxa de conversão"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Taxa de conversão de reservas no período",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "description": "Retorna todos os alertas não resolvidos, CRITICAL primeiro.",
+        "operationId": "AlertsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de alertas pendentes"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista alertas pendentes",
+        "tags": ["Alerts"]
+      }
+    },
+    "/api/v1/alerts/count": {
+      "get": {
+        "description": "Retorna total, críticos e informativos — usado para badge no menu.",
+        "operationId": "AlertsController_count",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Contagem por severidade"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Contagem de alertas pendentes",
+        "tags": ["Alerts"]
+      }
+    },
+    "/api/v1/alerts/{id}/resolve": {
+      "patch": {
+        "description": "Registra resolução manual de um alerta pelo OWNER.",
+        "operationId": "AlertsController_resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveAlertDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alerta resolvido"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Marcar alerta como resolvido",
+        "tags": ["Alerts"]
+      }
+    },
+    "/api/v1/customers": {
+      "get": {
+        "description": "Filtros combináveis: time do coração, tamanhos preferidos, status, faixa de valor gasto e busca livre.",
+        "operationId": "CustomersController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Busca em nome ou WhatsApp",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "favoriteTeam",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Flamengo",
+              "type": "string"
+            }
+          },
+          {
+            "name": "preferredSizes",
+            "required": false,
+            "in": "query",
+            "description": "Tamanhos preferidos, separados por vírgula (contém qualquer um)",
+            "schema": {
+              "example": "M,G",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["ACTIVE", "COOLING", "INACTIVE"]
+            }
+          },
+          {
+            "name": "minSpent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxSpent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "description": "Incluir inativos (OWNER only)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de clientes"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Lista clientes com segmentação e paginação",
+        "tags": ["Customers"]
+      },
+      "post": {
+        "description": "whatsapp deve ser único no sistema.",
+        "operationId": "CustomersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente criado com sucesso"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "409": {
+            "description": "CUSTOMER_WHATSAPP_DUPLICATE"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Cria um novo cliente",
+        "tags": ["Customers"]
+      },
+      "patch": {
+        "operationId": "CustomersController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cliente atualizado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "CUSTOMER_NOT_FOUND"
+          },
+          "409": {
+            "description": "CUSTOMER_WHATSAPP_DUPLICATE"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Edita cliente (ID + campos no body — IDOR mitigation)",
+        "tags": ["Customers"]
+      },
+      "delete": {
+        "operationId": "CustomersController_deactivate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteCustomerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Cliente desativado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          },
+          "404": {
+            "description": "CUSTOMER_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Desativa cliente (ID no body — IDOR mitigation)",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customers/export": {
+      "get": {
+        "description": "Formato \"Nome — +WhatsApp\", um por linha — pronto para colar em grupo do WhatsApp.",
+        "operationId": "CustomersController_export",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Busca em nome ou WhatsApp",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "favoriteTeam",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Flamengo",
+              "type": "string"
+            }
+          },
+          {
+            "name": "preferredSizes",
+            "required": false,
+            "in": "query",
+            "description": "Tamanhos preferidos, separados por vírgula (contém qualquer um)",
+            "schema": {
+              "example": "M,G",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["ACTIVE", "COOLING", "INACTIVE"]
+            }
+          },
+          {
+            "name": "minSpent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxSpent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista em texto plano"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Exporta clientes filtrados em texto plano",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customers/find": {
+      "post": {
+        "operationId": "CustomersController_find",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindCustomerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados do cliente encontrado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "CUSTOMER_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Busca cliente por ID (ID no body — IDOR mitigation)",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customers/{id}/purchases": {
+      "get": {
+        "description": "Retorna vendas vinculadas, totalSpent, averageTicket e lastPurchaseAt.",
+        "operationId": "CustomersController_purchases",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Histórico paginado de compras"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "404": {
+            "description": "CUSTOMER_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Histórico de compras do cliente",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customers/ranking/by-amount": {
+      "get": {
+        "operationId": "CustomersController_byAmount",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Top N (default 20)",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking por valor gasto"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Top clientes por valor gasto (totalSpent)",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customers/ranking/by-purchases": {
+      "get": {
+        "operationId": "CustomersController_byPurchases",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Top N (default 20)",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking por quantidade de compras"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — acesso restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Top clientes por quantidade de compras (purchaseCount)",
+        "tags": ["Customers"]
+      }
+    },
+    "/api/v1/customer-auth/magic-link": {
+      "post": {
+        "operationId": "CustomerAuthController_requestLink",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMagicLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sempre retorna sucesso — não revela se o email existe"
+          }
+        },
+        "summary": "Solicita link de acesso por email (magic link)",
+        "tags": ["Customer Auth"]
+      }
+    },
+    "/api/v1/customer-auth/verify": {
+      "post": {
+        "operationId": "CustomerAuthController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyMagicLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sessão criada"
+          }
+        },
+        "summary": "Verifica o token do magic link e cria a sessão do cliente",
+        "tags": ["Customer Auth"]
+      }
+    },
+    "/api/v1/customer-auth/logout": {
+      "post": {
+        "operationId": "CustomerAuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "customer_access_token": []
+          }
+        ],
+        "summary": "Encerra a sessão do cliente",
+        "tags": ["Customer Auth"]
+      }
+    },
+    "/api/v1/customer-auth/me/orders": {
+      "get": {
+        "operationId": "CustomerAuthController_orders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Compras e reservas do cliente"
+          }
+        },
+        "security": [
+          {
+            "customer_access_token": []
+          }
+        ],
+        "summary": "Lista as compras e reservas do cliente autenticado",
+        "tags": ["Customer Auth"]
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "operationId": "AuditController_list",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por usuário",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por tipo de ação",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CREATE",
+                "UPDATE",
+                "DELETE",
+                "SALE",
+                "ENTRY",
+                "CANCEL",
+                "LOGIN",
+                "LOGOUT"
+              ]
+            }
+          },
+          {
+            "name": "entity",
+            "required": false,
+            "in": "query",
+            "description": "Filtrar por entidade (User, Product, Sale…)",
+            "schema": {
+              "example": "User",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Data inicial (ISO 8601)",
+            "schema": {
+              "example": "2026-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Data final (ISO 8601)",
+            "schema": {
+              "example": "2026-12-31",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log de auditoria paginado"
+          },
+          "401": {
+            "description": "MISSING_TOKEN / INVALID_TOKEN"
+          },
+          "403": {
+            "description": "ACCESS_DENIED — restrito a OWNER"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "[OWNER] Lista o log de auditoria com filtros por usuário, ação, entidade e período",
+        "tags": ["Audit"]
+      }
+    }
+  },
+  "info": {
+    "title": "Football World Store API",
+    "description": "Sistema Web de Gestão de Estoque",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autenticação e sessão"
+    },
+    {
+      "name": "Users",
+      "description": "Gestão de usuários"
+    },
+    {
+      "name": "Products",
+      "description": "Gestão de estoque"
+    },
+    {
+      "name": "StockEntries",
+      "description": "Entradas de mercadoria"
+    },
+    {
+      "name": "Sales",
+      "description": "Saídas e vendas"
+    },
+    {
+      "name": "Customers",
+      "description": "Clientes"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Insights e relatórios"
+    },
+    {
+      "name": "Alerts",
+      "description": "Alertas inteligentes"
+    },
+    {
+      "name": "Audit",
+      "description": "Log de auditoria"
+    },
+    {
+      "name": "Public — Chatbot API",
+      "description": "Endpoints públicos consumidos pelo chatbot (n8n)"
+    },
+    {
+      "name": "Customer Auth",
+      "description": "Login do cliente por magic link e histórico de pedidos"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "dono@footballworld.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "MinhaSenh@123",
+            "minLength": 8
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "dono@footballworld.com"
+          }
+        },
+        "required": ["email"]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token JWT de redefinição recebido no link por e-mail",
+            "example": "eyJhbGciOiJIUzI1NiJ9..."
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "Nova senha (mín. 8 caracteres, deve conter maiúscula, minúscula, número e caractere especial)",
+            "example": "NovaSenh@456",
+            "minLength": 8
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "Confirmação da nova senha (deve ser idêntica)",
+            "example": "NovaSenh@456"
+          }
+        },
+        "required": ["token", "newPassword", "confirmPassword"]
+      },
+      "RegisterUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Maria Silva"
+          },
+          "email": {
+            "type": "string",
+            "example": "maria@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Senha123",
+            "minLength": 8
+          }
+        },
+        "required": ["name", "email", "password"]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "example": "SenhaAtual123"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "NovaSenha456",
+            "minLength": 8
+          }
+        },
+        "required": ["currentPassword", "newPassword"]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Maria Silva"
+          },
+          "email": {
+            "type": "string",
+            "example": "maria@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Senha123",
+            "minLength": 8
+          },
+          "role": {
+            "type": "string",
+            "enum": ["OWNER", "EMPLOYEE"],
+            "example": "EMPLOYEE"
+          }
+        },
+        "required": ["name", "email", "password", "role"]
+      },
+      "FindUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do usuário",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do usuário a ser editado",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Maria Silva"
+          },
+          "email": {
+            "type": "string",
+            "example": "maria@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["OWNER", "EMPLOYEE"]
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true,
+            "description": "Ativa/desativa o usuário — usado para aprovar auto-registro (isActive: false → true)"
+          }
+        },
+        "required": ["id"]
+      },
+      "DeleteUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do usuário a ser desativado",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Camisa Flamengo I 2024/25"
+          },
+          "clubOrBrand": {
+            "type": "string",
+            "example": "Flamengo"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "CAMISA",
+              "SHORT",
+              "MEIAO",
+              "AGASALHO",
+              "ACESSORIO",
+              "CALCADO"
+            ],
+            "example": "CAMISA"
+          },
+          "size": {
+            "type": "string",
+            "example": "M"
+          },
+          "photoUrl": {
+            "type": "string",
+            "example": "https://example.com/foto.jpg"
+          },
+          "costPrice": {
+            "type": "number",
+            "example": 120
+          },
+          "salePrice": {
+            "type": "number",
+            "example": 249.9
+          },
+          "initialQuantity": {
+            "type": "number",
+            "example": 10
+          },
+          "minStock": {
+            "type": "number",
+            "example": 5
+          }
+        },
+        "required": [
+          "name",
+          "clubOrBrand",
+          "category",
+          "size",
+          "costPrice",
+          "salePrice",
+          "initialQuantity",
+          "minStock"
+        ]
+      },
+      "FindProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do produto",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "UpdateProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do produto",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Camisa Flamengo I 2024/25"
+          },
+          "clubOrBrand": {
+            "type": "string",
+            "example": "Flamengo"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "CAMISA",
+              "SHORT",
+              "MEIAO",
+              "AGASALHO",
+              "ACESSORIO",
+              "CALCADO"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "example": "M"
+          },
+          "photoUrl": {
+            "type": "string",
+            "example": "https://example.com/foto.jpg"
+          },
+          "costPrice": {
+            "type": "number",
+            "example": 130
+          },
+          "salePrice": {
+            "type": "number",
+            "example": 269.9
+          },
+          "minStock": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": ["id"]
+      },
+      "DeleteProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do produto a ser desativado",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "CreateStockEntryDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "ID do produto",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 20,
+            "minimum": 1
+          },
+          "unitCost": {
+            "type": "number",
+            "example": 115,
+            "description": "Custo unitário (atualiza preço de custo do produto)"
+          },
+          "supplier": {
+            "type": "string",
+            "example": "Distribuidora ABC"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Lote para Black Friday"
+          }
+        },
+        "required": ["productId", "quantity", "unitCost", "supplier"]
+      },
+      "FindStockEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID da entrada",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "ReverseStockEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID da entrada a ser estornada",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Lote retornado ao fornecedor por defeito"
+          }
+        },
+        "required": ["id", "reason"]
+      },
+      "SaleItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "ID do produto",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2,
+            "minimum": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 249.9,
+            "description": "Preço unitário (preenchido automaticamente se omitido)"
+          }
+        },
+        "required": ["productId", "quantity"]
+      },
+      "CreateSaleDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SaleItemDto"
+            }
+          },
+          "channel": {
+            "type": "string",
+            "enum": ["LOJA_FISICA", "INSTAGRAM", "WHATSAPP", "SITE"],
+            "example": "LOJA_FISICA"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": ["DINHEIRO", "PIX", "DEBITO", "CREDITO"],
+            "example": "PIX"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "ID do cliente (opcional)",
+            "format": "uuid"
+          },
+          "discount": {
+            "type": "number",
+            "example": 10,
+            "description": "Desconto aplicado"
+          },
+          "saleDate": {
+            "type": "string",
+            "description": "Data da venda (default: agora). OWNER pode editar."
+          }
+        },
+        "required": ["items", "channel", "paymentMethod"]
+      },
+      "FindSaleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID da venda",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "CancelSaleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID da venda a ser cancelada",
+            "format": "uuid"
+          },
+          "cancelReason": {
+            "type": "string",
+            "example": "Cliente desistiu da compra"
+          }
+        },
+        "required": ["id"]
+      },
+      "CreateReservationDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "ID do produto a reservar",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "Quantidade a reservar",
+            "minimum": 1
+          },
+          "customerName": {
+            "type": "string",
+            "example": "João Silva",
+            "description": "Nome do cliente"
+          },
+          "customerWhatsapp": {
+            "type": "string",
+            "example": "5511999999999",
+            "description": "WhatsApp do cliente (só números)"
+          },
+          "customerEmail": {
+            "type": "string",
+            "example": "joao@email.com",
+            "description": "E-mail do cliente — permite vincular à conta quando o Módulo Clientes for ativado"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Quero a camisa vermelha se tiver",
+            "description": "Observação livre"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity",
+          "customerName",
+          "customerWhatsapp"
+        ]
+      },
+      "ResolveAlertDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "example": "Estoque reposto manualmente"
+          }
+        }
+      },
+      "CreateCustomerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "João Silva",
+            "description": "Nome completo do cliente"
+          },
+          "whatsapp": {
+            "type": "string",
+            "example": "5511999999999",
+            "description": "WhatsApp com DDI+DDD, só números"
+          },
+          "email": {
+            "type": "string",
+            "example": "joao@example.com",
+            "description": "Email — necessário se o cliente quiser fazer login e ver seus pedidos"
+          },
+          "favoriteTeam": {
+            "type": "string",
+            "example": "Flamengo",
+            "description": "Time do coração"
+          },
+          "preferredSizes": {
+            "example": ["M", "G"],
+            "description": "Tamanhos preferidos",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1990-05-20"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Gosta de camisas retrô"
+          }
+        },
+        "required": ["name", "whatsapp"]
+      },
+      "FindCustomerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do cliente",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "UpdateCustomerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do cliente",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "João Silva"
+          },
+          "whatsapp": {
+            "type": "string",
+            "example": "5511999999999",
+            "description": "WhatsApp com DDI+DDD, só números"
+          },
+          "email": {
+            "type": "string",
+            "example": "joao@example.com"
+          },
+          "favoriteTeam": {
+            "type": "string",
+            "example": "Flamengo"
+          },
+          "preferredSizes": {
+            "example": ["M", "G"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1990-05-20"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Gosta de camisas retrô"
+          }
+        },
+        "required": ["id"]
+      },
+      "DeleteCustomerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do cliente a ser desativado",
+            "format": "uuid"
+          }
+        },
+        "required": ["id"]
+      },
+      "RequestMagicLinkDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "joao@example.com"
+          }
+        },
+        "required": ["email"]
+      },
+      "VerifyMagicLinkDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token recebido por email"
+          }
+        },
+        "required": ["token"]
+      }
+    }
+  }
+}

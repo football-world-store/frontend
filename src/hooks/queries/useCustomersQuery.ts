@@ -1,29 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants";
-import type { Customer } from "@/types";
+import { customersService } from "@/services";
+import type { ListCustomersParams } from "@/types";
 
-interface CustomersListResult {
-  items: Customer[];
-  total: number;
-}
-
-const EMPTY_LIST: CustomersListResult = { items: [], total: 0 };
-
-// O backend ainda não expõe endpoints de clientes (GET /customers,
-// GET /customers/:id, POST /customers). Quando estiverem disponíveis,
-// trocar a queryFn por `customersService.list()` e `customersService.byId(id)`.
-export const useCustomersQuery = () =>
+export const useCustomersQuery = (params?: ListCustomersParams) =>
   useQuery({
-    queryKey: queryKeys.customers.list(),
-    queryFn: async (): Promise<CustomersListResult> => EMPTY_LIST,
-    staleTime: Infinity,
+    queryKey: queryKeys.customers.list(params),
+    queryFn: () => customersService.list(params),
   });
 
 export const useCustomerQuery = (id: string) =>
   useQuery({
     queryKey: queryKeys.customers.detail(id),
-    queryFn: async (): Promise<Customer | null> => null,
+    queryFn: () => customersService.find(id),
     enabled: Boolean(id),
-    staleTime: Infinity,
   });

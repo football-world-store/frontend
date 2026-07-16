@@ -2,6 +2,7 @@ import type {
   DashboardPeriod,
   DashboardTopList,
   ListAuditLogsParams,
+  ListCustomersParams,
   ListProductsParams,
   ListSalesParams,
   ListStockEntriesParams,
@@ -37,13 +38,27 @@ export const queryKeys = {
     list: (params?: ListUsersParams) =>
       [...queryKeys.users.all, "list", params ?? {}] as const,
     detail: (id: string) => [...queryKeys.users.all, "detail", id] as const,
-    audit: (params?: ListAuditLogsParams) =>
-      [...queryKeys.users.all, "audit", params ?? {}] as const,
+  },
+  audit: {
+    all: ["audit"] as const,
+    list: (params?: ListAuditLogsParams) =>
+      [...queryKeys.audit.all, "list", params ?? {}] as const,
   },
   customers: {
     all: ["customers"] as const,
-    list: () => [...queryKeys.customers.all, "list"] as const,
+    list: (params?: ListCustomersParams) =>
+      [...queryKeys.customers.all, "list", params ?? {}] as const,
     detail: (id: string) => [...queryKeys.customers.all, "detail", id] as const,
+    purchases: (id: string, params?: { page?: number; limit?: number }) =>
+      [...queryKeys.customers.all, "purchases", id, params ?? {}] as const,
+    rankingByAmount: (limit?: number) =>
+      [...queryKeys.customers.all, "rankingByAmount", limit ?? null] as const,
+    rankingByPurchases: (limit?: number) =>
+      [
+        ...queryKeys.customers.all,
+        "rankingByPurchases",
+        limit ?? null,
+      ] as const,
   },
   alerts: {
     all: ["alerts"] as const,
