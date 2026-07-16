@@ -36,14 +36,14 @@ Ainda não integrado no front — próximo passo depois dos bugs.
 - `GET /dashboard/customers-by-team` — clientes por time do coração
 - `GET /dashboard/reservation-conversion` — taxa de conversão de reservas
 
-### ⏸️ Adiado — provável consumo via n8n, revisar depois
+### ⏸️ Adiado — n8n, não é o frontend Next.js
 
-- **Public — Chatbot API** (`GET /public/products`, `POST /public/reservations`) — endpoints públicos sem auth. Chatbot roda via n8n, então integração no front fica pausada por ora.
-- **Customer Auth** (`/customer-auth/*`) — magic link, verify, logout, `me/orders`. Portal do cliente, provavelmente parte do mesmo fluxo de chatbot/n8n — revisitar junto com o item acima quando decidirmos se algo disso entra no painel admin.
+- **Public — Chatbot API** (`GET /public/products`, `POST /public/reservations`) — endpoints públicos sem auth, consumidos pelo fluxo n8n do chatbot. Não integrar aqui.
 
 ### 🟢 Domínios ainda sem integração
 
-- **`POST /users/register`** — auto-cadastro público de funcionário (fica inativo até OWNER aprovar via `PATCH isActive:true`). Diferente do `POST /users` (criação direta por OWNER).
+- **Customer Auth** (`POST /customer-auth/magic-link`, `POST /customer-auth/verify`, `POST /customer-auth/logout`, `GET /customer-auth/me/orders`) — **vai ter portal do cliente no front** (confirmado 2026-07-15). Cliente recebe magic link por email, loga sem senha e vê os próprios pedidos/reservas. Precisa de: páginas públicas novas (fora do proxy atual, que assume tudo autenticado = usuário do painel admin), fluxo de sessão de cliente separado do `AuthContext` de funcionário/OWNER (cookie diferente? confirmar com backend), e uma tela `me/orders`. Próximo candidato a integrar.
+- **`POST /users/register`** — auto-cadastro público de funcionário (fica inativo até OWNER aprovar via `PATCH isActive:true`). Diferente do `POST /users` (criação direta por OWNER). **Integrado** (commit `85ecdfa`).
 
 ## Alerts
 
