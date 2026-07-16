@@ -73,5 +73,6 @@ export const API_ROUTES = {
     reorderList: "/dashboard/reorder-list",
     capitalByClub: "/dashboard/capital-by-club",
     clubTrend: "/dashboard/club-trend",
+    customersByTeam: "/dashboard/customers-by-team",
   },
 } as const;

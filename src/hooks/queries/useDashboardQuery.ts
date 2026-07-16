@@ -75,3 +75,9 @@ export const useDashboardClubTrendQuery = (months?: number) =>
     queryKey: queryKeys.dashboard.clubTrend(months),
     queryFn: () => dashboardService.clubTrend(months),
   });
+
+export const useDashboardCustomersByTeamQuery = () =>
+  useQuery({
+    queryKey: queryKeys.dashboard.customersByTeam(),
+    queryFn: dashboardService.customersByTeam,
+  });

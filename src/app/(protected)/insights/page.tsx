@@ -21,6 +21,7 @@ import {
 import {
   useDashboardCapitalByClubQuery,
   useDashboardClubTrendQuery,
+  useDashboardCustomersByTeamQuery,
   useDashboardIdleProductsQuery,
   useDashboardMarginsQuery,
   useDashboardPaymentMethodsQuery,
@@ -31,6 +32,7 @@ import {
 import type {
   DashboardCapitalByClub,
   DashboardClubTrend,
+  DashboardCustomersByTeam,
   DashboardIdleProduct,
   DashboardPaymentMethod,
   DashboardReorderItem,
@@ -279,6 +281,51 @@ const ClubTrendCard = ({ clubs }: { clubs: DashboardClubTrend[] }) => (
   </Card>
 );
 
+const CustomersByTeamCard = ({
+  items,
+}: {
+  items: DashboardCustomersByTeam[];
+}) => (
+  <Card
+    title="Times do coração"
+    description="Valor de cliente por time — mira para campanhas segmentadas"
+  >
+    {items.length === 0 ? (
+      <EmptyState
+        iconName="groups"
+        title="Sem dados"
+        description="Cadastre clientes com time do coração para ver o ranking."
+      />
+    ) : (
+      <ul className="space-y-3">
+        {items.slice(0, 8).map((item) => (
+          <li
+            key={item.favoriteTeam}
+            className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
+          >
+            <div>
+              <p className="font-body text-sm font-semibold text-on-surface">
+                {item.favoriteTeam}
+              </p>
+              <p className="font-label text-xs text-on-surface-variant">
+                {item.customerCount} clientes · {item.purchaseCount} compras
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-body font-semibold text-on-surface">
+                {formatPriceFromReais(item.totalSpent)}
+              </p>
+              <p className="font-label text-xs text-primary">
+                Ticket médio {formatPriceFromReais(item.averageTicket)}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </Card>
+);
+
 const useClubProgressItems = (
   data: { clubOrBrand: string; totalSold: number }[] | undefined,
 ) =>
@@ -303,6 +350,7 @@ const InsightsPage = () => {
   const capitalByClubQuery = useDashboardCapitalByClubQuery();
   const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
   const clubTrendQuery = useDashboardClubTrendQuery();
+  const customersByTeamQuery = useDashboardCustomersByTeamQuery();
 
   const isLoading =
     marginsQuery.isLoading ||
@@ -371,7 +419,10 @@ const InsightsPage = () => {
         <CapitalByClubCard items={capitalByClubQuery.data ?? []} />
       </div>
 
-      <ClubTrendCard clubs={clubTrendQuery.data ?? []} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ClubTrendCard clubs={clubTrendQuery.data ?? []} />
+        <CustomersByTeamCard items={customersByTeamQuery.data ?? []} />
+      </div>
     </DashboardLayout>
   );
 };

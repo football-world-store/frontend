@@ -88,5 +88,7 @@ export const queryKeys = {
     capitalByClub: () => [...queryKeys.dashboard.all, "capitalByClub"] as const,
     clubTrend: (months?: number) =>
       [...queryKeys.dashboard.all, "clubTrend", months ?? null] as const,
+    customersByTeam: () =>
+      [...queryKeys.dashboard.all, "customersByTeam"] as const,
   },
 } as const;

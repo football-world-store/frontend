@@ -4,6 +4,7 @@ import type {
   DashboardCapitalByClub,
   DashboardChannel,
   DashboardClubTrend,
+  DashboardCustomersByTeam,
   DashboardIdleProduct,
   DashboardMargins,
   DashboardPaymentMethod,
@@ -58,4 +59,7 @@ export const dashboardService = {
 
   clubTrend: (months?: number) =>
     get<DashboardClubTrend[]>(API_ROUTES.dashboard.clubTrend, { months }),
+
+  customersByTeam: () =>
+    get<DashboardCustomersByTeam[]>(API_ROUTES.dashboard.customersByTeam),
 };

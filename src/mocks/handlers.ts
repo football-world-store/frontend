@@ -7,6 +7,7 @@ import { alertsFixture } from "./fixtures/alerts";
 import { customersFixture } from "./fixtures/customers";
 import {
   clubTrendFixture,
+  customersByTeamFixture,
   dashboardSummaryFixture,
 } from "./fixtures/dashboard";
 import { productsFixture } from "./fixtures/products";
@@ -102,6 +103,9 @@ export const handlers = [
   http.get(`${baseUrl}/dashboard/reorder-list`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/capital-by-club`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/club-trend`, () => envelope(clubTrendFixture)),
+  http.get(`${baseUrl}/dashboard/customers-by-team`, () =>
+    envelope(customersByTeamFixture),
+  ),
   http.get(`${baseUrl}/alerts/count`, () =>
     envelope({ total: 0, critical: 0, informational: 0 }),
   ),

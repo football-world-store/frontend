@@ -32,14 +32,17 @@ Ainda não integrado no front — próximo passo depois dos bugs.
 
 ### 🟢 Dashboard — endpoints novos não integrados
 
-- `GET /dashboard/club-trend` — sazonalidade por clube/mês
+- `GET /dashboard/club-trend` — sazonalidade por clube/mês. **Integrado** (commit `d3295ca`).
 - `GET /dashboard/customers-by-team` — clientes por time do coração
 - `GET /dashboard/reservation-conversion` — taxa de conversão de reservas
 
-### 🟢 Domínios inteiramente novos, sem integração
+### ⏸️ Adiado — provável consumo via n8n, revisar depois
 
-- **Customer Auth** (`/customer-auth/*`) — magic link, verify, logout, `me/orders`. Provável portal do cliente/chatbot, não painel admin.
-- **Public — Chatbot API** (`/public/products`, `/public/reservations`) — endpoints públicos sem auth.
+- **Public — Chatbot API** (`GET /public/products`, `POST /public/reservations`) — endpoints públicos sem auth. Chatbot roda via n8n, então integração no front fica pausada por ora.
+- **Customer Auth** (`/customer-auth/*`) — magic link, verify, logout, `me/orders`. Portal do cliente, provavelmente parte do mesmo fluxo de chatbot/n8n — revisitar junto com o item acima quando decidirmos se algo disso entra no painel admin.
+
+### 🟢 Domínios ainda sem integração
+
 - **`POST /users/register`** — auto-cadastro público de funcionário (fica inativo até OWNER aprovar via `PATCH isActive:true`). Diferente do `POST /users` (criação direta por OWNER).
 
 ## Alerts

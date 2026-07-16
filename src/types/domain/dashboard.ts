@@ -151,6 +151,14 @@ export interface DashboardClubTrend {
   points: DashboardClubTrendPoint[];
 }
 
+export interface DashboardCustomersByTeam {
+  favoriteTeam: string;
+  customerCount: number;
+  totalSpent: number;
+  averageTicket: number;
+  purchaseCount: number;
+}
+
 export type DashboardStockVelocityRisk = "CRITICAL" | "WARNING" | "OK";
 
 export interface DashboardStockVelocityItem {
