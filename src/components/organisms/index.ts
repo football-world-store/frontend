@@ -8,6 +8,7 @@ export * from "./InsightsPanel";
 export * from "./InventoryTable";
 export * from "./LoginForm";
 export * from "./ProductForm";
+export * from "./RegisterForm";
 export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";

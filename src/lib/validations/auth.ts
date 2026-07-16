@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   emailField,
+  nameField,
   passwordField,
   PASSWORD_MIN_LENGTH,
   VALIDATION_MESSAGES,
@@ -20,6 +21,15 @@ const samePasswordsRule = {
   },
 };
 
+const sameRegisterPasswordsRule = {
+  predicate: (data: { password: string; confirmPassword: string }) =>
+    data.password === data.confirmPassword,
+  options: {
+    message: VALIDATION_MESSAGES.passwordsMismatch,
+    path: ["confirmPassword"],
+  },
+};
+
 export const loginSchema = z.object({
   email: emailField,
   password: passwordField,
@@ -28,6 +38,18 @@ export const loginSchema = z.object({
 export const forgotPasswordSchema = z.object({
   email: emailField,
 });
+
+export const registerUserSchema = z
+  .object({
+    name: nameField,
+    email: emailField,
+    password: passwordField,
+    confirmPassword: passwordConfirmField,
+  })
+  .refine(
+    sameRegisterPasswordsRule.predicate,
+    sameRegisterPasswordsRule.options,
+  );
 
 export const resetPasswordSchema = z
   .object({
@@ -47,5 +69,6 @@ export const changePasswordSchema = z
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+export type RegisterUserFormValues = z.infer<typeof registerUserSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;

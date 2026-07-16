@@ -8,6 +8,7 @@ import type {
 import type {
   CreateUserBody,
   ListUsersParams,
+  RegisterUserBody,
   SystemUser,
   UpdateUserBody,
 } from "@/types";
@@ -18,6 +19,10 @@ export const usersService = {
       API_ROUTES.users.me,
     );
     return data.data;
+  },
+
+  register: async (body: RegisterUserBody): Promise<void> => {
+    await apiClient.post(API_ROUTES.users.register, body);
   },
 
   changePassword: async (body: ChangePasswordRequest): Promise<void> => {

@@ -12,6 +12,7 @@ export const API_ROUTES = {
   users: {
     me: "/users/me",
     changePassword: "/users/me/password",
+    register: "/users/register",
     list: "/users",
     create: "/users",
     find: "/users/find",

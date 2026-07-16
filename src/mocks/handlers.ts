@@ -220,4 +220,18 @@ export const handlers = [
     users.unshift(user);
     return HttpResponse.json({ data: user }, { status: HTTP_CREATED });
   }),
+  http.post(`${baseUrl}/users/register`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    const user = {
+      id: generateId("u"),
+      name: String(body.name ?? ""),
+      email: String(body.email ?? ""),
+      role: "EMPLOYEE" as const,
+      isActive: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    users.unshift(user);
+    return HttpResponse.json({ data: user }, { status: HTTP_CREATED });
+  }),
 ];

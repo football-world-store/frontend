@@ -18,6 +18,12 @@ export interface CreateUserBody {
   role: UserRole;
 }
 
+export interface RegisterUserBody {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface UpdateUserBody {
   id: string;
   name?: string;

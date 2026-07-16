@@ -4,6 +4,7 @@ import { APP_ROUTES, SESSION_COOKIE_NAME } from "@/constants";
 
 const AUTH_ROUTES: readonly string[] = [
   APP_ROUTES.auth.signIn,
+  APP_ROUTES.auth.register,
   APP_ROUTES.auth.forgotPassword,
   APP_ROUTES.auth.resetPassword,
 ];
