@@ -10,6 +10,7 @@ import type {
   DashboardPaymentMethod,
   DashboardPeriod,
   DashboardReorderItem,
+  DashboardReservationConversion,
   DashboardSizes,
   DashboardStockVelocityItem,
   DashboardSummary,
@@ -62,4 +63,10 @@ export const dashboardService = {
 
   customersByTeam: () =>
     get<DashboardCustomersByTeam[]>(API_ROUTES.dashboard.customersByTeam),
+
+  reservationConversion: (params: DashboardPeriod) =>
+    get<DashboardReservationConversion>(
+      API_ROUTES.dashboard.reservationConversion,
+      params,
+    ),
 };

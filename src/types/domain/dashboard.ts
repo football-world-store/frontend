@@ -159,6 +159,13 @@ export interface DashboardCustomersByTeam {
   purchaseCount: number;
 }
 
+export interface DashboardReservationConversion {
+  confirmed: number;
+  cancelled: number;
+  expired: number;
+  conversionRate: number;
+}
+
 export type DashboardStockVelocityRisk = "CRITICAL" | "WARNING" | "OK";
 
 export interface DashboardStockVelocityItem {

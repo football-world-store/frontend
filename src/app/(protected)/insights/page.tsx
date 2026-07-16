@@ -26,6 +26,7 @@ import {
   useDashboardMarginsQuery,
   useDashboardPaymentMethodsQuery,
   useDashboardReorderListQuery,
+  useDashboardReservationConversionQuery,
   useDashboardStockVelocityQuery,
   useDashboardTopClubsQuery,
 } from "@/hooks/queries";
@@ -34,8 +35,10 @@ import type {
   DashboardClubTrend,
   DashboardCustomersByTeam,
   DashboardIdleProduct,
+  DashboardMargins,
   DashboardPaymentMethod,
   DashboardReorderItem,
+  DashboardReservationConversion,
   DashboardStockVelocityItem,
 } from "@/types";
 import { formatPriceFromReais, zebraRowTier } from "@/utils";
@@ -60,7 +63,8 @@ const InsightsSkeleton = () => (
     }
     subtitle="Sincronizando análise em tempo real…"
   >
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <SkeletonStatTile />
       <SkeletonStatTile />
       <SkeletonStatTile />
       <SkeletonStatTile />
@@ -326,6 +330,39 @@ const CustomersByTeamCard = ({
   </Card>
 );
 
+const SummaryStats = ({
+  margins,
+  reservationConversion,
+}: {
+  margins: DashboardMargins | undefined;
+  reservationConversion: DashboardReservationConversion | undefined;
+}) => (
+  <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <StatTile
+      label="Lucro bruto"
+      value={margins ? formatPriceFromReais(margins.overall.grossProfit) : "—"}
+      iconName="paid"
+    />
+    <StatTile
+      label="Margem geral"
+      value={margins ? `${margins.overall.marginPercentage}%` : "—"}
+      iconName="percent"
+    />
+    <StatTile
+      label="Receita do período"
+      value={margins ? formatPriceFromReais(margins.overall.revenue) : "—"}
+      iconName="trending_up"
+    />
+    <StatTile
+      label="Conversão de reservas"
+      value={
+        reservationConversion ? `${reservationConversion.conversionRate}%` : "—"
+      }
+      iconName="event_available"
+    />
+  </section>
+);
+
 const useClubProgressItems = (
   data: { clubOrBrand: string; totalSold: number }[] | undefined,
 ) =>
@@ -351,6 +388,9 @@ const InsightsPage = () => {
   const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
   const clubTrendQuery = useDashboardClubTrendQuery();
   const customersByTeamQuery = useDashboardCustomersByTeamQuery();
+  const reservationConversionQuery = useDashboardReservationConversionQuery(
+    DEFAULT_DASHBOARD_PERIOD,
+  );
 
   const isLoading =
     marginsQuery.isLoading ||
@@ -363,8 +403,6 @@ const InsightsPage = () => {
     return <InsightsSkeleton />;
   }
 
-  const margins = marginsQuery.data;
-
   return (
     <DashboardLayout
       title={
@@ -374,25 +412,10 @@ const InsightsPage = () => {
       }
       subtitle="Análise em tempo real da performance do inventário."
     >
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatTile
-          label="Lucro bruto"
-          value={
-            margins ? formatPriceFromReais(margins.overall.grossProfit) : "—"
-          }
-          iconName="paid"
-        />
-        <StatTile
-          label="Margem geral"
-          value={margins ? `${margins.overall.marginPercentage}%` : "—"}
-          iconName="percent"
-        />
-        <StatTile
-          label="Receita do período"
-          value={margins ? formatPriceFromReais(margins.overall.revenue) : "—"}
-          iconName="trending_up"
-        />
-      </section>
+      <SummaryStats
+        margins={marginsQuery.data}
+        reservationConversion={reservationConversionQuery.data}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <StockVelocityCard items={stockVelocityQuery.data ?? []} />

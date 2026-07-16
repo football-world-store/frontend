@@ -74,5 +74,6 @@ export const API_ROUTES = {
     capitalByClub: "/dashboard/capital-by-club",
     clubTrend: "/dashboard/club-trend",
     customersByTeam: "/dashboard/customers-by-team",
+    reservationConversion: "/dashboard/reservation-conversion",
   },
 } as const;

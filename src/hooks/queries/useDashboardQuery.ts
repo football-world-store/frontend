@@ -81,3 +81,11 @@ export const useDashboardCustomersByTeamQuery = () =>
     queryKey: queryKeys.dashboard.customersByTeam(),
     queryFn: dashboardService.customersByTeam,
   });
+
+export const useDashboardReservationConversionQuery = (
+  params: DashboardPeriod,
+) =>
+  useQuery({
+    queryKey: queryKeys.dashboard.reservationConversion(params),
+    queryFn: () => dashboardService.reservationConversion(params),
+  });

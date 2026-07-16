@@ -9,6 +9,7 @@ import {
   clubTrendFixture,
   customersByTeamFixture,
   dashboardSummaryFixture,
+  reservationConversionFixture,
 } from "./fixtures/dashboard";
 import { productsFixture } from "./fixtures/products";
 import { salesFixture } from "./fixtures/sales";
@@ -105,6 +106,9 @@ export const handlers = [
   http.get(`${baseUrl}/dashboard/club-trend`, () => envelope(clubTrendFixture)),
   http.get(`${baseUrl}/dashboard/customers-by-team`, () =>
     envelope(customersByTeamFixture),
+  ),
+  http.get(`${baseUrl}/dashboard/reservation-conversion`, () =>
+    envelope(reservationConversionFixture),
   ),
   http.get(`${baseUrl}/alerts/count`, () =>
     envelope({ total: 0, critical: 0, informational: 0 }),

@@ -1,6 +1,7 @@
 import type {
   DashboardClubTrend,
   DashboardCustomersByTeam,
+  DashboardReservationConversion,
   DashboardSummary,
 } from "@/types";
 
@@ -93,3 +94,10 @@ export const customersByTeamFixture: DashboardCustomersByTeam[] = [
     purchaseCount: 90,
   },
 ];
+
+export const reservationConversionFixture: DashboardReservationConversion = {
+  confirmed: 34,
+  cancelled: 9,
+  expired: 5,
+  conversionRate: 70.8,
+};

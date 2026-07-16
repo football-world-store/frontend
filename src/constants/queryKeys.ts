@@ -90,5 +90,11 @@ export const queryKeys = {
       [...queryKeys.dashboard.all, "clubTrend", months ?? null] as const,
     customersByTeam: () =>
       [...queryKeys.dashboard.all, "customersByTeam"] as const,
+    reservationConversion: (params?: DashboardPeriod) =>
+      [
+        ...queryKeys.dashboard.all,
+        "reservationConversion",
+        params ?? {},
+      ] as const,
   },
 } as const;
