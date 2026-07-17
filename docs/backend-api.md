@@ -2,6 +2,8 @@
 
 > Gerado a partir de `https://backend-bywc.onrender.com/docs/json` em 2026-07-15. Spec completo (OpenAPI 3.0) salvo em `docs/backend-openapi.json`. Reexporte esse arquivo sempre que o backend mudar de forma relevante.
 
+⚠️ **O OpenAPI/Scalar não documenta response schemas na maioria dos endpoints** — só descrições textuais. Em 2026-07-15 uma auditoria contra o código-fonte real do backend (`/Users/deiv/Documents/football/backend`, controllers/use-cases/`schema.prisma`) encontrou várias divergências entre o que o front assumia (baseado só no spec) e a realidade. Achado mais importante: **todo endpoint de listagem paginada retorna `{ data: T[], meta: {total,page,limit,totalPages} }` direto, sem o envelope `{ data: {...} }`** que o resto da API usa — o controller repassa o retorno do use-case sem re-embrulhar. Isso afetava products, sales, customers, users e stock-entries simultaneamente. Corrigido via `fetchPaginated()` compartilhado em `src/services/api/pagination.ts`. Ao integrar um endpoint novo, **não confie só no OpenAPI nem no README do módulo** (que pode estar desatualizado em relação ao código, como aconteceu em `dashboard/summary`) — confirme o shape lendo o use-case/controller reais no repo do backend.
+
 Total: 63 operações em 11 tags, 52 paths, 28 DTOs.
 
 ## Legenda
