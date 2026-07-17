@@ -71,8 +71,7 @@ export const StockEntriesTable = ({
     );
   }
 
-  const canReverse = (movementType: "ENTRY" | "REVERSE") =>
-    movementType === "ENTRY";
+  const canReverse = (isReverse: boolean) => !isReverse;
 
   const table = (
     <>
@@ -88,12 +87,10 @@ export const StockEntriesTable = ({
           >
             <div className="flex items-start justify-between gap-2">
               <span className="font-body text-sm font-semibold text-on-surface truncate">
-                {entry.productName}
+                {entry.product.name}
               </span>
-              <Badge
-                tone={entry.movementType === "ENTRY" ? "success" : "warning"}
-              >
-                {entry.movementType === "ENTRY" ? "Entrada" : "Estorno"}
+              <Badge tone={entry.isReverse ? "warning" : "success"}>
+                {entry.isReverse ? "Estorno" : "Entrada"}
               </Badge>
             </div>
             <div className="flex items-center justify-between gap-2 font-label text-xs text-on-surface-variant">
@@ -101,17 +98,17 @@ export const StockEntriesTable = ({
                 <span>{entry.quantity} un.</span>
                 <span>·</span>
                 <span>
-                  {entry.unitCost === null
+                  {entry.unitCost === undefined
                     ? "—"
                     : formatPriceFromReais(entry.unitCost)}
                 </span>
                 <span>·</span>
-                <span>{formatDateBR(entry.entryDate)}</span>
+                <span>{formatDateBR(entry.createdAt)}</span>
               </div>
-              {canReverse(entry.movementType) ? (
+              {canReverse(entry.isReverse) ? (
                 <IconButton
                   iconName="undo"
-                  label={`Estornar ${entry.productName}`}
+                  label={`Estornar ${entry.product.name}`}
                   filled={false}
                   onClick={() => setPendingReverseId(entry.id)}
                 />
@@ -132,31 +129,29 @@ export const StockEntriesTable = ({
               }`}
             >
               <span className="col-span-3 font-body text-sm text-on-surface">
-                {entry.productName}
+                {entry.product.name}
               </span>
               <span className="col-span-2">
-                <Badge
-                  tone={entry.movementType === "ENTRY" ? "success" : "warning"}
-                >
-                  {entry.movementType === "ENTRY" ? "Entrada" : "Estorno"}
+                <Badge tone={entry.isReverse ? "warning" : "success"}>
+                  {entry.isReverse ? "Estorno" : "Entrada"}
                 </Badge>
               </span>
               <span className="col-span-2 font-body text-sm text-on-surface">
                 {entry.quantity} un.
               </span>
               <span className="col-span-2 font-body text-sm text-on-surface">
-                {entry.unitCost === null
+                {entry.unitCost === undefined
                   ? "—"
                   : formatPriceFromReais(entry.unitCost)}
               </span>
               <span className="col-span-2 font-label text-xs text-on-surface-variant text-right">
-                {formatDateBR(entry.entryDate)}
+                {formatDateBR(entry.createdAt)}
               </span>
               <span className="col-span-1 flex justify-end">
-                {canReverse(entry.movementType) ? (
+                {canReverse(entry.isReverse) ? (
                   <IconButton
                     iconName="undo"
-                    label={`Estornar ${entry.productName}`}
+                    label={`Estornar ${entry.product.name}`}
                     filled={false}
                     onClick={() => setPendingReverseId(entry.id)}
                   />
@@ -184,7 +179,7 @@ export const StockEntriesTable = ({
         title="Estornar entrada?"
         description={
           pendingEntry
-            ? `${pendingEntry.productName} — ${pendingEntry.quantity} unidades em ${formatDateBR(pendingEntry.entryDate)}`
+            ? `${pendingEntry.product.name} — ${pendingEntry.quantity} unidades em ${formatDateBR(pendingEntry.createdAt)}`
             : undefined
         }
         size="md"

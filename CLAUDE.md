@@ -1,19 +1,76 @@
-# CLAUDE.md — Football World Store Frontend
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Guia vivo de arquitetura e convenções deste projeto. **Leia antes de codar.**
+
+> ⚠️ **Next.js 16 é recente e difere do seu treinamento.** APIs, convenções e estrutura de arquivos podem ter mudado (ex: `middleware.ts` agora é `src/proxy.ts`). Antes de usar uma API do Next que pareça incerta, confira `node_modules/next/dist/docs/` ou os arquivos reais do projeto em vez de assumir comportamento de versões antigas.
+
+---
+
+## Comandos
+
+```bash
+bun install                 # instalar deps
+cp .env.example .env.local  # configurar env (ver tabela abaixo)
+
+bun dev                     # dev server — http://localhost:3000
+bun run build                # build de produção
+bun start                   # sobe o build de produção
+
+bun run lint                 # ESLint
+bun run lint:fix             # ESLint com --fix
+bun run format                # Prettier --write
+bun run format:check          # Prettier --check (usado no CI)
+bun run typecheck             # tsc --noEmit
+```
+
+Não há suíte de testes configurada neste projeto (sem Jest/Vitest/Playwright, sem scripts de teste no `package.json`). Validação é feita via `lint` + `typecheck` + `build`, que é exatamente o que o CI roda.
+
+**CI** (`.github/workflows/ci.yml`, todo PR contra `main`): `bun install --frozen-lockfile` → `lint` → `format:check` → `typecheck` → `build`. Rode esses quatro comandos localmente antes de abrir PR.
+
+**Variáveis de ambiente** (`src/constants/env.ts` faz a leitura tipada):
+
+| Variável                   | Descrição                                                          |
+| -------------------------- | ------------------------------------------------------------------ |
+| `NEXT_PUBLIC_API_URL`      | URL base do backend (Axios usa isso + `withCredentials`)           |
+| `NEXT_PUBLIC_ENABLE_MOCKS` | `true` liga o MSW em dev (`src/mocks/`) — útil sem backend rodando |
+
+---
+
+## Status da integração com o backend
+
+Checklist de módulos/endpoints do backend (`https://backend-bywc.onrender.com`) já conectados no frontend. Mapeamento completo de rotas em [`docs/backend-api.md`](./docs/backend-api.md).
+
+- [x] **Auth (staff)** — login, logout, forgot/reset password, refresh, clear-sessions
+- [x] **Auto-cadastro de funcionário** — `POST /users/register` (`/register`), fica inativo até OWNER aprovar
+- [x] **Users** — CRUD completo, `me`, troca de senha
+- [x] **Products** — CRUD, upload de foto (S3 presigned URL), restore
+- [x] **StockEntries** — listar, criar, estornar (shape `product{}`/`user{}` aninhado, `isReverse`/`reverseOf`)
+- [x] **Sales** — listar, criar, cancelar
+- [x] **Customers** — CRUD, export, ranking, histórico de compras (`GET /:id/purchases`)
+- [x] **Alerts** — listar, contagem, resolver
+- [x] **Audit** — log de auditoria com filtros (`user{}` aninhado via Prisma include)
+- [x] **Dashboard** — todos os 14 endpoints: summary, top-products, top-clubs, sizes, channels, margins (+ byCategory/byClub), idle-products (`{summary, items}`), payment-methods, stock-velocity, reorder-list, capital-by-club, club-trend (lista flat por clube×mês), customers-by-team, reservation-conversion (`{total, pendingCount, conversionRate, byStatus[]}`)
+- [x] **Customer Auth (portal do cliente)** — magic link sem senha, `/portal` → `/minha-conta/entrar` → `/portal/orders`. Sessão isolada (`customer_access_token`, `customerApiClient`, `CustomerAuthContext`) — ver seção Autenticação & Middleware
+- [ ] **Public — Chatbot API** (`/public/products`, `/public/reservations`) — **fora de escopo**, consumida só pelo fluxo n8n do chatbot, não integrar no front
+
+⚠️ **Lição da integração**: o OpenAPI/Scalar não documenta response schemas na maioria dos endpoints — só descrições textuais. Um bug sistêmico de paginação (todo endpoint de listagem paginada retorna `{ data: T[], meta: {...} }` **sem** o envelope `{ data: {...} }` do resto da API) só foi encontrado auditando o código-fonte real do backend, não a spec. Ao integrar endpoint novo ou investigar um shape esquisito, **confirme contra `backend/src/modules/<nome>/interface/*.controller.ts` e `use-case/*.use-case.ts`** — o README de cada módulo do backend é útil como contexto rápido, mas pode estar desatualizado em relação ao código (aconteceu em `dashboard/summary`).
 
 ---
 
 ## Stack
 
-- **Framework**: Next.js 16 (App Router)
+- **Framework**: Next.js 16 (App Router), React 19
 - **Linguagem**: TypeScript (strict)
 - **Estilo**: Tailwind CSS v4
 - **Server state**: TanStack Query v5 (`@tanstack/react-query`)
 - **HTTP**: Axios (centralizado em `src/services/api/client.ts`)
+- **Forms/validação**: React Hook Form + Zod (`src/lib/validations/`)
 - **Toasts**: Sonner
+- **Mocks**: MSW — `src/mocks/` (handlers + fixtures por domínio), liga via `NEXT_PUBLIC_ENABLE_MOCKS`
 - **Package manager**: Bun
-- **Lint/Format**: ESLint + Prettier + Husky + lint-staged
+- **Lint/Format**: ESLint (+ sonarjs, jsx-a11y) + Prettier + Husky + lint-staged
 
 ---
 
@@ -21,44 +78,53 @@ Guia vivo de arquitetura e convenções deste projeto. **Leia antes de codar.**
 
 ```
 src/
-├── app/                  # Roteamento Next (App Router)
-│   ├── layout.tsx        # Root layout — injeta <Providers>
-│   ├── page.tsx          # Home
-│   └── providers.tsx     # QueryClient + Auth + UI + Toaster (client component)
+├── app/                       # Roteamento Next (App Router)
+│   ├── (protected)/           # Rotas autenticadas — proxy.ts assume protegido por padrão
+│   │   ├── dashboard/ customers/[id]/ inventory/ entries/
+│   │   ├── sales/ insights/ alerts/ audit/ settings/
+│   │   └── layout.tsx
+│   ├── sign-in/ register/ forgot-password/ reset-password/   # Rotas públicas de auth (staff)
+│   ├── minha-conta/entrar/    # Verificação de magic link do portal do cliente
+│   ├── portal/ portal/orders/ # Portal do cliente — público, fora do gating de sessão staff
+│   ├── layout.tsx             # Root layout — <html class="dark"> fixo, fonts, <Providers>
+│   ├── providers.tsx          # QueryClient + Auth + UI + Toaster (client component)
+│   └── globals.css            # Design tokens (Tailwind v4 @theme) — ver seção Design System
 │
-├── components/           # Atomic Design (UI puro, sem fetch)
-│   ├── atoms/            # Button, Input, Label, Badge…
-│   ├── molecules/        # FormField, SearchBar, Card…
-│   ├── organisms/        # Header, Footer, ProductList…
-│   └── templates/        # PageLayout, AuthLayout…
+├── components/                # Atomic Design (UI puro, sem fetch)
+│   ├── atoms/                 # Button, Input, Label, Badge, Modal, Select, Spinner…
+│   ├── molecules/              # FormField, Card, Sidebar, TopBar, StatTile, gráficos (Recharts)…
+│   ├── organisms/               # LoginForm, ProductForm, InventoryTable, DashboardKPIs, RequestMagicLinkForm, CustomerOrdersList…
+│   └── templates/                # AuthLayout, DashboardLayout
 │
-├── contexts/             # Estado global de UI/sessão (anti prop drilling)
-│   ├── AuthContext.tsx   # useAuth()
-│   └── UIContext.tsx     # useUI()
+├── contexts/                  # AuthContext (staff), CustomerAuthContext (portal, montado só em app/portal/layout.tsx)
 │
-├── hooks/                # Custom hooks
-│   ├── queries/          # useXxxQuery (TanStack Query reads)
-│   └── mutations/        # useXxxMutation (TanStack Query writes)
+├── hooks/
+│   ├── queries/                # useXxxQuery (TanStack Query reads)
+│   └── mutations/               # useXxxMutation (TanStack Query writes)
 │
-├── services/             # Camada de API
+├── services/                  # Única camada que importa axios
 │   ├── api/
-│   │   ├── client.ts     # Axios instance + interceptors
-│   │   └── routes.ts     # API_ROUTES (todas as URLs do backend)
-│   └── *.service.ts      # Um arquivo por domínio (ex: products.service.ts)
+│   │   ├── client.ts           # Axios instance staff (refresh automático + redirect 401 → /sign-in)
+│   │   ├── customerClient.ts   # Axios instance do portal — sem refresh, sem redirect (cookie customer_access_token separado)
+│   │   ├── pagination.ts       # fetchPaginated() — todo endpoint de listagem retorna {data, meta} sem envelope extra
+│   │   └── routes.ts           # API_ROUTES — todas as URLs do backend
+│   └── *.service.ts            # Um arquivo por domínio (products, customers, sales, users, customerAuth…)
 │
-├── constants/            # Constantes globais
-│   ├── env.ts            # Leitura tipada de env vars
-│   ├── routes.ts         # APP_ROUTES (paths frontend)
-│   └── queryKeys.ts      # Factories de chaves do TanStack Query
+├── constants/                 # env.ts, routes.ts (APP_ROUTES), queryKeys.ts, auth.ts (nome do cookie)
 │
-├── types/                # Tipos e interfaces
-│   ├── api/              # DTOs / responses do backend
-│   └── domain/           # Entidades de negócio
+├── types/
+│   ├── api/                    # DTOs / responses do backend
+│   └── domain/                  # Product, Customer, Sale, StockEntry, User, Alert…
 │
-├── utils/                # Funções puras (formatadores, validadores)
+├── lib/
+│   ├── queryClient.ts          # Config do TanStack Query
+│   └── validations/              # Zod schemas por domínio
 │
-└── lib/                  # Wrappers de libs externas
-    └── queryClient.ts    # Config do QueryClient
+├── mocks/                     # MSW handlers + fixtures/ por domínio (dev sem backend)
+│
+├── utils/                     # Funções puras (formatadores, validadores)
+│
+└── proxy.ts                   # Sessão server-side (cookie httpOnly) + redirects — ver seção Auth
 ```
 
 ---
@@ -177,7 +243,7 @@ Acessibilidade não é opcional. ESLint (`jsx-a11y`) avisa, mas o critério fina
 
 ## Design System (CSS global) — regras inegociáveis
 
-> Filosofia: **"The Elite Performance Tier"** (ver `front_stitch/golden_strike/DESIGN.md`). Dark-first, metálico, sem linhas. Toda decisão visual passa por aqui.
+> Filosofia: **"The Elite Performance Tier"** — dark-first, metálico, sem linhas (DESIGN.md original não está neste repo; as regras abaixo são a fonte da verdade). Toda decisão visual passa por aqui.
 
 ### 1. Dark-first SEMPRE
 
@@ -349,25 +415,39 @@ Siga o padrão de `AuthContext.tsx`:
 
 ## Autenticação & Middleware
 
-Auth é **server-side first**. O frontend não toca em token de sessão.
+Auth é **server-side first**. O frontend não toca em token de sessão. Existem **duas sessões independentes**, cada uma com seu próprio cookie, cliente HTTP e Context — nunca misture as duas.
 
-### Como funciona
+### Sessão de staff (funcionário/OWNER)
 
-1. **Backend** emite um cookie `access_token` no `POST /auth/login`. O cookie é **httpOnly + Secure + SameSite=Lax** — JavaScript do client **não consegue ler**. Logout limpa o cookie via `POST /auth/logout`.
-2. **`apiClient`** (axios) usa `withCredentials: true` — o navegador anexa o cookie em toda request automaticamente.
+1. **Backend** emite um cookie `access_token` no `POST /auth/login`. O cookie é **httpOnly + Secure + SameSite=Lax** — JavaScript do client **não consegue ler**. Logout limpa o cookie via `POST /auth/logout`. Tem refresh (`POST /auth/refresh`).
+2. **`apiClient`** (`src/services/api/client.ts`) usa `withCredentials: true`, tenta refresh automático num 401 e redireciona para `/sign-in` se o refresh falhar.
 3. **`src/proxy.ts`** (Next.js — convenção do Next 16, antes chamada `middleware.ts`) roda em todas as rotas server-side, antes do React montar:
    - `/` → redireciona para `/dashboard` (com sessão) ou `/sign-in` (sem sessão).
-   - Rota de auth (`/sign-in`, `/forgot-password`, `/reset-password`) com sessão ativa → redireciona para `/dashboard`.
+   - Rota de auth staff (`/sign-in`, `/register`, `/forgot-password`, `/reset-password`) com sessão ativa → redireciona para `/dashboard`.
    - Rota protegida sem sessão → redireciona para `/sign-in?redirect=<rota-original>`.
+   - Rotas do portal (`/portal/*`, `/minha-conta/entrar`) **não entram nesse gating em nenhuma direção** — ver seção abaixo.
 4. **`useLoginMutation`** lê `?redirect=` e devolve o usuário para a rota tentada após login.
 5. **Interceptor 401** em `apiClient` redireciona para `/sign-in` quando o backend invalida a sessão (cookie expirado).
+
+### Sessão do portal do cliente (magic link, sem senha)
+
+Pensada para o cliente final ver as próprias compras/reservas — **não é staff**, tem cookie e fluxo próprios:
+
+1. Cliente pede link em `/portal` → `POST /customer-auth/magic-link { email }` (sempre responde sucesso, nunca revela se o email existe).
+2. Clica no link do e-mail, que aponta para `/minha-conta/entrar?token=...` (path **fixo no backend**, não configurável via env — não renomeie essa rota sem checar `request-magic-link.use-case.ts` no backend).
+3. `VerifyMagicLinkForm` dispara `POST /customer-auth/verify { token }` automaticamente no mount → backend seta cookie `customer_access_token` (httpOnly, 7 dias, **sem refresh** — não existe endpoint de renovação).
+4. `GET /customer-auth/me/orders` lista compras (`Sale`) e reservas (`CustomerReservation`) do cliente autenticado.
+5. **`customerApiClient`** (`src/services/api/customerClient.ts`) é uma instância axios separada — sem retry de refresh, sem redirect automático em 401 (quem decide o que fazer é o componente, ex: mostrar "sessão expirada, peça um novo link").
+6. **`CustomerAuthContext`** (`src/contexts/CustomerAuthContext.tsx`) guarda a identidade do cliente via `queryClient.setQueryData`, análogo ao padrão já usado em `useLoginMutation` para o staff — mas é montado **só** em `src/app/portal/layout.tsx`, nunca em `providers.tsx` global.
+7. `proxy.ts` não faz nenhum gating de sessão do portal — a prova de sessão válida é a própria chamada a `me/orders` funcionar ou devolver 401, checada client-side.
 
 ### Regras
 
 - **NUNCA** armazene token em `localStorage`, `sessionStorage` ou cookie não-httpOnly. O backend é o dono da sessão.
 - **NUNCA** faça redirect de auth via `useEffect`. O middleware já cuidou disso server-side.
-- **NUNCA** crie uma rota protegida fora de `(protected)/`. O proxy presume que tudo que NÃO é auth-route é protegido.
-- Para nova rota pública (ex: `/about`), adicione exceção explícita no `proxy.ts`.
+- **NUNCA** crie uma rota protegida (staff) fora de `(protected)/`. O proxy presume que tudo que NÃO é auth-route nem rota do portal é protegido.
+- **NUNCA** misture `apiClient` (staff) com `customerApiClient` (portal), nem `AuthContext` com `CustomerAuthContext`. São sessões, cookies e políticas de erro diferentes.
+- Para nova rota pública de staff (ex: `/about`), adicione exceção explícita no `proxy.ts`. Para nova rota do portal, use o prefixo `/portal/*` (já coberto pelo carve-out) ou adicione a rota específica em `isPortalRoute`.
 - Nome do cookie vive em `SESSION_COOKIE_NAME` (`src/constants/auth.ts`). Sincronize com o backend.
 
 ---

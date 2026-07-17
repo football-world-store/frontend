@@ -73,7 +73,7 @@ const AuditPage = () => {
               >
                 <div className="col-span-12 md:col-span-5 min-w-0">
                   <p className="font-body text-sm font-semibold text-on-surface truncate">
-                    {log.userName}
+                    {log.user.name}
                   </p>
                   <p className="font-label text-xs text-on-surface-variant truncate">
                     {log.entity}

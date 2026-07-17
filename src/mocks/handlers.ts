@@ -1,11 +1,19 @@
 import { http, HttpResponse } from "msw";
 
 import { ENV } from "@/constants";
-import type { PaginatedResult } from "@/types";
 
 import { alertsFixture } from "./fixtures/alerts";
+import {
+  customerIdentityFixture,
+  customerOrdersFixture,
+} from "./fixtures/customerAuth";
 import { customersFixture } from "./fixtures/customers";
-import { dashboardSummaryFixture } from "./fixtures/dashboard";
+import {
+  clubTrendFixture,
+  customersByTeamFixture,
+  dashboardSummaryFixture,
+  reservationConversionFixture,
+} from "./fixtures/dashboard";
 import { productsFixture } from "./fixtures/products";
 import { salesFixture } from "./fixtures/sales";
 import { stockEntriesFixture } from "./fixtures/stockEntries";
@@ -15,6 +23,8 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 const HTTP_CREATED = 201;
 const HTTP_NOT_FOUND = 404;
+const HTTP_UNAUTHORIZED = 401;
+const CUSTOMER_NOT_FOUND_MESSAGE = "Cliente não encontrado";
 
 const rawBase = ENV.API_URL.replace(/\/$/, "");
 const baseUrl = rawBase.startsWith("/") ? `*${rawBase}` : rawBase;
@@ -27,15 +37,48 @@ const notFound = (message: string) =>
     { status: HTTP_NOT_FOUND },
   );
 
-const paginate = <T>(items: T[]): PaginatedResult<T> => ({
-  items,
-  page: DEFAULT_PAGE,
-  limit: DEFAULT_LIMIT,
-  total: items.length,
-});
+/**
+ * Shape real dos endpoints paginados do backend — { data, meta }, sem o
+ * envelope { data: {...} } padrão. Ver services/api/pagination.ts.
+ */
+const paginate = <T>(items: T[]) =>
+  HttpResponse.json({
+    data: items,
+    meta: {
+      total: items.length,
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_LIMIT,
+      totalPages: Math.ceil(items.length / DEFAULT_LIMIT),
+    },
+  });
 
 const generateId = (prefix: string) =>
   `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+
+const buildStockEntry = (
+  body: Record<string, unknown>,
+  product: (typeof productsFixture)[number] | undefined,
+) => {
+  const quantity = Number(body.quantity ?? 0);
+  const unitCost = Number(body.unitCost ?? 0);
+  return {
+    quantity,
+    unitCost,
+    id: generateId("se"),
+    totalCost: unitCost * quantity,
+    supplier: String(body.supplier ?? ""),
+    notes: typeof body.notes === "string" ? body.notes : null,
+    isReverse: false,
+    reverseOf: null,
+    createdAt: new Date().toISOString(),
+    product: {
+      id: product?.id ?? String(body.productId ?? ""),
+      internalCode: product?.internalCode ?? "",
+      name: product?.name ?? "Produto",
+    },
+    user: { id: "u-001", name: "Edimilson Junior" },
+  };
+};
 
 const products = [...productsFixture];
 const customers = [...customersFixture];
@@ -44,7 +87,7 @@ const users = [...usersFixture];
 
 export const handlers = [
   // ----- Products
-  http.get(`${baseUrl}/products`, () => envelope(paginate(products))),
+  http.get(`${baseUrl}/products`, () => paginate(products)),
   http.post(`${baseUrl}/products/find`, async ({ request }) => {
     const body = (await request.json()) as { id?: string };
     const product = products.find((p) => p.id === body.id);
@@ -90,19 +133,33 @@ export const handlers = [
     envelope({
       overall: { revenue: 0, cost: 0, grossProfit: 0, marginPercentage: 0 },
       byProduct: [],
+      byCategory: [],
+      byClub: [],
     }),
   ),
-  http.get(`${baseUrl}/dashboard/idle-products`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/idle-products`, () =>
+    envelope({
+      summary: { totalIdleProducts: 0, totalStuckValue: 0, byClub: [] },
+      items: [],
+    }),
+  ),
   http.get(`${baseUrl}/dashboard/payment-methods`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/stock-velocity`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/reorder-list`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/capital-by-club`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/club-trend`, () => envelope(clubTrendFixture)),
+  http.get(`${baseUrl}/dashboard/customers-by-team`, () =>
+    envelope(customersByTeamFixture),
+  ),
+  http.get(`${baseUrl}/dashboard/reservation-conversion`, () =>
+    envelope(reservationConversionFixture),
+  ),
   http.get(`${baseUrl}/alerts/count`, () =>
     envelope({ total: 0, critical: 0, informational: 0 }),
   ),
 
   // ----- Stock entries
-  http.get(`${baseUrl}/stock-entries`, () => envelope(paginate(stockEntries))),
+  http.get(`${baseUrl}/stock-entries`, () => paginate(stockEntries)),
   http.post(`${baseUrl}/stock-entries/find`, async ({ request }) => {
     const body = (await request.json()) as { id?: string };
     const entry = stockEntries.find((e) => e.id === body.id);
@@ -111,21 +168,7 @@ export const handlers = [
   http.post(`${baseUrl}/stock-entries`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     const product = products.find((p) => p.id === body.productId);
-    const entry = {
-      id: generateId("se"),
-      productId: String(body.productId ?? ""),
-      productName: product?.name ?? "Produto",
-      movementType: "ENTRY" as const,
-      quantity: Number(body.quantity ?? 0),
-      unitCost: Number(body.unitCost ?? 0),
-      supplier: String(body.supplier ?? ""),
-      notes: typeof body.notes === "string" ? body.notes : null,
-      reversedEntryId: null,
-      userId: "u-001",
-      userName: "Edimilson Junior",
-      entryDate: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+    const entry = buildStockEntry(body, product);
     stockEntries.unshift(entry);
     if (product) {
       product.quantity += entry.quantity;
@@ -134,22 +177,27 @@ export const handlers = [
   }),
 
   // ----- Sales
-  http.get(`${baseUrl}/sales`, () => envelope(paginate(salesFixture))),
+  http.get(`${baseUrl}/sales`, () => paginate(salesFixture)),
 
-  // ----- Customers (mock-only por enquanto)
-  http.get(`${baseUrl}/customers`, () => envelope(customers)),
-  http.get(`${baseUrl}/customers/:id`, ({ params }) => {
-    const customer = customers.find((c) => c.id === params.id);
-    return customer ? envelope(customer) : notFound("Cliente não encontrado");
+  // ----- Customers
+  http.get(`${baseUrl}/customers`, () => paginate(customers)),
+  http.post(`${baseUrl}/customers/find`, async ({ request }) => {
+    const body = (await request.json()) as { id?: string };
+    const customer = customers.find((c) => c.id === body.id);
+    return customer ? envelope(customer) : notFound(CUSTOMER_NOT_FOUND_MESSAGE);
   }),
   http.post(`${baseUrl}/customers`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     const customer = {
       id: generateId("c"),
       name: String(body.name ?? ""),
-      phone: (body.phone as string | null) ?? null,
+      whatsapp: (body.whatsapp as string | null) ?? null,
       email: (body.email as string | null) ?? null,
       status: "ACTIVE" as const,
+      favoriteTeam: (body.favoriteTeam as string | null) ?? null,
+      preferredSizes: (body.preferredSizes as string[] | undefined) ?? [],
+      birthDate: (body.birthDate as string | null) ?? null,
+      notes: (body.notes as string | null) ?? null,
       totalSpent: 0,
       totalOrders: 0,
       lastPurchaseAt: null,
@@ -158,12 +206,28 @@ export const handlers = [
     customers.unshift(customer);
     return HttpResponse.json({ data: customer }, { status: HTTP_CREATED });
   }),
+  http.patch(`${baseUrl}/customers`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown> & {
+      id: string;
+    };
+    const index = customers.findIndex((c) => c.id === body.id);
+    if (index === -1) return notFound(CUSTOMER_NOT_FOUND_MESSAGE);
+    customers[index] = { ...customers[index], ...body };
+    return envelope(customers[index]);
+  }),
+  http.delete(`${baseUrl}/customers`, async ({ request }) => {
+    const body = (await request.json()) as { id?: string };
+    const index = customers.findIndex((c) => c.id === body.id);
+    if (index === -1) return notFound(CUSTOMER_NOT_FOUND_MESSAGE);
+    customers[index] = { ...customers[index], status: "INACTIVE" };
+    return envelope(customers[index]);
+  }),
 
   // ----- Alerts (mock-only por enquanto)
   http.get(`${baseUrl}/alerts`, () => envelope(alertsFixture)),
 
   // ----- Users
-  http.get(`${baseUrl}/users`, () => envelope(paginate(users))),
+  http.get(`${baseUrl}/users`, () => paginate(users)),
   http.get(`${baseUrl}/users/me`, () =>
     envelope({
       id: "u-001",
@@ -186,4 +250,40 @@ export const handlers = [
     users.unshift(user);
     return HttpResponse.json({ data: user }, { status: HTTP_CREATED });
   }),
+  http.post(`${baseUrl}/users/register`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    const user = {
+      id: generateId("u"),
+      name: String(body.name ?? ""),
+      email: String(body.email ?? ""),
+      role: "EMPLOYEE" as const,
+      isActive: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    users.unshift(user);
+    return HttpResponse.json({ data: user }, { status: HTTP_CREATED });
+  }),
+
+  // ----- Customer Auth (portal do cliente)
+  http.post(`${baseUrl}/customer-auth/magic-link`, () =>
+    HttpResponse.json({}, { status: 200 }),
+  ),
+  http.post(`${baseUrl}/customer-auth/verify`, async ({ request }) => {
+    const body = (await request.json()) as { token?: string };
+    if (!body.token) {
+      return HttpResponse.json(
+        { message: "Token inválido" },
+        { status: HTTP_UNAUTHORIZED },
+      );
+    }
+    return envelope({ customer: customerIdentityFixture });
+  }),
+  http.post(
+    `${baseUrl}/customer-auth/logout`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.get(`${baseUrl}/customer-auth/me/orders`, () =>
+    envelope(customerOrdersFixture),
+  ),
 ];

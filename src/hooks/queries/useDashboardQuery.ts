@@ -69,3 +69,23 @@ export const useDashboardCapitalByClubQuery = () =>
     queryKey: queryKeys.dashboard.capitalByClub(),
     queryFn: dashboardService.capitalByClub,
   });
+
+export const useDashboardClubTrendQuery = (months?: number) =>
+  useQuery({
+    queryKey: queryKeys.dashboard.clubTrend(months),
+    queryFn: () => dashboardService.clubTrend(months),
+  });
+
+export const useDashboardCustomersByTeamQuery = () =>
+  useQuery({
+    queryKey: queryKeys.dashboard.customersByTeam(),
+    queryFn: dashboardService.customersByTeam,
+  });
+
+export const useDashboardReservationConversionQuery = (
+  params: DashboardPeriod,
+) =>
+  useQuery({
+    queryKey: queryKeys.dashboard.reservationConversion(params),
+    queryFn: () => dashboardService.reservationConversion(params),
+  });

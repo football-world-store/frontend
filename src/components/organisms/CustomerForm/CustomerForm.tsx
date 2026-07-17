@@ -24,12 +24,17 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
     defaultValues: { name: "", phone: "", email: "", notes: "" },
   });
 
-  const onSubmit = handleSubmit(async () => {
+  const onSubmit = handleSubmit(async (values) => {
     try {
-      await mutation.mutateAsync();
+      await mutation.mutateAsync({
+        name: values.name,
+        whatsapp: values.phone.replace(/\D/g, ""),
+        email: values.email ?? undefined,
+        notes: values.notes,
+      });
       onSuccess?.();
     } catch {
-      // Backend ainda não suporta criação — mensagem já foi exibida via toast.
+      // Erro já é exibido via toast pelo interceptor do axios.
     }
   });
 

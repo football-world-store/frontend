@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants";
-import { usersService } from "@/services";
+import { auditService } from "@/services";
 import type { ListAuditLogsParams } from "@/types";
 
 interface UseAuditLogsOptions {
@@ -13,7 +13,7 @@ export const useAuditLogsQuery = (
   options?: UseAuditLogsOptions,
 ) =>
   useQuery({
-    queryKey: queryKeys.users.audit(params),
-    queryFn: () => usersService.audit(params),
+    queryKey: queryKeys.audit.list(params),
+    queryFn: () => auditService.list(params),
     enabled: options?.enabled ?? true,
   });

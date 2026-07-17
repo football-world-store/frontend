@@ -60,6 +60,15 @@ export const LoginForm = () => {
           "Entrar"
         )}
       </Button>
+      <p className="text-center font-label text-xs uppercase tracking-wider text-on-surface-variant">
+        Ainda não tem conta?{" "}
+        <Link
+          href={APP_ROUTES.auth.register}
+          className="text-primary hover:opacity-80 transition-colors"
+        >
+          Solicitar acesso
+        </Link>
+      </p>
     </form>
   );
 };

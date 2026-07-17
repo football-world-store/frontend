@@ -1,3 +1,6 @@
+const CUSTOMERS_BASE = "/customers";
+const CUSTOMER_AUTH_BASE = "/customer-auth";
+
 export const API_ROUTES = {
   auth: {
     login: "/auth/login",
@@ -10,12 +13,15 @@ export const API_ROUTES = {
   users: {
     me: "/users/me",
     changePassword: "/users/me/password",
+    register: "/users/register",
     list: "/users",
     create: "/users",
     find: "/users/find",
     update: "/users",
     delete: "/users",
-    audit: "/users/audit",
+  },
+  audit: {
+    list: "/audit",
   },
   products: {
     list: "/products",
@@ -41,8 +47,15 @@ export const API_ROUTES = {
   },
 
   customers: {
-    list: "/customers",
-    byId: (id: string) => `/customers/${id}`,
+    list: CUSTOMERS_BASE,
+    create: CUSTOMERS_BASE,
+    find: `${CUSTOMERS_BASE}/find`,
+    update: CUSTOMERS_BASE,
+    delete: CUSTOMERS_BASE,
+    export: `${CUSTOMERS_BASE}/export`,
+    purchases: (id: string) => `${CUSTOMERS_BASE}/${id}/purchases`,
+    rankingByAmount: `${CUSTOMERS_BASE}/ranking/by-amount`,
+    rankingByPurchases: `${CUSTOMERS_BASE}/ranking/by-purchases`,
   },
   alerts: {
     list: "/alerts",
@@ -61,5 +74,14 @@ export const API_ROUTES = {
     stockVelocity: "/dashboard/stock-velocity",
     reorderList: "/dashboard/reorder-list",
     capitalByClub: "/dashboard/capital-by-club",
+    clubTrend: "/dashboard/club-trend",
+    customersByTeam: "/dashboard/customers-by-team",
+    reservationConversion: "/dashboard/reservation-conversion",
+  },
+  customerAuth: {
+    magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
+    verify: `${CUSTOMER_AUTH_BASE}/verify`,
+    logout: `${CUSTOMER_AUTH_BASE}/logout`,
+    orders: `${CUSTOMER_AUTH_BASE}/me/orders`,
   },
 } as const;

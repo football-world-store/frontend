@@ -3,11 +3,14 @@ import type {
   ApiEnvelope,
   DashboardCapitalByClub,
   DashboardChannel,
-  DashboardIdleProduct,
+  DashboardClubTrendEntry,
+  DashboardCustomersByTeam,
+  DashboardIdleProducts,
   DashboardMargins,
   DashboardPaymentMethod,
   DashboardPeriod,
   DashboardReorderItem,
+  DashboardReservationConversion,
   DashboardSizes,
   DashboardStockVelocityItem,
   DashboardSummary,
@@ -41,7 +44,7 @@ export const dashboardService = {
     get<DashboardMargins>(API_ROUTES.dashboard.margins, params),
 
   idleProducts: (days?: number) =>
-    get<DashboardIdleProduct[]>(API_ROUTES.dashboard.idleProducts, { days }),
+    get<DashboardIdleProducts>(API_ROUTES.dashboard.idleProducts, { days }),
 
   paymentMethods: (params: DashboardPeriod) =>
     get<DashboardPaymentMethod[]>(API_ROUTES.dashboard.paymentMethods, params),
@@ -54,4 +57,18 @@ export const dashboardService = {
 
   capitalByClub: () =>
     get<DashboardCapitalByClub[]>(API_ROUTES.dashboard.capitalByClub),
+
+  clubTrend: (months?: number) =>
+    get<DashboardClubTrendEntry[]>(API_ROUTES.dashboard.clubTrend, {
+      months,
+    }),
+
+  customersByTeam: () =>
+    get<DashboardCustomersByTeam[]>(API_ROUTES.dashboard.customersByTeam),
+
+  reservationConversion: (params: DashboardPeriod) =>
+    get<DashboardReservationConversion>(
+      API_ROUTES.dashboard.reservationConversion,
+      params,
+    ),
 };

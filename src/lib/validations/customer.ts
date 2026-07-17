@@ -4,12 +4,7 @@ import { VALIDATION_MESSAGES, nameField } from "./shared";
 
 export const customerSchema = z.object({
   name: nameField,
-  phone: z
-    .string()
-    .min(8, "Telefone inválido")
-    .or(z.literal("").transform(() => null))
-    .nullable()
-    .optional(),
+  phone: z.string().min(8, "Telefone inválido"),
   email: z
     .string()
     .email(VALIDATION_MESSAGES.emailInvalid)

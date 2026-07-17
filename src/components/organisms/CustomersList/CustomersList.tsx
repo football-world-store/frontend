@@ -176,8 +176,6 @@ export const CustomersList = () => {
             <Button
               onClick={() => setIsModalOpen(true)}
               className="w-full md:w-auto"
-              disabled
-              title="Cadastro de clientes em desenvolvimento no backend"
             >
               <Icon name="add" size="sm" />
               Novo cliente
@@ -225,8 +223,8 @@ export const CustomersList = () => {
           {filtered.length === 0 ? (
             <EmptyState
               iconName="groups"
-              title="Cadastro de clientes em breve"
-              description="A integração de clientes ainda está em desenvolvimento no backend. Por enquanto, registre vendas avulsas no PDV."
+              title="Nenhum cliente encontrado"
+              description="Ajuste os filtros ou cadastre um novo cliente para começar."
             />
           ) : (
             <ul className="space-y-2">

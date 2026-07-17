@@ -74,79 +74,92 @@ App sobe em [http://localhost:3000](http://localhost:3000). Husky é instalado a
 ```
 src/
 ├── app/                          # App Router
-│   ├── (protected)/              # Rotas autenticadas (layout próprio)
+│   ├── (protected)/              # Rotas autenticadas — staff (layout próprio)
 │   │   ├── dashboard/
 │   │   ├── customers/[id]/
 │   │   ├── inventory/
 │   │   ├── entries/
 │   │   ├── insights/
+│   │   ├── audit/
 │   │   ├── settings/
 │   │   └── layout.tsx
-│   ├── sign-in/
+│   ├── sign-in/ register/
 │   ├── forgot-password/
 │   ├── reset-password/
+│   ├── minha-conta/entrar/       # Verificação de magic link do portal do cliente
+│   ├── portal/ portal/orders/    # Portal do cliente — público, sessão própria
 │   ├── layout.tsx                # Root layout (dark fixo, fonts)
 │   ├── providers.tsx             # QueryClient + Auth + UI + Toaster
 │   └── globals.css               # Design tokens (Tailwind v4 @theme)
 │
 ├── components/                   # Atomic Design (UI puro, sem fetch)
 │   ├── atoms/                    # Avatar, Badge, Button, Icon, Input, Label, Logo, Modal, Select, Spinner, FormError, IconButton, ClawIndicator
-│   ├── molecules/                # Card, FormField, PasswordField, SelectField, Sidebar, TopBar, StatTile, EmptyState, ClubProgressList, RevenueLineChart, SalesByChannelChart, SizesDonutChart
-│   ├── organisms/                # LoginForm, ForgotPasswordForm, ResetPasswordForm, DashboardKPIs, AlertsPanel, InsightsPanel, InventoryTable, StockEntriesTable, CustomersList, CustomerForm, ProductForm, StockMovementForm, UserForm
+│   ├── molecules/                # Card, FormField, PasswordField, SelectField, Sidebar, TopBar, StatTile, EmptyState, ClubProgressList, ClubTrendChart, RevenueLineChart, SalesByChannelChart, SizesDonutChart
+│   ├── organisms/                # LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, RequestMagicLinkForm, VerifyMagicLinkForm, CustomerOrdersList, DashboardKPIs, AlertsPanel, InsightsPanel, InventoryTable, StockEntriesTable, CustomersList, CustomerForm, ProductForm, StockMovementForm, UserForm
 │   └── templates/                # AuthLayout, DashboardLayout
 │
-├── contexts/                     # AuthContext, UIContext (anti prop drilling)
+├── contexts/                     # AuthContext (staff), CustomerAuthContext (portal — montado só em app/portal/layout.tsx)
 │
 ├── hooks/
-│   ├── queries/                  # useDashboardQuery, useProductsQuery, useCustomersQuery, useSalesQuery, useStockEntriesQuery, useUsersQuery, useAlertsQuery, useMeQuery
-│   └── mutations/                # useLoginMutation, useLogoutMutation, useForgotPasswordMutation, useResetPasswordMutation, useCreateProductMutation, useCreateCustomerMutation, useCreateStockEntryMutation, useCreateUserMutation
+│   ├── queries/                  # useDashboardQuery, useProductsQuery, useCustomersQuery, useSalesQuery, useStockEntriesQuery, useUsersQuery, useAlertsQuery, useAuditLogsQuery, useMeQuery, useCustomerOrdersQuery
+│   └── mutations/                # useLoginMutation, useLogoutMutation, useForgotPasswordMutation, useResetPasswordMutation, useRegisterUserMutation, useCreateProductMutation, useCreateCustomerMutation, useCreateStockEntryMutation, useCreateUserMutation, useRequestMagicLinkMutation, useVerifyMagicLinkMutation, useCustomerLogoutMutation
 │
 ├── services/                     # Camada HTTP (única que usa Axios)
 │   ├── api/
-│   │   ├── client.ts             # Axios instance + interceptor 401
+│   │   ├── client.ts             # Axios instance staff + interceptor 401 (refresh automático)
+│   │   ├── customerClient.ts     # Axios instance do portal — sem refresh, sem redirect
+│   │   ├── pagination.ts         # fetchPaginated() — shape real {data, meta} de todo endpoint paginado
 │   │   └── routes.ts             # API_ROUTES (todas as URLs do backend)
 │   ├── auth.service.ts
+│   ├── customerAuth.service.ts
 │   ├── products.service.ts
 │   ├── customers.service.ts
 │   ├── sales.service.ts
 │   ├── stockEntries.service.ts
 │   ├── users.service.ts
 │   ├── dashboard.service.ts
+│   ├── audit.service.ts
 │   └── alerts.service.ts
 │
 ├── constants/                    # env, routes (APP_ROUTES), queryKeys, auth (cookie name)
 │
 ├── types/
-│   ├── api/                      # DTOs / responses do backend
-│   └── domain/                   # Product, Customer, Sale, StockEntry, User, Alert, DashboardStats
+│   ├── api/                      # DTOs / responses do backend (inclui customerAuth.ts)
+│   └── domain/                   # Product, Customer, Sale, StockEntry, User, Alert, Reservation, CustomerOrder, DashboardStats…
 │
 ├── lib/
 │   ├── queryClient.ts            # Config do TanStack Query
-│   └── validations/              # Zod schemas (auth, product, customer, stockEntry, user)
+│   └── validations/              # Zod schemas (auth, customerAuth, product, customer, stockEntry, user)
 │
 ├── mocks/                        # MSW handlers + fixtures (toggle via NEXT_PUBLIC_ENABLE_MOCKS)
 │   ├── browser.ts
 │   ├── handlers.ts
-│   └── fixtures/                 # alerts, customers, dashboard, products, sales, stockEntries, users
+│   └── fixtures/                 # alerts, customerAuth, customers, dashboard, products, sales, stockEntries, users
 │
 ├── utils/                        # formatters, validators (funções puras)
 │
-└── proxy.ts                      # Sessão server-side (httpOnly cookie) + redirects
+└── proxy.ts                      # Sessão server-side staff (httpOnly cookie) + redirects; carve-out para /portal
 ```
+
+> Status detalhado de quais módulos/endpoints do backend já estão conectados: [`CLAUDE.md` § Status da integração com o backend](./CLAUDE.md#status-da-integração-com-o-backend). Mapeamento completo de endpoints em [`docs/backend-api.md`](./docs/backend-api.md).
 
 ---
 
 ## Autenticação
 
-Sessão é **server-side first**, baseada em cookie httpOnly emitido pelo backend (`POST /auth/login`). Detalhes:
+Duas sessões **independentes**, cada uma server-side first com seu próprio cookie httpOnly, cliente Axios e Context. Detalhes completos em [`CLAUDE.md` § Autenticação & Middleware](./CLAUDE.md).
 
-- Axios envia cookie automaticamente (`withCredentials: true`).
-- `src/proxy.ts` (convenção do Next 16, antes chamada `middleware.ts`) decide redirects antes do React montar:
-  - `/` → `/dashboard` (com sessão) ou `/sign-in` (sem sessão).
-  - Rota de auth com sessão ativa → `/dashboard`.
-  - Rota protegida sem sessão → `/sign-in?redirect=<rota>`.
-- Interceptor 401 do Axios redireciona para `/sign-in` quando o backend invalida a sessão.
-- **Token NUNCA toca o JavaScript do client.** Não use `localStorage`, `sessionStorage` ou cookies não-httpOnly para sessão.
+**Staff** (funcionário/OWNER) — cookie `access_token`, emitido em `POST /auth/login`:
+
+- `apiClient` (`src/services/api/client.ts`) envia o cookie automaticamente (`withCredentials: true`), tenta refresh automático num 401 e redireciona para `/sign-in` se falhar.
+- `src/proxy.ts` (convenção do Next 16, antes chamada `middleware.ts`) decide redirects antes do React montar: `/` → `/dashboard` ou `/sign-in`; rota de auth com sessão ativa → `/dashboard`; rota protegida sem sessão → `/sign-in?redirect=<rota>`.
+
+**Portal do cliente** (`/portal`) — cookie `customer_access_token`, magic link sem senha, sem refresh:
+
+- `customerApiClient` (`src/services/api/customerClient.ts`) é uma instância Axios separada, sem retry/redirect automático.
+- `proxy.ts` não faz gating de sessão nessas rotas — a prova de sessão válida é a chamada a `GET /customer-auth/me/orders` funcionar ou devolver 401.
+
+**Token NUNCA toca o JavaScript do client**, em nenhuma das duas sessões. Não use `localStorage`, `sessionStorage` ou cookies não-httpOnly.
 
 ---
 

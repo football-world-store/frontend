@@ -1,4 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
+import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type {
   ApiEnvelope,
   AuthUser,
@@ -6,10 +6,9 @@ import type {
   PaginatedResult,
 } from "@/types";
 import type {
-  AuditLog,
   CreateUserBody,
-  ListAuditLogsParams,
   ListUsersParams,
+  RegisterUserBody,
   SystemUser,
   UpdateUserBody,
 } from "@/types";
@@ -22,18 +21,18 @@ export const usersService = {
     return data.data;
   },
 
+  register: async (body: RegisterUserBody): Promise<void> => {
+    await apiClient.post(API_ROUTES.users.register, body);
+  },
+
   changePassword: async (body: ChangePasswordRequest): Promise<void> => {
     await apiClient.patch(API_ROUTES.users.changePassword, body);
   },
 
   list: async (
     params?: ListUsersParams,
-  ): Promise<PaginatedResult<SystemUser>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<SystemUser>>
-    >(API_ROUTES.users.list, { params });
-    return data.data;
-  },
+  ): Promise<PaginatedResult<SystemUser>> =>
+    fetchPaginated<SystemUser>(apiClient, API_ROUTES.users.list, params),
 
   create: async (body: CreateUserBody): Promise<SystemUser> => {
     const { data } = await apiClient.post<ApiEnvelope<SystemUser>>(
@@ -61,14 +60,5 @@ export const usersService = {
 
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(API_ROUTES.users.delete, { data: { id } });
-  },
-
-  audit: async (
-    params?: ListAuditLogsParams,
-  ): Promise<PaginatedResult<AuditLog>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<AuditLog>>
-    >(API_ROUTES.users.audit, { params });
-    return data.data;
   },
 };

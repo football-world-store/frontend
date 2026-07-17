@@ -1,6 +1,7 @@
 export * from "./shared";
 export * from "./auth";
 export * from "./customer";
+export * from "./customerAuth";
 export * from "./product";
 export * from "./stockEntry";
 export * from "./user";
