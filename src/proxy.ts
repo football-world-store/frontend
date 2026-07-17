@@ -16,7 +16,8 @@ const isHomeRoute = (pathname: string): boolean => pathname === APP_ROUTES.home;
 
 const isPortalRoute = (pathname: string): boolean =>
   pathname === APP_ROUTES.portal.root ||
-  pathname.startsWith(`${APP_ROUTES.portal.root}/`);
+  pathname.startsWith(`${APP_ROUTES.portal.root}/`) ||
+  pathname === APP_ROUTES.portal.verify;
 
 export const proxy = (request: NextRequest): NextResponse => {
   const { pathname, search } = request.nextUrl;

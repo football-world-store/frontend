@@ -8,11 +8,16 @@ export interface SaleItem {
   id: string;
   productId: string;
   productName: string;
+  productInternalCode: string;
   quantity: number;
   unitPrice: number;
   subtotal: number;
 }
 
+/**
+ * Shape confirmado contra
+ * backend/src/modules/sales/domain/types/sale.types.ts (SaleResponse).
+ */
 export interface Sale {
   id: string;
   saleNumber: number;
@@ -26,8 +31,10 @@ export interface Sale {
   saleDate: string;
   createdAt: string;
   cancelledAt: string | null;
+  cancelledBy: string | null;
   cancelReason: string | null;
   userId: string;
+  userName: string;
   items: SaleItem[];
 }
 

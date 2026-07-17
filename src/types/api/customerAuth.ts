@@ -7,13 +7,16 @@ export interface VerifyMagicLinkBody {
 }
 
 /**
- * PLACEHOLDER — resposta de POST /customer-auth/verify não tem schema
- * documentado no OpenAPI, só a descrição "Sessão criada". Assumimos que o
- * backend devolve alguma identidade mínima do cliente, análoga ao "user" de
- * LoginResponseData, mas isso precisa ser confirmado contra o backend real.
+ * Shape confirmado contra
+ * backend/src/modules/customer-auth/use-case/verify-magic-link.use-case.ts —
+ * POST /customer-auth/verify devolve { data: { customer: CustomerIdentity } }.
  */
 export interface CustomerIdentity {
-  id?: string;
-  name?: string;
-  email?: string;
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface VerifyMagicLinkResponseData {
+  customer: CustomerIdentity;
 }

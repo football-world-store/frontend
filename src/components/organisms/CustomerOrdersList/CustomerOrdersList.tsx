@@ -3,26 +3,92 @@
 import { Badge, Spinner } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
 import { useCustomerOrdersQuery } from "@/hooks/queries";
-import type { CustomerOrder } from "@/types";
+import type { CustomerReservation, Sale } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
 
-const STATUS_TONE: Record<string, "success" | "neutral" | "error"> = {
+const SALE_STATUS_TONE: Record<Sale["status"], "success" | "neutral"> = {
   CONFIRMED: "success",
   CANCELLED: "neutral",
-  CONFIRMADA: "success",
-  CANCELADA: "neutral",
-  EXPIRADA: "error",
 };
 
-const orderLabel = (order: CustomerOrder): string =>
-  order.kind === "sale"
-    ? `Pedido #${order.saleNumber}`
-    : `Reserva — ${order.productName ?? "produto"}`;
+const RESERVATION_STATUS_TONE: Record<
+  CustomerReservation["status"],
+  "success" | "neutral" | "error"
+> = {
+  PENDING: "neutral",
+  CONFIRMED: "success",
+  CANCELLED: "neutral",
+  EXPIRED: "error",
+};
 
-const orderDetail = (order: CustomerOrder): string =>
-  order.kind === "sale"
-    ? formatPriceFromReais(order.totalAmount)
-    : `${order.quantity}x`;
+const PurchasesSection = ({ purchases }: { purchases: Sale[] }) => (
+  <Card title="Compras">
+    {purchases.length === 0 ? (
+      <EmptyState
+        iconName="shopping_bag"
+        title="Nenhuma compra encontrada"
+        description="Suas compras aparecerão aqui."
+      />
+    ) : (
+      <ul className="space-y-2">
+        {purchases.map((sale, index) => (
+          <li
+            key={sale.id}
+            className={`flex items-center justify-between gap-4 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
+          >
+            <div>
+              <p className="font-body text-sm font-semibold text-on-surface">
+                Pedido #{sale.saleNumber}
+              </p>
+              <p className="font-label text-xs text-on-surface-variant">
+                {formatDateBR(sale.saleDate)} ·{" "}
+                {formatPriceFromReais(sale.totalAmount)}
+              </p>
+            </div>
+            <Badge tone={SALE_STATUS_TONE[sale.status]}>{sale.status}</Badge>
+          </li>
+        ))}
+      </ul>
+    )}
+  </Card>
+);
+
+const ReservationsSection = ({
+  reservations,
+}: {
+  reservations: CustomerReservation[];
+}) => (
+  <Card title="Reservas">
+    {reservations.length === 0 ? (
+      <EmptyState
+        iconName="event_available"
+        title="Nenhuma reserva encontrada"
+        description="Suas reservas aparecerão aqui."
+      />
+    ) : (
+      <ul className="space-y-2">
+        {reservations.map((reservation, index) => (
+          <li
+            key={reservation.id}
+            className={`flex items-center justify-between gap-4 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
+          >
+            <div>
+              <p className="font-body text-sm font-semibold text-on-surface">
+                {reservation.productName} ({reservation.size})
+              </p>
+              <p className="font-label text-xs text-on-surface-variant">
+                {formatDateBR(reservation.createdAt)} · {reservation.quantity}x
+              </p>
+            </div>
+            <Badge tone={RESERVATION_STATUS_TONE[reservation.status]}>
+              {reservation.status}
+            </Badge>
+          </li>
+        ))}
+      </ul>
+    )}
+  </Card>
+);
 
 export const CustomerOrdersList = () => {
   const query = useCustomerOrdersQuery();
@@ -47,42 +113,12 @@ export const CustomerOrdersList = () => {
     );
   }
 
-  const orders = query.data ?? [];
-
-  if (orders.length === 0) {
-    return (
-      <Card>
-        <EmptyState
-          iconName="inbox"
-          title="Nenhum pedido encontrado"
-          description="Suas compras e reservas aparecerão aqui."
-        />
-      </Card>
-    );
-  }
+  const { purchases = [], reservations = [] } = query.data ?? {};
 
   return (
-    <Card>
-      <ul className="space-y-2">
-        {orders.map((order, index) => (
-          <li
-            key={`${order.kind}-${order.id}`}
-            className={`flex items-center justify-between gap-4 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
-          >
-            <div>
-              <p className="font-body text-sm font-semibold text-on-surface">
-                {orderLabel(order)}
-              </p>
-              <p className="font-label text-xs text-on-surface-variant">
-                {formatDateBR(order.createdAt)} · {orderDetail(order)}
-              </p>
-            </div>
-            <Badge tone={STATUS_TONE[order.status] ?? "neutral"}>
-              {order.status}
-            </Badge>
-          </li>
-        ))}
-      </ul>
-    </Card>
+    <div className="space-y-6">
+      <PurchasesSection purchases={purchases} />
+      <ReservationsSection reservations={reservations} />
+    </div>
   );
 };

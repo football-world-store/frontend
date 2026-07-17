@@ -252,7 +252,7 @@ export const handlers = [
         { status: HTTP_UNAUTHORIZED },
       );
     }
-    return envelope(customerIdentityFixture);
+    return envelope({ customer: customerIdentityFixture });
   }),
   http.post(
     `${baseUrl}/customer-auth/logout`,
