@@ -40,9 +40,9 @@ Ainda não integrado no front — próximo passo depois dos bugs.
 
 - **Public — Chatbot API** (`GET /public/products`, `POST /public/reservations`) — endpoints públicos sem auth, consumidos pelo fluxo n8n do chatbot. Não integrar aqui.
 
-### 🟢 Domínios ainda sem integração
+### 🟢 Domínios integrados
 
-- **Customer Auth** (`POST /customer-auth/magic-link`, `POST /customer-auth/verify`, `POST /customer-auth/logout`, `GET /customer-auth/me/orders`) — **vai ter portal do cliente no front** (confirmado 2026-07-15). Cliente recebe magic link por email, loga sem senha e vê os próprios pedidos/reservas. Precisa de: páginas públicas novas (fora do proxy atual, que assume tudo autenticado = usuário do painel admin), fluxo de sessão de cliente separado do `AuthContext` de funcionário/OWNER (cookie diferente? confirmar com backend), e uma tela `me/orders`. Próximo candidato a integrar.
+- **Customer Auth** (`POST /customer-auth/magic-link`, `POST /customer-auth/verify`, `POST /customer-auth/logout`, `GET /customer-auth/me/orders`) — portal do cliente em `/portal`, `/portal/verify`, `/portal/orders`. **Integrado** (commit `e842406`). `customerApiClient` próprio (sem refresh/redirect de staff), `CustomerAuthContext` isolado no layout do portal, proxy com carve-out dedicado. ⚠️ `verify` e `me/orders` não têm schema de resposta documentado no OpenAPI — os tipos (`CustomerIdentity`, `CustomerOrder`) são melhor-esforço e precisam ser confirmados/ajustados contra o backend real assim que possível.
 - **`POST /users/register`** — auto-cadastro público de funcionário (fica inativo até OWNER aprovar via `PATCH isActive:true`). Diferente do `POST /users` (criação direta por OWNER). **Integrado** (commit `85ecdfa`).
 
 ## Alerts
