@@ -92,9 +92,20 @@ export interface DashboardMarginByProduct {
   marginPercentage: number;
 }
 
+export interface DashboardMarginByGroup {
+  group: string;
+  totalSold: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  marginPercentage: number;
+}
+
 export interface DashboardMargins {
   overall: DashboardMarginsOverall;
   byProduct: DashboardMarginByProduct[];
+  byCategory: DashboardMarginByGroup[];
+  byClub: DashboardMarginByGroup[];
 }
 
 export interface DashboardIdleProduct {
@@ -108,6 +119,23 @@ export interface DashboardIdleProduct {
   stuckValue: number;
   lastSaleAt: string | null;
   daysIdle: number | null;
+}
+
+export interface DashboardIdleProductsByClub {
+  clubOrBrand: string;
+  stuckValue: number;
+  productCount: number;
+}
+
+export interface DashboardIdleProductsSummary {
+  totalIdleProducts: number;
+  totalStuckValue: number;
+  byClub: DashboardIdleProductsByClub[];
+}
+
+export interface DashboardIdleProducts {
+  summary: DashboardIdleProductsSummary;
+  items: DashboardIdleProduct[];
 }
 
 export interface DashboardPaymentMethod {
@@ -140,30 +168,46 @@ export interface DashboardCapitalByClub {
   criticalVariants: number;
 }
 
-export interface DashboardClubTrendPoint {
+/**
+ * Shape confirmado contra
+ * backend/src/modules/dashboard/use-case/get-club-trend.use-case.ts —
+ * é uma lista FLAT (uma linha por clube × mês), não agrupada por clube.
+ */
+export interface DashboardClubTrendEntry {
+  clubOrBrand: string;
   month: string;
   totalSold: number;
   totalRevenue: number;
-}
-
-export interface DashboardClubTrend {
-  clubOrBrand: string;
-  points: DashboardClubTrendPoint[];
 }
 
 export interface DashboardCustomersByTeam {
   favoriteTeam: string;
   customerCount: number;
   totalSpent: number;
-  averageTicket: number;
-  purchaseCount: number;
+  averageSpent: number;
+  totalPurchases: number;
 }
 
+export type DashboardReservationStatus =
+  "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED";
+
+export interface DashboardReservationConversionByStatus {
+  status: DashboardReservationStatus;
+  count: number;
+  percentage: number;
+}
+
+/**
+ * Shape confirmado contra
+ * backend/src/modules/dashboard/use-case/get-reservation-conversion.use-case.ts.
+ * conversionRate exclui reservas ainda PENDING do denominador
+ * (confirmed / (confirmed + cancelled + expired)).
+ */
 export interface DashboardReservationConversion {
-  confirmed: number;
-  cancelled: number;
-  expired: number;
+  total: number;
+  pendingCount: number;
   conversionRate: number;
+  byStatus: DashboardReservationConversionByStatus[];
 }
 
 export type DashboardStockVelocityRisk = "CRITICAL" | "WARNING" | "OK";

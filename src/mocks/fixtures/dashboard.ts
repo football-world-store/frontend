@@ -1,5 +1,5 @@
 import type {
-  DashboardClubTrend,
+  DashboardClubTrendEntry,
   DashboardCustomersByTeam,
   DashboardReservationConversion,
   DashboardSummary,
@@ -35,40 +35,34 @@ const CLUB_TREND_MONTHS = [
   "2026-07",
 ];
 
-export const clubTrendFixture: DashboardClubTrend[] = [
-  {
-    clubOrBrand: "Flamengo",
-    points: [
-      { month: CLUB_TREND_MONTHS[0], totalSold: 18, totalRevenue: 2340.0 },
-      { month: CLUB_TREND_MONTHS[1], totalSold: 22, totalRevenue: 2860.0 },
-      { month: CLUB_TREND_MONTHS[2], totalSold: 31, totalRevenue: 4030.0 },
-      { month: CLUB_TREND_MONTHS[3], totalSold: 27, totalRevenue: 3510.0 },
-      { month: CLUB_TREND_MONTHS[4], totalSold: 35, totalRevenue: 4550.0 },
-      { month: CLUB_TREND_MONTHS[5], totalSold: 42, totalRevenue: 5460.0 },
-    ],
-  },
-  {
-    clubOrBrand: "Corinthians",
-    points: [
-      { month: CLUB_TREND_MONTHS[0], totalSold: 14, totalRevenue: 1820.0 },
-      { month: CLUB_TREND_MONTHS[1], totalSold: 16, totalRevenue: 2080.0 },
-      { month: CLUB_TREND_MONTHS[2], totalSold: 15, totalRevenue: 1950.0 },
-      { month: CLUB_TREND_MONTHS[3], totalSold: 19, totalRevenue: 2470.0 },
-      { month: CLUB_TREND_MONTHS[4], totalSold: 21, totalRevenue: 2730.0 },
-      { month: CLUB_TREND_MONTHS[5], totalSold: 18, totalRevenue: 2340.0 },
-    ],
-  },
-  {
-    clubOrBrand: "Seleção Brasileira",
-    points: [
-      { month: CLUB_TREND_MONTHS[0], totalSold: 9, totalRevenue: 1350.0 },
-      { month: CLUB_TREND_MONTHS[1], totalSold: 11, totalRevenue: 1650.0 },
-      { month: CLUB_TREND_MONTHS[2], totalSold: 13, totalRevenue: 1950.0 },
-      { month: CLUB_TREND_MONTHS[3], totalSold: 24, totalRevenue: 3600.0 },
-      { month: CLUB_TREND_MONTHS[4], totalSold: 19, totalRevenue: 2850.0 },
-      { month: CLUB_TREND_MONTHS[5], totalSold: 16, totalRevenue: 2400.0 },
-    ],
-  },
+const clubTrendEntries = (
+  clubOrBrand: string,
+  totalSoldByMonth: number[],
+  revenueByMonth: number[],
+): DashboardClubTrendEntry[] =>
+  CLUB_TREND_MONTHS.map((month, index) => ({
+    clubOrBrand,
+    month,
+    totalSold: totalSoldByMonth[index],
+    totalRevenue: revenueByMonth[index],
+  }));
+
+export const clubTrendFixture: DashboardClubTrendEntry[] = [
+  ...clubTrendEntries(
+    "Flamengo",
+    [18, 22, 31, 27, 35, 42],
+    [2340.0, 2860.0, 4030.0, 3510.0, 4550.0, 5460.0],
+  ),
+  ...clubTrendEntries(
+    "Corinthians",
+    [14, 16, 15, 19, 21, 18],
+    [1820.0, 2080.0, 1950.0, 2470.0, 2730.0, 2340.0],
+  ),
+  ...clubTrendEntries(
+    "Seleção Brasileira",
+    [9, 11, 13, 24, 19, 16],
+    [1350.0, 1650.0, 1950.0, 3600.0, 2850.0, 2400.0],
+  ),
 ];
 
 export const customersByTeamFixture: DashboardCustomersByTeam[] = [
@@ -76,28 +70,33 @@ export const customersByTeamFixture: DashboardCustomersByTeam[] = [
     favoriteTeam: "Flamengo",
     customerCount: 42,
     totalSpent: 18450.0,
-    averageTicket: 87.14,
-    purchaseCount: 212,
+    averageSpent: 87.14,
+    totalPurchases: 212,
   },
   {
     favoriteTeam: "Corinthians",
     customerCount: 28,
     totalSpent: 9870.0,
-    averageTicket: 65.8,
-    purchaseCount: 150,
+    averageSpent: 65.8,
+    totalPurchases: 150,
   },
   {
     favoriteTeam: "Seleção Brasileira",
     customerCount: 19,
     totalSpent: 7120.0,
-    averageTicket: 79.1,
-    purchaseCount: 90,
+    averageSpent: 79.1,
+    totalPurchases: 90,
   },
 ];
 
 export const reservationConversionFixture: DashboardReservationConversion = {
-  confirmed: 34,
-  cancelled: 9,
-  expired: 5,
-  conversionRate: 70.8,
+  total: 53,
+  pendingCount: 5,
+  conversionRate: 70.83,
+  byStatus: [
+    { status: "CONFIRMED", count: 34, percentage: 64.15 },
+    { status: "CANCELLED", count: 9, percentage: 16.98 },
+    { status: "EXPIRED", count: 5, percentage: 9.43 },
+    { status: "PENDING", count: 5, percentage: 9.43 },
+  ],
 };

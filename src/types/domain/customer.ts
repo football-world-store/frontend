@@ -46,22 +46,45 @@ export interface ListCustomersParams extends ListQueryParams {
   status?: CustomerStatus;
   minSpent?: number;
   maxSpent?: number;
+  includeInactive?: boolean;
 }
 
+/**
+ * Shape confirmado contra
+ * backend/src/modules/customers/use-case/list-customer-purchases.use-case.ts —
+ * GET /customers/:id/purchases devolve { data, summary, meta } SEM o
+ * envelope { data: {...} } padrão dos demais endpoints (o controller
+ * repassa o retorno do use-case direto).
+ */
 export interface CustomerPurchase {
   id: string;
+  saleNumber: number;
+  saleDate: string;
+  channel: string;
+  paymentMethod: string;
   totalAmount: number;
-  createdAt: string;
+  status: string;
+  itemCount: number;
+}
+
+export interface CustomerPurchasesSummary {
+  totalSpent: number;
+  purchaseCount: number;
+  averageTicket: number;
+  lastPurchaseAt: string | null;
+}
+
+export interface CustomerPurchasesMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface CustomerPurchasesResult {
-  items: CustomerPurchase[];
-  page: number;
-  limit: number;
-  total: number;
-  totalSpent: number;
-  averageTicket: number;
-  lastPurchaseAt: string | null;
+  data: CustomerPurchase[];
+  summary: CustomerPurchasesSummary;
+  meta: CustomerPurchasesMeta;
 }
 
 export interface CustomerRankingEntry {

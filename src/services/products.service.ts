@@ -1,4 +1,9 @@
-import { apiClient, API_ROUTES, s3PutObject } from "@/services/api";
+import {
+  apiClient,
+  API_ROUTES,
+  fetchPaginated,
+  s3PutObject,
+} from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
   CreateProductBody,
@@ -31,13 +36,8 @@ const isAllowedContentType = (
 export const productsService = {
   list: async (
     params?: ListProductsParams,
-  ): Promise<PaginatedResult<Product>> => {
-    const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<Product>>>(
-      API_ROUTES.products.list,
-      { params },
-    );
-    return data.data;
-  },
+  ): Promise<PaginatedResult<Product>> =>
+    fetchPaginated<Product>(apiClient, API_ROUTES.products.list, params),
 
   create: async (body: CreateProductBody): Promise<Product> => {
     const { data } = await apiClient.post<ApiEnvelope<Product>>(

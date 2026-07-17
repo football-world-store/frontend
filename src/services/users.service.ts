@@ -1,4 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
+import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type {
   ApiEnvelope,
   AuthUser,
@@ -31,12 +31,8 @@ export const usersService = {
 
   list: async (
     params?: ListUsersParams,
-  ): Promise<PaginatedResult<SystemUser>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<SystemUser>>
-    >(API_ROUTES.users.list, { params });
-    return data.data;
-  },
+  ): Promise<PaginatedResult<SystemUser>> =>
+    fetchPaginated<SystemUser>(apiClient, API_ROUTES.users.list, params),
 
   create: async (body: CreateUserBody): Promise<SystemUser> => {
     const { data } = await apiClient.post<ApiEnvelope<SystemUser>>(

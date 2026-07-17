@@ -46,16 +46,30 @@ export type AuditAction =
   | "LOGIN"
   | "LOGOUT";
 
+export interface AuditLogUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/**
+ * Shape confirmado contra
+ * backend/src/modules/audit/use-case/list-audit-logs.use-case.ts —
+ * inclui `user: { id, name, email }` aninhado (via Prisma include), não um
+ * `userName` solto. GET /audit devolve { data, meta } SEM o envelope
+ * { data: {...} } padrão dos demais endpoints (o controller repassa o
+ * retorno do use-case direto).
+ */
 export interface AuditLog {
   id: string;
   userId: string;
-  userName: string;
   action: AuditAction;
   entity: string;
   entityId: string | null;
   metadata: Record<string, unknown> | null;
   ipAddress: string | null;
   userAgent: string | null;
+  user: AuditLogUser;
   createdAt: string;
 }
 

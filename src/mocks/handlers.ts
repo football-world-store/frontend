@@ -1,7 +1,6 @@
 import { http, HttpResponse } from "msw";
 
 import { ENV } from "@/constants";
-import type { PaginatedResult } from "@/types";
 
 import { alertsFixture } from "./fixtures/alerts";
 import {
@@ -38,15 +37,48 @@ const notFound = (message: string) =>
     { status: HTTP_NOT_FOUND },
   );
 
-const paginate = <T>(items: T[]): PaginatedResult<T> => ({
-  items,
-  page: DEFAULT_PAGE,
-  limit: DEFAULT_LIMIT,
-  total: items.length,
-});
+/**
+ * Shape real dos endpoints paginados do backend — { data, meta }, sem o
+ * envelope { data: {...} } padrão. Ver services/api/pagination.ts.
+ */
+const paginate = <T>(items: T[]) =>
+  HttpResponse.json({
+    data: items,
+    meta: {
+      total: items.length,
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_LIMIT,
+      totalPages: Math.ceil(items.length / DEFAULT_LIMIT),
+    },
+  });
 
 const generateId = (prefix: string) =>
   `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+
+const buildStockEntry = (
+  body: Record<string, unknown>,
+  product: (typeof productsFixture)[number] | undefined,
+) => {
+  const quantity = Number(body.quantity ?? 0);
+  const unitCost = Number(body.unitCost ?? 0);
+  return {
+    quantity,
+    unitCost,
+    id: generateId("se"),
+    totalCost: unitCost * quantity,
+    supplier: String(body.supplier ?? ""),
+    notes: typeof body.notes === "string" ? body.notes : null,
+    isReverse: false,
+    reverseOf: null,
+    createdAt: new Date().toISOString(),
+    product: {
+      id: product?.id ?? String(body.productId ?? ""),
+      internalCode: product?.internalCode ?? "",
+      name: product?.name ?? "Produto",
+    },
+    user: { id: "u-001", name: "Edimilson Junior" },
+  };
+};
 
 const products = [...productsFixture];
 const customers = [...customersFixture];
@@ -55,7 +87,7 @@ const users = [...usersFixture];
 
 export const handlers = [
   // ----- Products
-  http.get(`${baseUrl}/products`, () => envelope(paginate(products))),
+  http.get(`${baseUrl}/products`, () => paginate(products)),
   http.post(`${baseUrl}/products/find`, async ({ request }) => {
     const body = (await request.json()) as { id?: string };
     const product = products.find((p) => p.id === body.id);
@@ -101,9 +133,16 @@ export const handlers = [
     envelope({
       overall: { revenue: 0, cost: 0, grossProfit: 0, marginPercentage: 0 },
       byProduct: [],
+      byCategory: [],
+      byClub: [],
     }),
   ),
-  http.get(`${baseUrl}/dashboard/idle-products`, () => envelope([])),
+  http.get(`${baseUrl}/dashboard/idle-products`, () =>
+    envelope({
+      summary: { totalIdleProducts: 0, totalStuckValue: 0, byClub: [] },
+      items: [],
+    }),
+  ),
   http.get(`${baseUrl}/dashboard/payment-methods`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/stock-velocity`, () => envelope([])),
   http.get(`${baseUrl}/dashboard/reorder-list`, () => envelope([])),
@@ -120,7 +159,7 @@ export const handlers = [
   ),
 
   // ----- Stock entries
-  http.get(`${baseUrl}/stock-entries`, () => envelope(paginate(stockEntries))),
+  http.get(`${baseUrl}/stock-entries`, () => paginate(stockEntries)),
   http.post(`${baseUrl}/stock-entries/find`, async ({ request }) => {
     const body = (await request.json()) as { id?: string };
     const entry = stockEntries.find((e) => e.id === body.id);
@@ -129,21 +168,7 @@ export const handlers = [
   http.post(`${baseUrl}/stock-entries`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     const product = products.find((p) => p.id === body.productId);
-    const entry = {
-      id: generateId("se"),
-      productId: String(body.productId ?? ""),
-      productName: product?.name ?? "Produto",
-      movementType: "ENTRY" as const,
-      quantity: Number(body.quantity ?? 0),
-      unitCost: Number(body.unitCost ?? 0),
-      supplier: String(body.supplier ?? ""),
-      notes: typeof body.notes === "string" ? body.notes : null,
-      reversedEntryId: null,
-      userId: "u-001",
-      userName: "Edimilson Junior",
-      entryDate: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+    const entry = buildStockEntry(body, product);
     stockEntries.unshift(entry);
     if (product) {
       product.quantity += entry.quantity;
@@ -152,10 +177,10 @@ export const handlers = [
   }),
 
   // ----- Sales
-  http.get(`${baseUrl}/sales`, () => envelope(paginate(salesFixture))),
+  http.get(`${baseUrl}/sales`, () => paginate(salesFixture)),
 
   // ----- Customers
-  http.get(`${baseUrl}/customers`, () => envelope(paginate(customers))),
+  http.get(`${baseUrl}/customers`, () => paginate(customers)),
   http.post(`${baseUrl}/customers/find`, async ({ request }) => {
     const body = (await request.json()) as { id?: string };
     const customer = customers.find((c) => c.id === body.id);
@@ -202,7 +227,7 @@ export const handlers = [
   http.get(`${baseUrl}/alerts`, () => envelope(alertsFixture)),
 
   // ----- Users
-  http.get(`${baseUrl}/users`, () => envelope(paginate(users))),
+  http.get(`${baseUrl}/users`, () => paginate(users)),
   http.get(`${baseUrl}/users/me`, () =>
     envelope({
       id: "u-001",

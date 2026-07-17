@@ -1,4 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
+import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
   CancelSaleBody,
@@ -8,13 +8,8 @@ import type {
 } from "@/types";
 
 export const salesService = {
-  list: async (params?: ListSalesParams): Promise<PaginatedResult<Sale>> => {
-    const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<Sale>>>(
-      API_ROUTES.sales.list,
-      { params },
-    );
-    return data.data;
-  },
+  list: async (params?: ListSalesParams): Promise<PaginatedResult<Sale>> =>
+    fetchPaginated<Sale>(apiClient, API_ROUTES.sales.list, params),
 
   create: async (body: CreateSaleBody): Promise<Sale> => {
     const { data } = await apiClient.post<ApiEnvelope<Sale>>(

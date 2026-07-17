@@ -1,20 +1,34 @@
 import type { ListQueryParams } from "@/types/api/common";
 
-export type StockMovementType = "ENTRY" | "REVERSE";
+export interface StockEntryProduct {
+  id: string;
+  internalCode: string;
+  name: string;
+}
 
+export interface StockEntryUser {
+  id: string;
+  name: string;
+}
+
+/**
+ * Shape confirmado contra
+ * backend/src/modules/stock-entries/domain/types/stock-entry.types.ts
+ * (StockEntryResponse). unitCost/totalCost ficam ausentes (não `null`) na
+ * resposta quando o usuário logado é EMPLOYEE — trate como opcionais, não
+ * nullable.
+ */
 export interface StockEntry {
   id: string;
-  productId: string;
-  productName: string;
-  movementType: StockMovementType;
+  product: StockEntryProduct;
   quantity: number;
-  unitCost: number | null;
+  unitCost?: number;
+  totalCost?: number;
   supplier: string;
   notes: string | null;
-  reversedEntryId: string | null;
-  userId: string;
-  userName: string;
-  entryDate: string;
+  isReverse: boolean;
+  reverseOf: string | null;
+  user: StockEntryUser;
   createdAt: string;
 }
 

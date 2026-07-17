@@ -1,4 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
+import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
   CreateCustomerBody,
@@ -22,13 +22,12 @@ export const customersService = {
   list: async (
     params?: ListCustomersParams,
   ): Promise<PaginatedResult<Customer>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<CustomerApiResponse>>
-    >(API_ROUTES.customers.list, { params });
-    return {
-      ...data.data,
-      items: data.data.items.map(normalizeCustomer),
-    };
+    const result = await fetchPaginated<CustomerApiResponse>(
+      apiClient,
+      API_ROUTES.customers.list,
+      params,
+    );
+    return { ...result, items: result.items.map(normalizeCustomer) };
   },
 
   find: async (id: string): Promise<Customer> => {
@@ -71,11 +70,11 @@ export const customersService = {
     id: string,
     params?: { page?: number; limit?: number },
   ): Promise<CustomerPurchasesResult> => {
-    const { data } = await apiClient.get<ApiEnvelope<CustomerPurchasesResult>>(
+    const { data } = await apiClient.get<CustomerPurchasesResult>(
       API_ROUTES.customers.purchases(id),
       { params },
     );
-    return data.data;
+    return data;
   },
 
   rankingByAmount: async (limit?: number): Promise<CustomerRankingEntry[]> => {

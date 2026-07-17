@@ -32,7 +32,7 @@ import {
 } from "@/hooks/queries";
 import type {
   DashboardCapitalByClub,
-  DashboardClubTrend,
+  DashboardClubTrendEntry,
   DashboardCustomersByTeam,
   DashboardIdleProduct,
   DashboardMargins,
@@ -268,19 +268,19 @@ const CapitalByClubCard = ({ items }: { items: DashboardCapitalByClub[] }) => (
   </Card>
 );
 
-const ClubTrendCard = ({ clubs }: { clubs: DashboardClubTrend[] }) => (
+const ClubTrendCard = ({ entries }: { entries: DashboardClubTrendEntry[] }) => (
   <Card
     title="Sazonalidade por clube"
     description="Unidades vendidas mês a mês — picos ajudam a planejar reposição"
   >
-    {clubs.length === 0 ? (
+    {entries.length === 0 ? (
       <EmptyState
         iconName="show_chart"
         title="Sem dados"
         description="A série mensal aparecerá aqui conforme houver vendas."
       />
     ) : (
-      <ClubTrendChart clubs={clubs} />
+      <ClubTrendChart entries={entries} />
     )}
   </Card>
 );
@@ -312,7 +312,7 @@ const CustomersByTeamCard = ({
                 {item.favoriteTeam}
               </p>
               <p className="font-label text-xs text-on-surface-variant">
-                {item.customerCount} clientes · {item.purchaseCount} compras
+                {item.customerCount} clientes · {item.totalPurchases} compras
               </p>
             </div>
             <div className="text-right">
@@ -320,7 +320,7 @@ const CustomersByTeamCard = ({
                 {formatPriceFromReais(item.totalSpent)}
               </p>
               <p className="font-label text-xs text-primary">
-                Ticket médio {formatPriceFromReais(item.averageTicket)}
+                Ticket médio {formatPriceFromReais(item.averageSpent)}
               </p>
             </div>
           </li>
@@ -434,7 +434,7 @@ const InsightsPage = () => {
             <ClubProgressList items={clubItems} />
           )}
         </Card>
-        <IdleProductsCard items={idleProductsQuery.data ?? []} />
+        <IdleProductsCard items={idleProductsQuery.data?.items ?? []} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -443,7 +443,7 @@ const InsightsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ClubTrendCard clubs={clubTrendQuery.data ?? []} />
+        <ClubTrendCard entries={clubTrendQuery.data ?? []} />
         <CustomersByTeamCard items={customersByTeamQuery.data ?? []} />
       </div>
     </DashboardLayout>

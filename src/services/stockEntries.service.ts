@@ -1,4 +1,4 @@
-import { apiClient, API_ROUTES } from "@/services/api";
+import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
   CreateStockEntryBody,
@@ -10,12 +10,8 @@ import type {
 export const stockEntriesService = {
   list: async (
     params?: ListStockEntriesParams,
-  ): Promise<PaginatedResult<StockEntry>> => {
-    const { data } = await apiClient.get<
-      ApiEnvelope<PaginatedResult<StockEntry>>
-    >(API_ROUTES.stockEntries.list, { params });
-    return data.data;
-  },
+  ): Promise<PaginatedResult<StockEntry>> =>
+    fetchPaginated<StockEntry>(apiClient, API_ROUTES.stockEntries.list, params),
 
   create: async (body: CreateStockEntryBody): Promise<StockEntry> => {
     const { data } = await apiClient.post<ApiEnvelope<StockEntry>>(

@@ -11,10 +11,10 @@ import {
   YAxis,
 } from "recharts";
 
-import type { DashboardClubTrend } from "@/types";
+import type { DashboardClubTrendEntry } from "@/types";
 
 interface ClubTrendChartProps {
-  clubs: DashboardClubTrend[];
+  entries: DashboardClubTrendEntry[];
 }
 
 const PALETTE = ["#f2ca50", "#d4af37", "#bfcdff", "#97b0ff", "#e9c349"];
@@ -24,15 +24,13 @@ interface ChartRow {
   [clubOrBrand: string]: string | number;
 }
 
-const buildChartRows = (clubs: DashboardClubTrend[]): ChartRow[] => {
+const buildChartRows = (entries: DashboardClubTrendEntry[]): ChartRow[] => {
   const monthMap = new Map<string, ChartRow>();
 
-  for (const club of clubs) {
-    for (const point of club.points) {
-      const row = monthMap.get(point.month) ?? { month: point.month };
-      row[club.clubOrBrand] = point.totalSold;
-      monthMap.set(point.month, row);
-    }
+  for (const entry of entries) {
+    const row = monthMap.get(entry.month) ?? { month: entry.month };
+    row[entry.clubOrBrand] = entry.totalSold;
+    monthMap.set(entry.month, row);
   }
 
   return Array.from(monthMap.values()).sort((a, b) =>
@@ -40,8 +38,13 @@ const buildChartRows = (clubs: DashboardClubTrend[]): ChartRow[] => {
   );
 };
 
-export const ClubTrendChart = ({ clubs }: ClubTrendChartProps) => {
-  const rows = buildChartRows(clubs);
+const uniqueClubs = (entries: DashboardClubTrendEntry[]): string[] => [
+  ...new Set(entries.map((entry) => entry.clubOrBrand)),
+];
+
+export const ClubTrendChart = ({ entries }: ClubTrendChartProps) => {
+  const rows = buildChartRows(entries);
+  const clubs = uniqueClubs(entries);
 
   return (
     <ResponsiveContainer width="100%" height={280}>
@@ -73,11 +76,11 @@ export const ClubTrendChart = ({ clubs }: ClubTrendChartProps) => {
           wrapperStyle={{ fontSize: 12, color: "#d0c5af" }}
           iconType="circle"
         />
-        {clubs.map((club, index) => (
+        {clubs.map((clubOrBrand, index) => (
           <Line
-            key={club.clubOrBrand}
+            key={clubOrBrand}
             type="monotone"
-            dataKey={club.clubOrBrand}
+            dataKey={clubOrBrand}
             stroke={PALETTE[index % PALETTE.length]}
             strokeWidth={2}
             dot={false}
