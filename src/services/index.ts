@@ -2,6 +2,7 @@ export * from "./api";
 export * from "./alerts.service";
 export * from "./audit.service";
 export * from "./auth.service";
+export * from "./customerAuth.service";
 export * from "./customers.service";
 export * from "./dashboard.service";
 export * from "./products.service";

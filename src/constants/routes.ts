@@ -18,4 +18,9 @@ export const APP_ROUTES = {
     audit: "/audit",
     settings: "/settings",
   },
+  portal: {
+    root: "/portal",
+    verify: "/portal/verify",
+    orders: "/portal/orders",
+  },
 } as const;

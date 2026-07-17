@@ -1,4 +1,5 @@
 const CUSTOMERS_BASE = "/customers";
+const CUSTOMER_AUTH_BASE = "/customer-auth";
 
 export const API_ROUTES = {
   auth: {
@@ -76,5 +77,11 @@ export const API_ROUTES = {
     clubTrend: "/dashboard/club-trend",
     customersByTeam: "/dashboard/customers-by-team",
     reservationConversion: "/dashboard/reservation-conversion",
+  },
+  customerAuth: {
+    magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
+    verify: `${CUSTOMER_AUTH_BASE}/verify`,
+    logout: `${CUSTOMER_AUTH_BASE}/logout`,
+    orders: `${CUSTOMER_AUTH_BASE}/me/orders`,
   },
 } as const;

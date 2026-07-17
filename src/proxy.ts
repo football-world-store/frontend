@@ -14,9 +14,23 @@ const isAuthRoute = (pathname: string): boolean =>
 
 const isHomeRoute = (pathname: string): boolean => pathname === APP_ROUTES.home;
 
+const isPortalRoute = (pathname: string): boolean =>
+  pathname === APP_ROUTES.portal.root ||
+  pathname.startsWith(`${APP_ROUTES.portal.root}/`);
+
 export const proxy = (request: NextRequest): NextResponse => {
-  const hasSession = Boolean(request.cookies.get(SESSION_COOKIE_NAME)?.value);
   const { pathname, search } = request.nextUrl;
+
+  // Portal do cliente: sessão é um cookie separado (customer_access_token),
+  // invisível para este proxy. Não fazemos gating de sessão aqui — a página
+  // de pedidos descobre "logado ou não" client-side via 401 em
+  // GET /customer-auth/me/orders. Isso só evita que a lógica de sessão
+  // STAFF (access_token) redirecione essas rotas em qualquer direção.
+  if (isPortalRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  const hasSession = Boolean(request.cookies.get(SESSION_COOKIE_NAME)?.value);
 
   // Home (/) → redireciona conforme sessão.
   if (isHomeRoute(pathname)) {

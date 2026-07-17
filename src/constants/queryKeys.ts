@@ -97,4 +97,9 @@ export const queryKeys = {
         params ?? {},
       ] as const,
   },
+  customerAuth: {
+    all: ["customerAuth"] as const,
+    identity: () => [...queryKeys.customerAuth.all, "identity"] as const,
+    orders: () => [...queryKeys.customerAuth.all, "orders"] as const,
+  },
 } as const;
