@@ -1,5 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
+
+import { Spinner } from "@/components/atoms";
 import { ResetPasswordForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
 
@@ -13,7 +16,15 @@ const ResetPasswordPage = () => {
       }
       description="Digite o código que enviamos por email e cadastre uma nova senha."
     >
-      <ResetPasswordForm />
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-12">
+            <Spinner size="lg" tone="primary" />
+          </div>
+        }
+      >
+        <ResetPasswordForm />
+      </Suspense>
     </AuthLayout>
   );
 };
