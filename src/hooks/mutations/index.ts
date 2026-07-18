@@ -19,6 +19,7 @@ export * from "./useResetPasswordMutation";
 export * from "./useResolveAlertMutation";
 export * from "./useRestoreProductMutation";
 export * from "./useReverseStockEntryMutation";
+export * from "./useUpdateCustomerMutation";
 export * from "./useUpdateProductMutation";
 export * from "./useUpdateUserMutation";
 export * from "./useUploadProductPhotoMutation";
