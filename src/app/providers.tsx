@@ -20,12 +20,26 @@ const startMockServiceWorker = async (): Promise<void> => {
   await worker.start({ onUnhandledRequest: "bypass" });
 };
 
+const unregisterStaleServiceWorkers = async (): Promise<void> => {
+  if (!("serviceWorker" in navigator)) return;
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(
+    registrations.map((registration) => registration.unregister()),
+  );
+};
+
 export const Providers = ({ children }: ProvidersProps) => {
   const [queryClient] = useState(() => createQueryClient());
   const [mocksReady, setMocksReady] = useState(!ENABLE_MOCKS);
 
   useEffect(() => {
-    if (!ENABLE_MOCKS || mocksReady) {
+    if (!ENABLE_MOCKS) {
+      unregisterStaleServiceWorkers().catch((error) => {
+        console.error("Failed to unregister stale service workers", error);
+      });
+      return () => {};
+    }
+    if (mocksReady) {
       return () => {};
     }
     let cancelled = false;
