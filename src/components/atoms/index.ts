@@ -10,6 +10,7 @@ export * from "./Input";
 export * from "./Label";
 export * from "./Logo";
 export * from "./Modal";
+export * from "./OwnerOnly";
 export * from "./Select";
 export * from "./Skeleton";
 export * from "./Spinner";

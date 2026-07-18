@@ -10,7 +10,7 @@ import {
   SkeletonListRow,
 } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
-import { useDebouncedValue, useFuzzySearch } from "@/hooks";
+import { useDebouncedValue, usePermission } from "@/hooks";
 import {
   useCustomerRankingByAmountQuery,
   useCustomersQuery,
@@ -26,7 +26,6 @@ const PRICE_CENTS_MULTIPLIER = 100;
 const RANKING_LIMIT = 3;
 const ITEMS_PER_PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
-const FUSE_OPTIONS = { keys: ["name"], threshold: 0.35 };
 const VIP_THRESHOLD = 2000;
 
 const calculateAverageTicket = (customers: Customer[]) => {
@@ -74,6 +73,7 @@ const LoadingState = () => (
 );
 
 export const CustomersList = () => {
+  const { isOwner } = usePermission();
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -85,10 +85,9 @@ export const CustomersList = () => {
     buildQueryParams(page, tab, debouncedSearch),
   );
   const { data: ranking = [], isLoading: isRankingLoading } =
-    useCustomerRankingByAmountQuery(RANKING_LIMIT);
+    useCustomerRankingByAmountQuery(RANKING_LIMIT, isOwner);
 
   const customers: Customer[] = data?.items ?? [];
-  const pageItems = useFuzzySearch(customers, search, FUSE_OPTIONS);
   const averageTicket = calculateAverageTicket(customers);
 
   const handleTabChange = (nextTab: TabKey) => {
@@ -109,7 +108,7 @@ export const CustomersList = () => {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-6">
-          <RankingCard ranking={ranking} />
+          {isOwner ? <RankingCard ranking={ranking} /> : null}
           <Card title="Ticket médio mensal">
             <strong className="font-headline text-3xl font-extrabold text-on-surface">
               {formatCurrencyBRL(averageTicket * PRICE_CENTS_MULTIPLIER)}
@@ -151,7 +150,7 @@ export const CustomersList = () => {
             </div>
           </div>
 
-          {pageItems.length === 0 ? (
+          {customers.length === 0 ? (
             <EmptyState
               iconName="groups"
               title="Nenhum cliente encontrado"
@@ -159,7 +158,7 @@ export const CustomersList = () => {
             />
           ) : (
             <ul className="space-y-2">
-              {pageItems.map((customer) => (
+              {customers.map((customer) => (
                 <CustomerRow key={customer.id} customer={customer} />
               ))}
             </ul>
@@ -169,7 +168,7 @@ export const CustomersList = () => {
             page={page}
             totalPages={data?.totalPages ?? 1}
             total={data?.total ?? 0}
-            itemCount={pageItems.length}
+            itemCount={customers.length}
             itemLabel="clientes"
             onPageChange={setPage}
           />

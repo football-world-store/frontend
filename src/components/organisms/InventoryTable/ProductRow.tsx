@@ -2,6 +2,7 @@ import {
   Badge,
   ClawIndicator,
   IconButton,
+  OwnerOnly,
   type ClawLevel,
 } from "@/components/atoms";
 import type { Product } from "@/types";
@@ -39,22 +40,24 @@ const ProductActions = ({
       filled={false}
       onClick={() => onEdit(product.id)}
     />
-    {product.isActive ? (
-      <IconButton
-        iconName="delete"
-        label={`Excluir ${product.name}`}
-        filled={false}
-        onClick={() => onDelete(product.id)}
-      />
-    ) : (
-      <IconButton
-        iconName="restore_from_trash"
-        label={`Restaurar ${product.name}`}
-        filled={false}
-        isLoading={isRestoring}
-        onClick={() => onRestore(product.id)}
-      />
-    )}
+    <OwnerOnly>
+      {product.isActive ? (
+        <IconButton
+          iconName="delete"
+          label={`Excluir ${product.name}`}
+          filled={false}
+          onClick={() => onDelete(product.id)}
+        />
+      ) : (
+        <IconButton
+          iconName="restore_from_trash"
+          label={`Restaurar ${product.name}`}
+          filled={false}
+          isLoading={isRestoring}
+          onClick={() => onRestore(product.id)}
+        />
+      )}
+    </OwnerOnly>
   </>
 );
 
