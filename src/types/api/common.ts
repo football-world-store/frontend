@@ -15,7 +15,7 @@ export interface ListQueryParams {
 }
 
 export interface ApiErrorResponse {
-  message: string;
+  message: string | string[];
   code?: string;
   details?: Record<string, unknown>;
 }
