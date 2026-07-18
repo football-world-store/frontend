@@ -27,5 +27,6 @@ export const fetchPaginated = async <T>(
     page: data.meta.page,
     limit: data.meta.limit,
     total: data.meta.total,
+    totalPages: data.meta.totalPages,
   };
 };
