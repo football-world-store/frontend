@@ -4,13 +4,14 @@ import { toast } from "sonner";
 import {
   APP_ROUTES,
   ENV,
-  FALLBACK_ERROR_MESSAGE,
   HTTP_CONTENT_TYPE,
   HTTP_HEADER,
   HTTP_STATUS,
   REQUEST_TIMEOUT_MS,
 } from "@/constants";
 import type { ApiErrorResponse } from "@/types";
+
+import { extractErrorMessage } from "./errorMessage";
 
 const REFRESH_PATH = "/auth/refresh";
 const SILENT_ERROR_PATHS = ["/users/me"] as const;
@@ -53,9 +54,6 @@ const isOnPublicAuthRoute = (): boolean => {
   const { pathname } = window.location;
   return PUBLIC_AUTH_ROUTES.some((route) => pathname.startsWith(route));
 };
-
-const extractErrorMessage = (error: AxiosError<ApiErrorResponse>): string =>
-  error.response?.data?.message ?? error.message ?? FALLBACK_ERROR_MESSAGE;
 
 const redirectToSignIn = (): void => {
   window.location.replace(APP_ROUTES.auth.signIn);

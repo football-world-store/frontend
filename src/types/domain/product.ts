@@ -27,7 +27,6 @@ export interface Product {
   minStock: number;
   isActive: boolean;
   lastSaleAt: string | null;
-  totalSold: number;
   status: ProductStatus;
   createdAt: string;
   updatedAt: string;

@@ -1,14 +1,16 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
-import { Avatar, Badge, Button, Icon } from "@/components/atoms";
+import { Avatar, Badge, Button, Icon, Modal } from "@/components/atoms";
 import {
   Card,
   EmptyState,
   SkeletonCard,
   SkeletonListRow,
 } from "@/components/molecules";
+import { CustomerForm, CustomerPurchasesCard } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import { useCustomerQuery } from "@/hooks/queries";
 import { formatDateBR, formatPriceFromReais } from "@/utils";
@@ -29,6 +31,7 @@ const CustomerDetailPage = () => {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const { data: customer, isLoading } = useCustomerQuery(id);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -103,11 +106,7 @@ const CustomerDetailPage = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-2 md:items-end">
-                <Button
-                  variant="secondary"
-                  disabled
-                  title="Edição de cliente ainda não implementada nesta tela"
-                >
+                <Button variant="secondary" onClick={() => setIsEditOpen(true)}>
                   <Icon name="edit" size="sm" filled={false} />
                   Editar perfil
                 </Button>
@@ -145,6 +144,8 @@ const CustomerDetailPage = () => {
               </strong>
             </Card>
           </div>
+
+          <CustomerPurchasesCard customerId={customer.id} />
         </div>
 
         <div className="space-y-6">
@@ -170,6 +171,20 @@ const CustomerDetailPage = () => {
           </Card>
         </div>
       </div>
+
+      <Modal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        title="Editar cliente"
+        description={customer.name}
+        size="lg"
+      >
+        <CustomerForm
+          customer={customer}
+          onSuccess={() => setIsEditOpen(false)}
+          onCancel={() => setIsEditOpen(false)}
+        />
+      </Modal>
     </DashboardLayout>
   );
 };

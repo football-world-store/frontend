@@ -7,6 +7,7 @@ export interface PaginatedResult<T> {
   page: number;
   limit: number;
   total: number;
+  totalPages: number;
 }
 
 export interface ListQueryParams {
@@ -15,7 +16,7 @@ export interface ListQueryParams {
 }
 
 export interface ApiErrorResponse {
-  message: string;
+  message: string | string[];
   code?: string;
   details?: Record<string, unknown>;
 }

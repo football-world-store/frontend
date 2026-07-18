@@ -3,13 +3,14 @@ import { toast } from "sonner";
 
 import {
   ENV,
-  FALLBACK_ERROR_MESSAGE,
   HTTP_CONTENT_TYPE,
   HTTP_HEADER,
   HTTP_STATUS,
   REQUEST_TIMEOUT_MS,
 } from "@/constants";
 import type { ApiErrorResponse } from "@/types";
+
+import { extractErrorMessage } from "./errorMessage";
 
 const SILENT_ERROR_PATHS = ["/customer-auth/me/orders"] as const;
 
@@ -26,9 +27,6 @@ const isSilentRequest = (error: AxiosError<ApiErrorResponse>): boolean => {
   const url = error.config?.url ?? "";
   return SILENT_ERROR_PATHS.some((path) => url.includes(path));
 };
-
-const extractErrorMessage = (error: AxiosError<ApiErrorResponse>): string =>
-  error.response?.data?.message ?? error.message ?? FALLBACK_ERROR_MESSAGE;
 
 const handleResponseError = (error: AxiosError<ApiErrorResponse>) => {
   const isUnauthorized = error.response?.status === HTTP_STATUS.unauthorized;

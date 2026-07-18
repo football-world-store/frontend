@@ -2,7 +2,8 @@
 
 import { type ReactNode } from "react";
 
-import { BottomNav, Header, Sidebar, TopBar } from "@/components/molecules";
+import { BottomNav, Header, Sidebar } from "@/components/molecules";
+import { TopBar } from "@/components/organisms/TopBar";
 import { useIsMobile } from "@/hooks";
 
 interface DashboardLayoutProps {

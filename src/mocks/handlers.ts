@@ -110,7 +110,6 @@ export const handlers = [
       minStock: Number(body.minStock ?? 0),
       isActive: true,
       lastSaleAt: null,
-      totalSold: 0,
       status: "IN_STOCK" as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
