@@ -66,6 +66,7 @@ export const Modal = ({
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!isMobile()) return;
+    if ((event.target as HTMLElement).closest("button")) return;
     dragStartY.current = event.clientY;
     dragStartTime.current = Date.now();
     setIsDragging(true);

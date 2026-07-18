@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Button, ClawIndicator, Icon, Modal } from "@/components/atoms";
@@ -19,6 +20,7 @@ import {
 } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import {
+  APP_ROUTES,
   DEFAULT_DASHBOARD_PERIOD,
   DEFAULT_DASHBOARD_TOP_LIMIT,
 } from "@/constants";
@@ -170,9 +172,12 @@ const DashboardPage = () => {
             title="Movimentações recentes"
             description="Últimas entradas e saídas"
             action={
-              <button className="font-label text-xs uppercase tracking-wider text-primary">
+              <Link
+                href={APP_ROUTES.app.entries}
+                className="font-label text-xs uppercase tracking-wider text-primary hover:underline focus-visible:outline-none focus-visible:ring-focus-gold rounded-lg"
+              >
                 Ver tudo
-              </button>
+              </Link>
             }
           >
             <StockEntriesTable inline />
