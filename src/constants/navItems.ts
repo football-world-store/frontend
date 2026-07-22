@@ -6,6 +6,8 @@ export interface NavItem {
   icon: string;
   /** Item de destaque no BottomNav mobile — o restante vai para o drawer "Mais". */
   primaryOnMobile?: boolean;
+  /** Visível apenas para OWNER — oculto no nav para EMPLOYEE. */
+  ownerOnly?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -14,6 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Dashboard",
     icon: "dashboard",
     primaryOnMobile: true,
+    ownerOnly: true,
   },
   {
     href: APP_ROUTES.app.inventory,
@@ -42,13 +45,30 @@ export const NAV_ITEMS: NavItem[] = [
     href: APP_ROUTES.app.reservations,
     label: "Reservas",
     icon: "bookmark",
+    ownerOnly: true,
   },
-  { href: APP_ROUTES.app.insights, label: "Insights", icon: "analytics" },
+  {
+    href: APP_ROUTES.app.insights,
+    label: "Insights",
+    icon: "analytics",
+    ownerOnly: true,
+  },
   {
     href: APP_ROUTES.app.alerts,
     label: "Alertas",
     icon: "notifications_active",
+    ownerOnly: true,
   },
-  { href: APP_ROUTES.app.audit, label: "Auditoria", icon: "history" },
-  { href: APP_ROUTES.app.settings, label: "Configurações", icon: "settings" },
+  {
+    href: APP_ROUTES.app.audit,
+    label: "Auditoria",
+    icon: "history",
+    ownerOnly: true,
+  },
+  {
+    href: APP_ROUTES.app.settings,
+    label: "Configurações",
+    icon: "settings",
+    ownerOnly: true,
+  },
 ];

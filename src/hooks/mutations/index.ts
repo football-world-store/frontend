@@ -28,3 +28,4 @@ export * from "./useUploadProductPhotoMutation";
 export * from "./useVerifyMagicLinkMutation";
 export * from "./useCustomerLoginMutation";
 export * from "./useRegisterCustomerMutation";
+export * from "./useAdminResetPasswordMutation";

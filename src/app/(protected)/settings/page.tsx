@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts";
 import {
   useClearSessionsMutation,
   useDeleteUserMutation,
+  useUpdateUserMutation,
 } from "@/hooks/mutations";
 import { useUsersQuery } from "@/hooks/queries";
 import { formatDateBR } from "@/utils";
@@ -35,8 +36,13 @@ const ROLE_LABEL = {
 
 const SettingsPage = () => {
   const { user } = useAuth();
-  const { data, isLoading } = useUsersQuery();
+  const { data, isLoading } = useUsersQuery({ isActive: true });
   const users = data?.items ?? [];
+  const { data: pendingData, isLoading: isPendingLoading } = useUsersQuery({
+    isActive: false,
+    limit: 50,
+  });
+  const pendingUsers = pendingData?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [pendingDeleteUserId, setPendingDeleteUserId] = useState<string | null>(
@@ -48,6 +54,7 @@ const SettingsPage = () => {
 
   const deleteUserMutation = useDeleteUserMutation();
   const clearSessionsMutation = useClearSessionsMutation();
+  const approveUserMutation = useUpdateUserMutation();
 
   const pendingDeleteUser = pendingDeleteUserId
     ? (users.find((u) => u.id === pendingDeleteUserId) ?? null)
@@ -148,6 +155,61 @@ const SettingsPage = () => {
           </div>
         </Card>
       </div>
+
+      {(isPendingLoading || pendingUsers.length > 0) && (
+        <Card
+          tier="container-high"
+          title="Aprovações pendentes"
+          description="Usuários que se cadastraram e aguardam liberação de acesso."
+        >
+          {isPendingLoading ? (
+            <SkeletonListRow count={2} withAvatar />
+          ) : (
+            <ul className="space-y-2">
+              {pendingUsers.map((pendingUser, index) => (
+                <li
+                  key={pendingUser.id}
+                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                    index % 2 === 0
+                      ? "bg-surface-container-low"
+                      : "bg-surface-container"
+                  }`}
+                >
+                  <Avatar name={pendingUser.name} />
+                  <div className="flex-1">
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {pendingUser.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {pendingUser.email}
+                    </p>
+                  </div>
+                  <Badge tone="neutral">Pendente</Badge>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      approveUserMutation.mutate({
+                        id: pendingUser.id,
+                        isActive: true,
+                      })
+                    }
+                    disabled={approveUserMutation.isPending}
+                  >
+                    <Icon name="check_circle" size="sm" filled={false} />
+                    Aprovar
+                  </Button>
+                  <IconButton
+                    iconName="delete"
+                    label={`Rejeitar ${pendingUser.name}`}
+                    filled={false}
+                    onClick={() => setPendingDeleteUserId(pendingUser.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
 
       <Card
         tier="container-high"

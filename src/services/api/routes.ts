@@ -19,6 +19,7 @@ export const API_ROUTES = {
     find: "/users/find",
     update: "/users",
     delete: "/users",
+    adminResetPassword: "/users/admin-reset-password",
   },
   audit: {
     list: "/audit",

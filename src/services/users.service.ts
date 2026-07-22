@@ -61,4 +61,14 @@ export const usersService = {
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(API_ROUTES.users.delete, { data: { id } });
   },
+
+  adminResetPassword: async (
+    id: string,
+    newPassword: string,
+  ): Promise<void> => {
+    await apiClient.patch(API_ROUTES.users.adminResetPassword, {
+      id,
+      newPassword,
+    });
+  },
 };

@@ -29,6 +29,7 @@ export interface UpdateUserBody {
   name?: string;
   email?: string;
   role?: UserRole;
+  isActive?: boolean;
 }
 
 export interface ListUsersParams extends ListQueryParams {

@@ -1,12 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button, Spinner } from "@/components/atoms";
 import { FormField, PasswordField, SelectField } from "@/components/molecules";
 import {
+  useAdminResetPasswordMutation,
   useCreateUserMutation,
   useUpdateUserMutation,
 } from "@/hooks/mutations";
@@ -133,6 +135,8 @@ const EditUserForm = ({
   user,
 }: UserFormProps & { user: SystemUser }) => {
   const mutation = useUpdateUserMutation();
+  const resetPasswordMutation = useAdminResetPasswordMutation();
+  const [newPassword, setNewPassword] = useState("");
   const {
     register,
     handleSubmit,
@@ -148,14 +152,30 @@ const EditUserForm = ({
 
   const onSubmit = handleSubmit(async (values) => {
     await mutation.mutateAsync({ id: user.id, ...values });
+    if (newPassword) {
+      await resetPasswordMutation.mutateAsync({ id: user.id, newPassword });
+    }
     onSuccess?.();
   });
 
-  const isPending = mutation.isPending || isSubmitting;
+  const isPending =
+    mutation.isPending || resetPasswordMutation.isPending || isSubmitting;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <EditUserFields register={register} errors={errors} />
+      <div>
+        <p className="font-label text-xs text-on-surface-variant mb-2">
+          Nova senha (deixe em branco para não alterar)
+        </p>
+        <PasswordField
+          label="Nova senha"
+          autoComplete="new-password"
+          placeholder="Mínimo 8 caracteres, maiúscula, minúscula e número"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+      </div>
       <FormFooter
         onCancel={onCancel}
         isPending={isPending}

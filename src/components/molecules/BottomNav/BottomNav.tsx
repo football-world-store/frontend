@@ -7,9 +7,16 @@ import { useState } from "react";
 import { Icon } from "@/components/atoms";
 import { Modal } from "@/components/atoms/Modal";
 import { NAV_ITEMS, type NavItem } from "@/constants";
+import { usePermission } from "@/hooks";
 
-const PRIMARY_ITEMS = NAV_ITEMS.filter((item) => item.primaryOnMobile);
-const OVERFLOW_ITEMS = NAV_ITEMS.filter((item) => !item.primaryOnMobile);
+const useNavItems = () => {
+  const { isOwner } = usePermission();
+  const visible = NAV_ITEMS.filter((item) => !item.ownerOnly || isOwner);
+  return {
+    primaryItems: visible.filter((item) => item.primaryOnMobile),
+    overflowItems: visible.filter((item) => !item.primaryOnMobile),
+  };
+};
 
 const ACTIVE_TEXT_CLASS = "text-primary";
 const INACTIVE_TEXT_CLASS = "text-on-surface-variant";
@@ -46,6 +53,8 @@ const NavLink = ({ item, isActive, onNavigate }: NavLinkProps) => (
 export const BottomNav = () => {
   const pathname = usePathname();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const { primaryItems: PRIMARY_ITEMS, overflowItems: OVERFLOW_ITEMS } =
+    useNavItems();
   const isOverflowActive = OVERFLOW_ITEMS.some((item) =>
     pathname.startsWith(item.href),
   );

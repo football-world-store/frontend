@@ -1,6 +1,6 @@
 "use client";
 
-import { RegisterForm } from "@/components/organisms";
+import { RegisterCustomerForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
 
 const RegisterPage = () => {
@@ -8,17 +8,17 @@ const RegisterPage = () => {
     <AuthLayout
       title={
         <>
-          Solicitar <span className="text-primary italic">Acesso</span>
+          Criar <span className="text-primary italic">conta</span>
         </>
       }
-      description="Crie sua conta. Um administrador precisa aprovar antes do primeiro login."
+      description="Cadastre-se para acompanhar seus pedidos e reservas."
       side={
         <p className="font-label text-on-surface-variant text-xs uppercase tracking-widest">
           Elite Performance Tier
         </p>
       }
     >
-      <RegisterForm />
+      <RegisterCustomerForm />
     </AuthLayout>
   );
 };
