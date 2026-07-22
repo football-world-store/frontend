@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
@@ -13,7 +14,26 @@ import {
 } from "@/lib/validations";
 
 export const CustomerLoginForm = () => {
-  const mutation = useCustomerLoginMutation();
+  const [loginErrorMsg, setLoginErrorMsg] = useState<string | null>(null);
+
+  const mutation = useCustomerLoginMutation({
+    onError(err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const status = (err as any)?.response?.status;
+      if (status === 403) {
+        setLoginErrorMsg(
+          ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
+            "Seu cadastro ainda não foi aprovado.",
+        );
+      } else {
+        setLoginErrorMsg("E-mail ou senha incorretos.");
+      }
+    },
+    onSuccess() {
+      setLoginErrorMsg(null);
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -25,14 +45,6 @@ export const CustomerLoginForm = () => {
 
   const onSubmit = handleSubmit((values) => mutation.mutate(values));
   const isPending = mutation.isPending || isSubmitting;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const httpStatus = (mutation.error as any)?.response?.status;
-  const loginErrorMsg =
-    httpStatus === 403
-      ? (ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
-        "Cadastro aguardando aprovação.")
-      : "E-mail ou senha incorretos.";
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
@@ -52,7 +64,7 @@ export const CustomerLoginForm = () => {
         error={errors.password?.message}
         {...register("password")}
       />
-      {mutation.isError && (
+      {loginErrorMsg && (
         <p className="font-body text-error text-sm">{loginErrorMsg}</p>
       )}
       <Button type="submit" size="lg" disabled={isPending}>
