@@ -38,6 +38,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "groups",
     primaryOnMobile: true,
   },
+  {
+    href: APP_ROUTES.app.reservations,
+    label: "Reservas",
+    icon: "bookmark",
+  },
   { href: APP_ROUTES.app.insights, label: "Insights", icon: "analytics" },
   {
     href: APP_ROUTES.app.alerts,

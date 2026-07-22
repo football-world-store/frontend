@@ -8,6 +8,7 @@ import {
   Card,
   ClubProgressList,
   EmptyState,
+  PeriodFilter,
   SizesDonutChart,
   SkeletonCard,
   SkeletonStatTile,
@@ -15,15 +16,12 @@ import {
 } from "@/components/molecules";
 import {
   AlertsPanel,
+  InsightsPanel,
   SaleForm,
   StockEntriesTable,
 } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
-import {
-  APP_ROUTES,
-  DEFAULT_DASHBOARD_PERIOD,
-  DEFAULT_DASHBOARD_TOP_LIMIT,
-} from "@/constants";
+import { APP_ROUTES, DEFAULT_DASHBOARD_TOP_LIMIT } from "@/constants";
 import { useAuth } from "@/contexts";
 import {
   useAlertsCountQuery,
@@ -31,12 +29,8 @@ import {
   useDashboardSummaryQuery,
   useDashboardTopClubsQuery,
 } from "@/hooks/queries";
+import type { DashboardPeriod, DashboardPeriodKind } from "@/types";
 import { formatPriceFromReais } from "@/utils";
-
-const TOP_LIST_PARAMS = {
-  ...DEFAULT_DASHBOARD_PERIOD,
-  limit: DEFAULT_DASHBOARD_TOP_LIMIT,
-};
 
 const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
   <DashboardLayout
@@ -55,6 +49,7 @@ const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
         <SkeletonStatTile key={i} />
       ))}
     </section>
+    <SkeletonCard bodyLines={5} />
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-6">
         <SkeletonCard tier="container-high" bodyLines={4} />
@@ -75,11 +70,16 @@ const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const summaryQuery = useDashboardSummaryQuery(DEFAULT_DASHBOARD_PERIOD);
-  const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
-  const sizesQuery = useDashboardSizesQuery(DEFAULT_DASHBOARD_PERIOD);
-  const alertsCountQuery = useAlertsCountQuery();
+  const [period, setPeriod] = useState<DashboardPeriodKind>("LAST_30_DAYS");
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
+
+  const periodParam: DashboardPeriod = { period };
+  const topListParams = { ...periodParam, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
+
+  const summaryQuery = useDashboardSummaryQuery(periodParam);
+  const topClubsQuery = useDashboardTopClubsQuery(topListParams);
+  const sizesQuery = useDashboardSizesQuery(periodParam);
+  const alertsCountQuery = useAlertsCountQuery();
 
   const greeting = user ? `Olá, ${user.name.split(" ")[0]}.` : "Olá.";
 
@@ -120,9 +120,10 @@ const DashboardPage = () => {
       }
       subtitle={`${greeting} Aqui está o pulso da loja agora.`}
       toolbar={
-        <div className="flex justify-end">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <PeriodFilter value={period} onChange={setPeriod} />
           <Button
-            className="w-full md:w-auto"
+            className="w-full sm:w-auto"
             onClick={() => setIsSaleModalOpen(true)}
           >
             <Icon name="add_shopping_cart" size="sm" />
@@ -133,14 +134,15 @@ const DashboardPage = () => {
     >
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatTile
-          label="Em estoque"
-          value={stock.totalItems.toLocaleString("pt-BR")}
-          iconName="inventory_2"
-        />
-        <StatTile
           label="Receita do período"
           value={formatPriceFromReais(sales.totalAmount)}
           iconName="payments"
+          hero
+        />
+        <StatTile
+          label="Lucro bruto"
+          value={formatPriceFromReais(sales.grossProfit)}
+          iconName="trending_up"
         />
         <StatTile
           label="Vendas no período"
@@ -150,9 +152,11 @@ const DashboardPage = () => {
         <StatTile
           label="Ticket médio"
           value={formatPriceFromReais(sales.averageTicket)}
-          iconName="trending_up"
+          iconName="receipt_long"
         />
       </section>
+
+      <InsightsPanel period={periodParam} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

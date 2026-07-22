@@ -46,6 +46,11 @@ export const API_ROUTES = {
     find: "/sales/find",
     cancel: "/sales/cancel",
   },
+  reservations: {
+    list: "/reservations",
+    confirm: "/reservations/confirm",
+    cancel: "/reservations/cancel",
+  },
 
   customers: {
     list: CUSTOMERS_BASE,

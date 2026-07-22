@@ -12,6 +12,7 @@ export * from "./LoginForm";
 export * from "./ProductForm";
 export * from "./RegisterForm";
 export * from "./RequestMagicLinkForm";
+export * from "./ReservationsTable";
 export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";

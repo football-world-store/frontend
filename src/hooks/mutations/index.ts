@@ -1,4 +1,6 @@
+export * from "./useCancelReservationMutation";
 export * from "./useCancelSaleMutation";
+export * from "./useConfirmReservationMutation";
 export * from "./useChangePasswordMutation";
 export * from "./useClearSessionsMutation";
 export * from "./useCreateCustomerMutation";
