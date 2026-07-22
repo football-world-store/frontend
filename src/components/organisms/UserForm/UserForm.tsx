@@ -23,6 +23,7 @@ interface UserFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   user?: SystemUser;
+  isSelf?: boolean;
 }
 
 const editUserSchema = userSchema.omit({ password: true });
@@ -68,9 +69,11 @@ const CreateUserFields = ({
 const EditUserFields = ({
   register,
   errors,
+  isSelf,
 }: {
   register: ReturnType<typeof useForm<EditUserFormValues>>["register"];
   errors: ReturnType<typeof useForm<EditUserFormValues>>["formState"]["errors"];
+  isSelf?: boolean;
 }) => (
   <>
     <FormField
@@ -86,12 +89,14 @@ const EditUserFields = ({
       error={errors.email?.message}
       {...register("email")}
     />
-    <SelectField
-      label="Perfil"
-      options={USER_ROLE_OPTIONS}
-      error={errors.role?.message}
-      {...register("role")}
-    />
+    {!isSelf && (
+      <SelectField
+        label="Perfil"
+        options={USER_ROLE_OPTIONS}
+        error={errors.role?.message}
+        {...register("role")}
+      />
+    )}
   </>
 );
 
@@ -133,6 +138,7 @@ const EditUserForm = ({
   onSuccess,
   onCancel,
   user,
+  isSelf,
 }: UserFormProps & { user: SystemUser }) => {
   const mutation = useUpdateUserMutation();
   const resetPasswordMutation = useAdminResetPasswordMutation();
@@ -163,7 +169,7 @@ const EditUserForm = ({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
-      <EditUserFields register={register} errors={errors} />
+      <EditUserFields register={register} errors={errors} isSelf={isSelf} />
       <div>
         <p className="font-label text-xs text-on-surface-variant mb-2">
           Nova senha (deixe em branco para não alterar)
@@ -218,10 +224,20 @@ const FormFooter = ({
   </div>
 );
 
-export const UserForm = ({ onSuccess, onCancel, user }: UserFormProps) => {
+export const UserForm = ({
+  onSuccess,
+  onCancel,
+  user,
+  isSelf,
+}: UserFormProps) => {
   if (user) {
     return (
-      <EditUserForm user={user} onSuccess={onSuccess} onCancel={onCancel} />
+      <EditUserForm
+        user={user}
+        isSelf={isSelf}
+        onSuccess={onSuccess}
+        onCancel={onCancel}
+      />
     );
   }
   return <CreateUserForm onSuccess={onSuccess} onCancel={onCancel} />;

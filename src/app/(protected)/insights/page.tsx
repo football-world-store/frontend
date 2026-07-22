@@ -1,23 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import { Badge } from "@/components/atoms";
+import { Badge, Button, Icon } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
   ClubTrendChart,
   EmptyState,
+  PeriodFilter,
   SkeletonCard,
   SkeletonStatTile,
   StatTile,
 } from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
-import {
-  DEFAULT_DASHBOARD_PERIOD,
-  DEFAULT_DASHBOARD_TOP_LIMIT,
-  DEFAULT_IDLE_DAYS,
-} from "@/constants";
+import { DEFAULT_DASHBOARD_TOP_LIMIT, DEFAULT_IDLE_DAYS } from "@/constants";
 import {
   useDashboardCapitalByClubQuery,
   useDashboardClubTrendQuery,
@@ -37,16 +34,12 @@ import type {
   DashboardIdleProduct,
   DashboardMargins,
   DashboardPaymentMethod,
+  DashboardPeriodKind,
   DashboardReorderItem,
   DashboardReservationConversion,
   DashboardStockVelocityItem,
 } from "@/types";
 import { formatPriceFromReais, zebraRowTier } from "@/utils";
-
-const TOP_LIST_PARAMS = {
-  ...DEFAULT_DASHBOARD_PERIOD,
-  limit: DEFAULT_DASHBOARD_TOP_LIMIT,
-};
 
 const RISK_TONE = {
   CRITICAL: "error",
@@ -377,20 +370,22 @@ const useClubProgressItems = (
   }, [data]);
 
 const InsightsPage = () => {
-  const marginsQuery = useDashboardMarginsQuery(DEFAULT_DASHBOARD_PERIOD);
-  const paymentMethodsQuery = useDashboardPaymentMethodsQuery(
-    DEFAULT_DASHBOARD_PERIOD,
-  );
+  const [periodKind, setPeriodKind] =
+    useState<DashboardPeriodKind>("LAST_30_DAYS");
+  const period = { period: periodKind };
+  const topListParams = { ...period, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
+
+  const marginsQuery = useDashboardMarginsQuery(period);
+  const paymentMethodsQuery = useDashboardPaymentMethodsQuery(period);
   const stockVelocityQuery = useDashboardStockVelocityQuery();
   const idleProductsQuery = useDashboardIdleProductsQuery(DEFAULT_IDLE_DAYS);
   const reorderListQuery = useDashboardReorderListQuery();
   const capitalByClubQuery = useDashboardCapitalByClubQuery();
-  const topClubsQuery = useDashboardTopClubsQuery(TOP_LIST_PARAMS);
+  const topClubsQuery = useDashboardTopClubsQuery(topListParams);
   const clubTrendQuery = useDashboardClubTrendQuery();
   const customersByTeamQuery = useDashboardCustomersByTeamQuery();
-  const reservationConversionQuery = useDashboardReservationConversionQuery(
-    DEFAULT_DASHBOARD_PERIOD,
-  );
+  const reservationConversionQuery =
+    useDashboardReservationConversionQuery(period);
 
   const isLoading =
     marginsQuery.isLoading ||
@@ -412,6 +407,18 @@ const InsightsPage = () => {
       }
       subtitle="Análise em tempo real da performance do inventário."
     >
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <PeriodFilter value={periodKind} onChange={setPeriodKind} />
+        <Button
+          variant="secondary"
+          onClick={() => window.print()}
+          className="print:hidden"
+        >
+          <Icon name="print" size="sm" />
+          Imprimir relatório
+        </Button>
+      </div>
+
       <SummaryStats
         margins={marginsQuery.data}
         reservationConversion={reservationConversionQuery.data}

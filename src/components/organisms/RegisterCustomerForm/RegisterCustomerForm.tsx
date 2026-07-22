@@ -25,6 +25,25 @@ export const RegisterCustomerForm = () => {
   const onSubmit = handleSubmit((values) => mutation.mutate(values));
   const isPending = mutation.isPending || isSubmitting;
 
+  if (mutation.isSuccess) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center">
+          <span className="text-3xl">⏳</span>
+        </div>
+        <div>
+          <p className="font-headline text-lg font-bold text-on-surface">
+            Cadastro realizado!
+          </p>
+          <p className="font-body text-sm text-on-surface-variant mt-1">
+            Seu cadastro foi enviado para análise. Assim que um administrador
+            aprovar seu acesso, você poderá entrar normalmente.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <FormField

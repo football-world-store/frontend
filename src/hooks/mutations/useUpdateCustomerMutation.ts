@@ -8,8 +8,12 @@ export const useUpdateCustomerMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: customersService.update,
-    onSuccess: (customer) => {
-      toast.success("Cliente atualizado com sucesso.");
+    onSuccess: (customer, variables) => {
+      const msg =
+        variables.isActive === true
+          ? "Cliente aprovado com sucesso."
+          : "Cliente atualizado com sucesso.";
+      toast.success(msg);
       queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
       queryClient.setQueryData(
         queryKeys.customers.detail(customer.id),

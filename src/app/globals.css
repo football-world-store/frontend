@@ -388,3 +388,45 @@ h6 {
 @utility border-ghost {
   border: 0.0625rem solid var(--color-ghost-border);
 }
+
+/* ─── Print styles ────────────────────────────────────────────────────────── */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Hide nav chrome */
+  nav,
+  aside,
+  header,
+  footer,
+  [data-sidebar],
+  [data-bottom-nav] {
+    display: none !important;
+  }
+
+  /* Force light backgrounds for cards */
+  [class*="bg-surface"],
+  [class*="bg-metallic"] {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  [class*="text-on-surface"],
+  [class*="text-on-primary"] {
+    color: black !important;
+  }
+
+  [class*="text-on-surface-variant"],
+  [class*="text-primary"] {
+    color: #555 !important;
+  }
+
+  /* Page breaks */
+  section,
+  .grid > * {
+    break-inside: avoid;
+  }
+}

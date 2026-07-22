@@ -26,8 +26,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Football World Store",
-  description: "A loja oficial dos torcedores apaixonados.",
+  title: {
+    default: "Football World Store",
+    template: "%s | Football World Store",
+  },
+  description:
+    "Gerencie estoque, vendas, reservas e clientes da Football World Store — painel operacional completo.",
+  applicationName: "Football World Store",
+  keywords: ["estoque", "camisas", "futebol", "loja", "gestão"],
+  authors: [{ name: "Football World Store" }],
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: "Football World Store",
+    description: "Painel operacional da Football World Store.",
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Football World Store",
+  },
 };
 
 interface RootLayoutProps {

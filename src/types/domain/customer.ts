@@ -7,6 +7,7 @@ export interface Customer {
   name: string;
   phone: string | null;
   email: string | null;
+  isActive: boolean;
   status: CustomerStatus;
   favoriteTeam: string | null;
   preferredSizes: string[];
@@ -37,6 +38,7 @@ export interface UpdateCustomerBody {
   preferredSizes?: string[];
   birthDate?: string;
   notes?: string;
+  isActive?: boolean;
 }
 
 export interface ListCustomersParams extends ListQueryParams {
@@ -47,6 +49,7 @@ export interface ListCustomersParams extends ListQueryParams {
   minSpent?: number;
   maxSpent?: number;
   includeInactive?: boolean;
+  pendingOnly?: boolean;
 }
 
 /**
