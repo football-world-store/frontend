@@ -1,6 +1,7 @@
 import {
   Badge,
   ClawIndicator,
+  Icon,
   IconButton,
   OwnerOnly,
   type ClawLevel,
@@ -25,6 +26,27 @@ interface ProductRowProps {
   onDelete: (id: string) => void;
   onRestore: (id: string) => void;
 }
+
+const ProductThumbnail = ({
+  photoUrl,
+  name,
+}: {
+  photoUrl: string | null;
+  name: string;
+}) => (
+  <div className="h-9 w-9 rounded-lg bg-surface-container-low overflow-hidden flex-shrink-0 flex items-center justify-center">
+    {photoUrl ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photoUrl} alt={name} className="h-full w-full object-cover" />
+    ) : (
+      <Icon
+        name="image"
+        size="sm"
+        className="text-on-surface-variant opacity-40"
+      />
+    )}
+  </div>
+);
 
 const ProductActions = ({
   product,
@@ -66,6 +88,7 @@ export const ProductRowMobile = (props: ProductRowProps) => {
   const level = stockLevel(product);
   return (
     <div className={`flex items-start gap-3 px-4 py-3 ${zebraRowTier(index)}`}>
+      <ProductThumbnail photoUrl={product.photoUrl} name={product.name} />
       <div className="min-w-0 flex-1 space-y-1">
         <span className="block font-body text-sm font-semibold text-on-surface truncate">
           {product.name}
@@ -96,7 +119,10 @@ export const ProductRowDesktop = (props: ProductRowProps) => {
     <div
       className={`grid grid-cols-12 items-center px-4 py-4 gap-2 transition-colors hover:bg-surface-bright ${zebraRowTier(index)}`}
     >
-      <span className="col-span-3 font-body text-sm text-on-surface">
+      <span className="col-span-1 flex items-center">
+        <ProductThumbnail photoUrl={product.photoUrl} name={product.name} />
+      </span>
+      <span className="col-span-2 font-body text-sm text-on-surface">
         <span className="block font-semibold">{product.name}</span>
         <span className="block font-label text-xs text-on-surface-variant">
           {product.internalCode}

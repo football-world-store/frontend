@@ -148,11 +148,10 @@ export const ProductForm = ({
     onSuccess?.();
   });
 
-  const isPending =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    uploadMutation.isPending ||
-    isSubmitting;
+  const isSavingProduct =
+    createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isUploadingPhoto = uploadMutation.isPending;
+  const isPending = isSavingProduct || isUploadingPhoto;
   const errorMessages = extractErrorMessages(errors);
 
   return (
@@ -161,6 +160,12 @@ export const ProductForm = ({
         <span className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
           Foto do produto (opcional)
         </span>
+        {pendingPhoto && (
+          <p className="font-label text-xs text-on-surface-variant">
+            A foto será enviada diretamente para o armazenamento em nuvem após
+            salvar.
+          </p>
+        )}
         <div className="flex items-center gap-4">
           <div className="h-24 w-24 rounded-xl bg-surface-container-low overflow-hidden flex items-center justify-center">
             {photoPreview ? (
@@ -196,6 +201,11 @@ export const ProductForm = ({
               <Icon name="upload" size="sm" />
               {pendingPhoto ? "Trocar foto" : "Escolher foto"}
             </Button>
+            {pendingPhoto && (
+              <span className="font-label text-xs text-on-surface-variant truncate max-w-[140px]">
+                {pendingPhoto.name}
+              </span>
+            )}
             {pendingPhoto ? (
               <Button
                 type="button"
@@ -295,7 +305,7 @@ export const ProductForm = ({
           {isPending ? (
             <>
               <Spinner size="sm" tone="on-primary" />
-              Salvando...
+              {isUploadingPhoto ? "Enviando foto..." : "Salvando produto..."}
             </>
           ) : isEditing ? (
             "Salvar alterações"

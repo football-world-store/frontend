@@ -19,6 +19,7 @@ export const queryKeys = {
     list: (params?: ListProductsParams) =>
       [...queryKeys.products.all, "list", params ?? {}] as const,
     detail: (id: string) => [...queryKeys.products.all, "detail", id] as const,
+    distinctValues: ["products", "distinctValues"] as const,
   },
   stockEntries: {
     all: ["stockEntries"] as const,

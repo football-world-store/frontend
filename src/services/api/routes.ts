@@ -32,6 +32,7 @@ export const API_ROUTES = {
     restore: "/products/restore",
     photo: "/products/photo",
     photoUploadUrl: "/products/photo/upload-url",
+    distinctValues: "/products/distinct-values",
   },
   stockEntries: {
     list: "/stock-entries",
