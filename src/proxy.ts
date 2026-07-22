@@ -15,6 +15,7 @@ const AUTH_ROUTES: readonly string[] = [
 // chamada dessas páginas, então bloqueamos a rota inteira aqui antes do React montar.
 const OWNER_ONLY_ROUTES: readonly string[] = [
   APP_ROUTES.app.dashboard,
+  APP_ROUTES.app.reservations,
   APP_ROUTES.app.insights,
   APP_ROUTES.app.alerts,
   APP_ROUTES.app.audit,
