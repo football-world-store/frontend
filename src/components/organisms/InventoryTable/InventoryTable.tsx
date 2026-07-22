@@ -35,6 +35,9 @@ export const InventoryTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [addStockProductId, setAddStockProductId] = useState<string | null>(
+    null,
+  );
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedClubOrBrand = useDebouncedValue(
@@ -62,6 +65,9 @@ export const InventoryTable = () => {
     : null;
   const editingProduct = editingProductId
     ? (products.find((p) => p.id === editingProductId) ?? null)
+    : null;
+  const addStockProduct = addStockProductId
+    ? (products.find((p) => p.id === addStockProductId) ?? null)
     : null;
   const restoringProductId = restoreMutation.isPending
     ? (restoreMutation.variables as string | undefined)
@@ -161,6 +167,7 @@ export const InventoryTable = () => {
           onEdit={setEditingProductId}
           onDelete={setPendingDeleteId}
           onRestore={(id) => restoreMutation.mutate(id)}
+          onAddStock={setAddStockProductId}
         />
       </Card>
 
@@ -173,6 +180,8 @@ export const InventoryTable = () => {
         onCloseDelete={() => setPendingDeleteId(null)}
         onConfirmDelete={handleConfirmDelete}
         isDeletePending={deleteMutation.isPending}
+        addStockProduct={addStockProduct}
+        onCloseAddStock={() => setAddStockProductId(null)}
       />
     </>
   );

@@ -25,6 +25,7 @@ interface ProductRowProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onRestore: (id: string) => void;
+  onAddStock: (id: string) => void;
 }
 
 const ProductThumbnail = ({
@@ -54,8 +55,15 @@ const ProductActions = ({
   onEdit,
   onDelete,
   onRestore,
+  onAddStock,
 }: Omit<ProductRowProps, "index">) => (
   <>
+    <IconButton
+      iconName="add_circle"
+      label={`Adicionar estoque de ${product.name}`}
+      filled={false}
+      onClick={() => onAddStock(product.id)}
+    />
     <IconButton
       iconName="edit"
       label={`Editar ${product.name}`}

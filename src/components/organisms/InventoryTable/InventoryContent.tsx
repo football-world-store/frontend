@@ -12,6 +12,7 @@ interface InventoryContentProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onRestore: (id: string) => void;
+  onAddStock: (id: string) => void;
 }
 
 export const InventoryContent = ({
@@ -23,6 +24,7 @@ export const InventoryContent = ({
   onEdit,
   onDelete,
   onRestore,
+  onAddStock,
 }: InventoryContentProps) => {
   if (pageItems.length === 0) {
     return (
@@ -46,6 +48,7 @@ export const InventoryContent = ({
             onEdit={onEdit}
             onDelete={onDelete}
             onRestore={onRestore}
+            onAddStock={onAddStock}
           />
         ))}
       </div>
@@ -70,6 +73,7 @@ export const InventoryContent = ({
               onEdit={onEdit}
               onDelete={onDelete}
               onRestore={onRestore}
+              onAddStock={onAddStock}
             />
           ))}
         </div>
