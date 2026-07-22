@@ -1,8 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button, Spinner } from "@/components/atoms";
 import { FormField } from "@/components/molecules";
@@ -13,24 +14,14 @@ import {
   type CustomerLoginFormValues,
 } from "@/lib/validations";
 
-export const CustomerLoginForm = () => {
-  const [loginErrorMsg, setLoginErrorMsg] = useState<string | null>(null);
+const LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  ACCOUNT_PENDING_APPROVAL:
+    ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
+    "Seu cadastro ainda não foi aprovado. Aguarde a liberação de um administrador.",
+};
 
-  const mutation = useCustomerLoginMutation({
-    onError(err) {
-      if (err.message === "ACCOUNT_PENDING_APPROVAL") {
-        setLoginErrorMsg(
-          ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
-            "Seu cadastro ainda não foi aprovado.",
-        );
-      } else {
-        setLoginErrorMsg("E-mail ou senha incorretos.");
-      }
-    },
-    onSuccess() {
-      setLoginErrorMsg(null);
-    },
-  });
+export const CustomerLoginForm = () => {
+  const mutation = useCustomerLoginMutation();
 
   const {
     register,
@@ -40,6 +31,14 @@ export const CustomerLoginForm = () => {
     resolver: zodResolver(customerLoginSchema),
     defaultValues: { email: "", password: "" },
   });
+
+  useEffect(() => {
+    if (!mutation.error) return;
+    const msg =
+      LOGIN_ERROR_MESSAGES[mutation.error.message] ??
+      "E-mail ou senha incorretos.";
+    toast.error(msg);
+  }, [mutation.error]);
 
   const onSubmit = handleSubmit((values) => mutation.mutate(values));
   const isPending = mutation.isPending || isSubmitting;
@@ -62,9 +61,6 @@ export const CustomerLoginForm = () => {
         error={errors.password?.message}
         {...register("password")}
       />
-      {loginErrorMsg && (
-        <p className="font-body text-error text-sm">{loginErrorMsg}</p>
-      )}
       <Button type="submit" size="lg" disabled={isPending}>
         {isPending ? (
           <>

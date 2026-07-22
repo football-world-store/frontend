@@ -12,7 +12,10 @@ import type { ApiErrorResponse } from "@/types";
 
 import { extractErrorMessage } from "./errorMessage";
 
-const SILENT_ERROR_PATHS = ["/customer-auth/me/orders"] as const;
+const SILENT_ERROR_PATHS = [
+  "/customer-auth/me/orders",
+  "/customer-auth/login",
+] as const;
 
 export const customerApiClient = axios.create({
   baseURL: ENV.API_URL,
