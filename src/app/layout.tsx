@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Lexend, Manrope } from "next/font/google";
 
 import { Providers } from "./providers";
@@ -35,14 +35,26 @@ export const metadata: Metadata = {
   applicationName: "Football World Store",
   keywords: ["estoque", "camisas", "futebol", "loja", "gestão"],
   authors: [{ name: "Football World Store" }],
+  // Painel interno (staff) + portal de pedidos do cliente — não é a loja
+  // pública, então não deve ser indexado por buscadores.
   robots: { index: false, follow: false },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "Football World Store",
     description: "Painel operacional da Football World Store.",
     type: "website",
     locale: "pt_BR",
     siteName: "Football World Store",
+    images: [{ url: "/brand/logo.png", width: 751, height: 751 }],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#131313",
 };
 
 interface RootLayoutProps {

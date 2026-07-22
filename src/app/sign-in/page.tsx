@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Spinner } from "@/components/atoms";
 import { LoginForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
+
+export const metadata: Metadata = {
+  title: "Entrar",
+  description: "Faça login para acessar o painel operacional.",
+};
 
 const SignInPage = () => {
   return (

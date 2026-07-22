@@ -1,10 +1,14 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Spinner } from "@/components/atoms";
 import { VerifyMagicLinkForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
+
+export const metadata: Metadata = {
+  title: "Confirmando acesso",
+  description: "Aguarde enquanto validamos seu link de acesso.",
+};
 
 const VerifyPage = () => {
   return (

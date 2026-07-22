@@ -1,7 +1,12 @@
-"use client";
+import type { Metadata } from "next";
 
 import { ForgotPasswordForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
+
+export const metadata: Metadata = {
+  title: "Recuperar acesso",
+  description: "Informe seu email e enviaremos as instruções.",
+};
 
 const ForgotPasswordPage = () => {
   return (
