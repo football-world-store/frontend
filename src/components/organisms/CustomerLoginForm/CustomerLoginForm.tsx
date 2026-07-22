@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
 import { FormField } from "@/components/molecules";
+import { ERROR_MESSAGES } from "@/constants";
 import { useCustomerLoginMutation } from "@/hooks/mutations";
 import {
   customerLoginSchema,
@@ -25,6 +26,12 @@ export const CustomerLoginForm = () => {
   const onSubmit = handleSubmit((values) => mutation.mutate(values));
   const isPending = mutation.isPending || isSubmitting;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const loginErrorCode = (mutation.error as any)?.response?.data?.message;
+  const loginErrorMsg =
+    (typeof loginErrorCode === "string" && ERROR_MESSAGES[loginErrorCode]) ||
+    "E-mail ou senha incorretos.";
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <FormField
@@ -44,9 +51,7 @@ export const CustomerLoginForm = () => {
         {...register("password")}
       />
       {mutation.isError && (
-        <p className="font-body text-error text-sm">
-          Email ou senha incorretos.
-        </p>
+        <p className="font-body text-error text-sm">{loginErrorMsg}</p>
       )}
       <Button type="submit" size="lg" disabled={isPending}>
         {isPending ? (
