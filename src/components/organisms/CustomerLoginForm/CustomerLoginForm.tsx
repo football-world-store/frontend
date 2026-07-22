@@ -27,10 +27,12 @@ export const CustomerLoginForm = () => {
   const isPending = mutation.isPending || isSubmitting;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const loginErrorCode = (mutation.error as any)?.response?.data?.message;
+  const httpStatus = (mutation.error as any)?.response?.status;
   const loginErrorMsg =
-    (typeof loginErrorCode === "string" && ERROR_MESSAGES[loginErrorCode]) ||
-    "E-mail ou senha incorretos.";
+    httpStatus === 403
+      ? (ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
+        "Cadastro aguardando aprovação.")
+      : "E-mail ou senha incorretos.";
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
