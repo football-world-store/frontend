@@ -19,6 +19,12 @@ export const registerCustomerSchema = z.object({
   name: nameField,
   email: emailField,
   password: passwordField,
+  whatsapp: z
+    .string()
+    .regex(
+      /^\d{10,11}$/,
+      "Informe DDD + número (10 ou 11 dígitos, só números)",
+    ),
 });
 
 export type RegisterCustomerFormValues = z.infer<typeof registerCustomerSchema>;

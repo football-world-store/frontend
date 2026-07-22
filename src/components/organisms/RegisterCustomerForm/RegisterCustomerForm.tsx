@@ -19,7 +19,7 @@ export const RegisterCustomerForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<RegisterCustomerFormValues>({
     resolver: zodResolver(registerCustomerSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    defaultValues: { name: "", email: "", password: "", whatsapp: "" },
   });
 
   const onSubmit = handleSubmit((values) => mutation.mutate(values));
@@ -61,6 +61,14 @@ export const RegisterCustomerForm = () => {
         placeholder="seu@email.com"
         error={errors.email?.message}
         {...register("email")}
+      />
+      <FormField
+        label="WhatsApp"
+        type="tel"
+        autoComplete="tel"
+        placeholder="11999999999 (DDD + número)"
+        error={errors.whatsapp?.message}
+        {...register("whatsapp")}
       />
       <FormField
         label="Senha"

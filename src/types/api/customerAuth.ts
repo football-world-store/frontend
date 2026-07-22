@@ -2,6 +2,7 @@ export interface RegisterCustomerBody {
   name: string;
   email: string;
   password: string;
+  whatsapp: string;
 }
 
 export interface CustomerLoginBody {
