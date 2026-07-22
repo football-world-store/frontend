@@ -22,6 +22,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // Customer Auth (portal)
   CUSTOMER_NOT_FOUND: "Cliente não encontrado.",
+  ACCOUNT_PENDING_APPROVAL:
+    "Seu cadastro ainda não foi aprovado. Aguarde a liberação de um administrador.",
+  EMAIL_ALREADY_REGISTERED: "Este e-mail já está cadastrado.",
+  WHATSAPP_ALREADY_REGISTERED: "Este WhatsApp já está cadastrado.",
 
   // Users
   EMAIL_ALREADY_EXISTS: "Este e-mail já está cadastrado.",

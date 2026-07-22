@@ -24,8 +24,10 @@ import { useAuth } from "@/contexts";
 import {
   useClearSessionsMutation,
   useDeleteUserMutation,
+  useUpdateCustomerMutation,
+  useUpdateUserMutation,
 } from "@/hooks/mutations";
-import { useUsersQuery } from "@/hooks/queries";
+import { useCustomersQuery, useUsersQuery } from "@/hooks/queries";
 import { formatDateBR } from "@/utils";
 
 const ROLE_LABEL = {
@@ -35,8 +37,13 @@ const ROLE_LABEL = {
 
 const SettingsPage = () => {
   const { user } = useAuth();
-  const { data, isLoading } = useUsersQuery();
+  const { data, isLoading } = useUsersQuery({ isActive: true });
   const users = data?.items ?? [];
+  const { data: pendingData, isLoading: isPendingLoading } = useUsersQuery({
+    isActive: false,
+    limit: 50,
+  });
+  const pendingUsers = pendingData?.items ?? [];
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [pendingDeleteUserId, setPendingDeleteUserId] = useState<string | null>(
@@ -46,8 +53,14 @@ const SettingsPage = () => {
   const [isClearSessionsOpen, setIsClearSessionsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
+  const { data: pendingCustomersData, isLoading: isPendingCustomersLoading } =
+    useCustomersQuery({ pendingOnly: true, limit: 50 });
+  const pendingCustomers = pendingCustomersData?.items ?? [];
+
   const deleteUserMutation = useDeleteUserMutation();
   const clearSessionsMutation = useClearSessionsMutation();
+  const approveUserMutation = useUpdateUserMutation();
+  const approveCustomerMutation = useUpdateCustomerMutation();
 
   const pendingDeleteUser = pendingDeleteUserId
     ? (users.find((u) => u.id === pendingDeleteUserId) ?? null)
@@ -149,6 +162,110 @@ const SettingsPage = () => {
         </Card>
       </div>
 
+      {(isPendingCustomersLoading || pendingCustomers.length > 0) && (
+        <Card
+          tier="container-high"
+          title="Clientes pendentes"
+          description="Clientes que se cadastraram pelo portal e aguardam aprovação."
+        >
+          {isPendingCustomersLoading ? (
+            <SkeletonListRow count={2} withAvatar />
+          ) : (
+            <ul className="space-y-2">
+              {pendingCustomers.map((customer, index) => (
+                <li
+                  key={customer.id}
+                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                    index % 2 === 0
+                      ? "bg-surface-container-low"
+                      : "bg-surface-container"
+                  }`}
+                >
+                  <Avatar name={customer.name} />
+                  <div className="flex-1">
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {customer.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {customer.email ?? "—"}
+                    </p>
+                  </div>
+                  <Badge tone="neutral">Pendente</Badge>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      approveCustomerMutation.mutate({
+                        id: customer.id,
+                        isActive: true,
+                      })
+                    }
+                    disabled={approveCustomerMutation.isPending}
+                  >
+                    <Icon name="check_circle" size="sm" filled={false} />
+                    Aprovar
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
+
+      {(isPendingLoading || pendingUsers.length > 0) && (
+        <Card
+          tier="container-high"
+          title="Aprovações pendentes"
+          description="Usuários que se cadastraram e aguardam liberação de acesso."
+        >
+          {isPendingLoading ? (
+            <SkeletonListRow count={2} withAvatar />
+          ) : (
+            <ul className="space-y-2">
+              {pendingUsers.map((pendingUser, index) => (
+                <li
+                  key={pendingUser.id}
+                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                    index % 2 === 0
+                      ? "bg-surface-container-low"
+                      : "bg-surface-container"
+                  }`}
+                >
+                  <Avatar name={pendingUser.name} />
+                  <div className="flex-1">
+                    <p className="font-body text-sm font-semibold text-on-surface">
+                      {pendingUser.name}
+                    </p>
+                    <p className="font-label text-xs text-on-surface-variant">
+                      {pendingUser.email}
+                    </p>
+                  </div>
+                  <Badge tone="neutral">Pendente</Badge>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      approveUserMutation.mutate({
+                        id: pendingUser.id,
+                        isActive: true,
+                      })
+                    }
+                    disabled={approveUserMutation.isPending}
+                  >
+                    <Icon name="check_circle" size="sm" filled={false} />
+                    Aprovar
+                  </Button>
+                  <IconButton
+                    iconName="delete"
+                    label={`Rejeitar ${pendingUser.name}`}
+                    filled={false}
+                    onClick={() => setPendingDeleteUserId(pendingUser.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
+
       <Card
         tier="container-high"
         title="Gestão de acesso"
@@ -248,6 +365,7 @@ const SettingsPage = () => {
         {editingUser ? (
           <UserForm
             user={editingUser}
+            isSelf={editingUser.id === user?.id}
             onSuccess={() => setEditingUserId(null)}
             onCancel={() => setEditingUserId(null)}
           />

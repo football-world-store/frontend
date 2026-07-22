@@ -13,6 +13,7 @@ export const APP_ROUTES = {
     sales: "/sales",
     customers: "/customers",
     customerDetail: (id: string) => `/customers/${id}`,
+    reservations: "/reservations",
     insights: "/insights",
     alerts: "/alerts",
     audit: "/audit",

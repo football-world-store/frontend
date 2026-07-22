@@ -1,5 +1,7 @@
 export * from "./AlertsPanel";
 export * from "./ChangePasswordForm";
+export * from "./CustomerLoginForm";
+export * from "./RegisterCustomerForm";
 export * from "./CustomerForm";
 export * from "./CustomerOrdersList";
 export * from "./CustomerPurchasesCard";
@@ -12,6 +14,7 @@ export * from "./LoginForm";
 export * from "./ProductForm";
 export * from "./RegisterForm";
 export * from "./RequestMagicLinkForm";
+export * from "./ReservationsTable";
 export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";

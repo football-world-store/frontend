@@ -9,6 +9,7 @@ import { Button, Icon, Spinner } from "@/components/atoms";
 import { FormField, SelectField } from "@/components/molecules";
 import {
   useCreateProductMutation,
+  useCreateStockEntryMutation,
   useDeleteProductPhotoMutation,
   useUpdateProductMutation,
   useUploadProductPhotoMutation,
@@ -72,12 +73,16 @@ export const ProductForm = ({
   const isEditing = Boolean(product);
   const createMutation = useCreateProductMutation();
   const updateMutation = useUpdateProductMutation();
+  const stockEntryMutation = useCreateStockEntryMutation();
   const uploadMutation = useUploadProductPhotoMutation();
   const deletePhotoMutation = useDeleteProductPhotoMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(
     product?.photoUrl ?? null,
+  );
+  const [newQuantity, setNewQuantity] = useState<number>(
+    product?.quantity ?? 0,
   );
   const {
     register,
@@ -130,6 +135,17 @@ export const ProductForm = ({
           minStock: values.minStock,
         })
       : await createMutation.mutateAsync(values);
+
+    if (isEditing && product) {
+      const delta = newQuantity - product.quantity;
+      if (delta > 0) {
+        await stockEntryMutation.mutateAsync({
+          productId: product.id,
+          quantity: delta,
+          unitCost: values.costPrice,
+        });
+      }
+    }
     if (pendingPhoto) {
       try {
         await uploadMutation.mutateAsync({
@@ -149,7 +165,10 @@ export const ProductForm = ({
   });
 
   const isSavingProduct =
-    createMutation.isPending || updateMutation.isPending || isSubmitting;
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    stockEntryMutation.isPending ||
+    isSubmitting;
   const isUploadingPhoto = uploadMutation.isPending;
   const isPending = isSavingProduct || isUploadingPhoto;
   const errorMessages = extractErrorMessages(errors);
@@ -257,7 +276,33 @@ export const ProductForm = ({
           error={errorMessages.size}
           {...register("size")}
         />
-        {isEditing ? null : (
+        {isEditing ? (
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
+              Quantidade em estoque
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={newQuantity}
+              onChange={(e) =>
+                setNewQuantity(Math.max(0, Number(e.target.value)))
+              }
+              className="h-12 rounded-xl bg-surface-container-lowest text-on-surface px-4 font-body text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
+            />
+            {newQuantity > (product?.quantity ?? 0) && (
+              <span className="font-label text-xs text-tertiary">
+                +{newQuantity - (product?.quantity ?? 0)} un. serão registradas
+                como entrada de estoque.
+              </span>
+            )}
+            {newQuantity < (product?.quantity ?? 0) && (
+              <span className="font-label text-xs text-on-surface-variant">
+                Reduções de estoque devem ser feitas via saídas ou ajustes.
+              </span>
+            )}
+          </div>
+        ) : (
           <FormField
             label="Quantidade inicial"
             type="number"
@@ -292,7 +337,7 @@ export const ProductForm = ({
       </div>
       <p className="font-label text-xs text-on-surface-variant">
         {isEditing
-          ? `Código interno: ${product?.internalCode}. A quantidade em estoque só muda via entradas/saídas.`
+          ? `Código interno: ${product?.internalCode}.`
           : "O código interno (FWS-XXXX) é gerado automaticamente."}
       </p>
       <div className="flex justify-end gap-3 pt-2">

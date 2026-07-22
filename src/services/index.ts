@@ -6,6 +6,7 @@ export * from "./customerAuth.service";
 export * from "./customers.service";
 export * from "./dashboard.service";
 export * from "./products.service";
+export * from "./reservations.service";
 export * from "./sales.service";
 export * from "./stockEntries.service";
 export * from "./users.service";

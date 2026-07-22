@@ -1,3 +1,16 @@
+export interface RegisterCustomerBody {
+  name: string;
+  email: string;
+  password: string;
+  whatsapp: string;
+  birthDate?: string;
+}
+
+export interface CustomerLoginBody {
+  email: string;
+  password: string;
+}
+
 export interface RequestMagicLinkBody {
   email: string;
 }

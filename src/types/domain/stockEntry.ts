@@ -36,7 +36,7 @@ export interface CreateStockEntryBody {
   productId: string;
   quantity: number;
   unitCost: number;
-  supplier: string;
+  supplier?: string;
   notes?: string;
 }
 

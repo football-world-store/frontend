@@ -11,3 +11,4 @@ export * from "./useSalesQuery";
 export * from "./useStockEntriesQuery";
 export * from "./useUsersQuery";
 export * from "./useDistinctProductValuesQuery";
+export * from "./useReservationsQuery";

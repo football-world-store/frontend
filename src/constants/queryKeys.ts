@@ -4,6 +4,7 @@ import type {
   ListAuditLogsParams,
   ListCustomersParams,
   ListProductsParams,
+  ListReservationsParams,
   ListSalesParams,
   ListStockEntriesParams,
   ListUsersParams,
@@ -97,6 +98,11 @@ export const queryKeys = {
         "reservationConversion",
         params ?? {},
       ] as const,
+  },
+  reservations: {
+    all: ["reservations"] as const,
+    list: (params?: ListReservationsParams) =>
+      [...queryKeys.reservations.all, "list", params ?? {}] as const,
   },
   customerAuth: {
     all: ["customerAuth"] as const,

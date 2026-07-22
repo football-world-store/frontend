@@ -19,6 +19,7 @@ export const API_ROUTES = {
     find: "/users/find",
     update: "/users",
     delete: "/users",
+    adminResetPassword: "/users/admin-reset-password",
   },
   audit: {
     list: "/audit",
@@ -45,6 +46,11 @@ export const API_ROUTES = {
     create: "/sales",
     find: "/sales/find",
     cancel: "/sales/cancel",
+  },
+  reservations: {
+    list: "/reservations",
+    confirm: "/reservations/confirm",
+    cancel: "/reservations/cancel",
   },
 
   customers: {
@@ -80,6 +86,8 @@ export const API_ROUTES = {
     reservationConversion: "/dashboard/reservation-conversion",
   },
   customerAuth: {
+    register: `${CUSTOMER_AUTH_BASE}/register`,
+    login: `${CUSTOMER_AUTH_BASE}/login`,
     magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
     verify: `${CUSTOMER_AUTH_BASE}/verify`,
     logout: `${CUSTOMER_AUTH_BASE}/logout`,

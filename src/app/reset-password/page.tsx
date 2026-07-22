@@ -1,10 +1,15 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Spinner } from "@/components/atoms";
 import { ResetPasswordForm } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
+
+export const metadata: Metadata = {
+  title: "Nova senha",
+  description:
+    "Digite o código que enviamos por email e cadastre uma nova senha.",
+};
 
 const ResetPasswordPage = () => {
   return (

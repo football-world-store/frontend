@@ -8,6 +8,7 @@ export * from "./FormField";
 export * from "./Header";
 export * from "./PasswordField";
 export * from "./Pagination";
+export * from "./PeriodFilter";
 export * from "./RevenueLineChart";
 export * from "./SalesByChannelChart";
 export * from "./SelectField";

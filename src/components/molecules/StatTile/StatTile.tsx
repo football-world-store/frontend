@@ -40,7 +40,7 @@ export const StatTile = ({
     ? "font-label uppercase tracking-wider text-xs text-on-primary/80"
     : "font-label uppercase tracking-wider text-xs text-on-surface-variant";
   const valueClass = hero
-    ? "font-headline text-5xl font-extrabold text-on-primary tracking-[-0.04em]"
+    ? "font-headline text-4xl xl:text-5xl font-extrabold text-on-primary tracking-[-0.04em] break-all"
     : "font-headline text-3xl font-extrabold text-on-surface tracking-[-0.03em]";
   const iconClass = hero ? "text-on-primary" : "text-on-surface-variant";
 
