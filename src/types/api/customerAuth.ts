@@ -3,6 +3,7 @@ export interface RegisterCustomerBody {
   email: string;
   password: string;
   whatsapp: string;
+  birthDate?: string;
 }
 
 export interface CustomerLoginBody {

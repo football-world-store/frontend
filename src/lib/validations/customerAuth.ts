@@ -25,6 +25,7 @@ export const registerCustomerSchema = z.object({
       /^\d{10,11}$/,
       "Informe DDD + número (10 ou 11 dígitos, só números)",
     ),
+  birthDate: z.string().optional(),
 });
 
 export type RegisterCustomerFormValues = z.infer<typeof registerCustomerSchema>;
