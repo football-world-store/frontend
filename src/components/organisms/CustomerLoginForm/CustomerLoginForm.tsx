@@ -18,9 +18,7 @@ export const CustomerLoginForm = () => {
 
   const mutation = useCustomerLoginMutation({
     onError(err) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const status = (err as any)?.response?.status;
-      if (status === 403) {
+      if (err.message === "ACCOUNT_PENDING_APPROVAL") {
         setLoginErrorMsg(
           ERROR_MESSAGES.ACCOUNT_PENDING_APPROVAL ??
             "Seu cadastro ainda não foi aprovado.",
