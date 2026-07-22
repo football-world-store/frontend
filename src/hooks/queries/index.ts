@@ -10,3 +10,4 @@ export * from "./useProductsQuery";
 export * from "./useSalesQuery";
 export * from "./useStockEntriesQuery";
 export * from "./useUsersQuery";
+export * from "./useDistinctProductValuesQuery";

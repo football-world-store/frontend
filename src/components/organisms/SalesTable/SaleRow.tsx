@@ -1,4 +1,4 @@
-import { Badge, IconButton } from "@/components/atoms";
+import { Badge, IconButton, OwnerOnly } from "@/components/atoms";
 import type { PaymentMethod, Sale, SaleChannel, SaleStatus } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
 
@@ -58,12 +58,14 @@ export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
         {formatDateBR(sale.saleDate)}
       </span>
       {sale.status === "CONFIRMED" ? (
-        <IconButton
-          iconName="cancel"
-          label={`Cancelar venda #${sale.saleNumber}`}
-          filled={false}
-          onClick={() => onCancel(sale.id)}
-        />
+        <OwnerOnly>
+          <IconButton
+            iconName="cancel"
+            label={`Cancelar venda #${sale.saleNumber}`}
+            filled={false}
+            onClick={() => onCancel(sale.id)}
+          />
+        </OwnerOnly>
       ) : null}
     </div>
   </div>
@@ -93,12 +95,14 @@ export const SaleRowDesktop = ({ sale, index, onCancel }: SaleRowProps) => (
     </span>
     <span className="col-span-1 flex justify-end">
       {sale.status === "CONFIRMED" ? (
-        <IconButton
-          iconName="cancel"
-          label={`Cancelar venda #${sale.saleNumber}`}
-          filled={false}
-          onClick={() => onCancel(sale.id)}
-        />
+        <OwnerOnly>
+          <IconButton
+            iconName="cancel"
+            label={`Cancelar venda #${sale.saleNumber}`}
+            filled={false}
+            onClick={() => onCancel(sale.id)}
+          />
+        </OwnerOnly>
       ) : null}
     </span>
   </div>

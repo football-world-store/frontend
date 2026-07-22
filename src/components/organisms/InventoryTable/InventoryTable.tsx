@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button, Icon } from "@/components/atoms";
 import { Card, EmptyState, SkeletonTableRow } from "@/components/molecules";
-import { useDebouncedValue, useFuzzySearch } from "@/hooks";
+import { useDebouncedValue } from "@/hooks";
 import {
   useDeleteProductMutation,
   useRestoreProductMutation,
@@ -20,10 +20,6 @@ import { InventoryModals } from "./InventoryModals";
 
 const ITEMS_PER_PAGE = 8;
 const SEARCH_DEBOUNCE_MS = 300;
-const FUSE_OPTIONS = {
-  keys: ["name", "internalCode"],
-  threshold: 0.35,
-};
 
 const EMPTY_FILTER: InventoryFilterValues = {
   clubOrBrand: "",
@@ -40,6 +36,7 @@ export const InventoryTable = () => {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
+  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedClubOrBrand = useDebouncedValue(
     filter.clubOrBrand,
     SEARCH_DEBOUNCE_MS,
@@ -50,13 +47,13 @@ export const InventoryTable = () => {
     page,
     limit: ITEMS_PER_PAGE,
     includeInactive,
+    search: debouncedSearch || undefined,
     clubOrBrand: debouncedClubOrBrand || undefined,
     size: debouncedSize || undefined,
     status: filter.status || undefined,
   });
 
   const products = data?.items ?? [];
-  const pageItems = useFuzzySearch(products, search, FUSE_OPTIONS);
   const deleteMutation = useDeleteProductMutation();
   const restoreMutation = useRestoreProductMutation();
 
@@ -139,7 +136,10 @@ export const InventoryTable = () => {
           <input
             type="search"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Buscar por nome ou código..."
             className="w-full h-12 pl-11 pr-4 rounded-xl bg-surface-container-lowest text-on-surface text-sm focus-visible:outline-none focus-visible:ring-focus-gold"
           />
@@ -154,7 +154,7 @@ export const InventoryTable = () => {
 
         <InventoryContent
           data={data}
-          pageItems={pageItems}
+          pageItems={products}
           page={page}
           restoringProductId={restoringProductId}
           onPageChange={setPage}

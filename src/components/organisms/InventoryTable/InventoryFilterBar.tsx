@@ -1,4 +1,5 @@
 import { Badge, Button, Icon, Select } from "@/components/atoms";
+import { useDistinctProductValuesQuery } from "@/hooks/queries";
 import type { ProductStatus } from "@/types";
 
 export interface InventoryFilterValues {
@@ -27,26 +28,46 @@ const FilterFields = ({
   filter,
   onChangeFilter,
   inputClassName,
+  clubOptions,
+  sizeOptions,
 }: {
   filter: InventoryFilterValues;
   onChangeFilter: InventoryFilterBarProps["onChangeFilter"];
   inputClassName: string;
+  clubOptions: string[];
+  sizeOptions: string[];
 }) => (
   <>
-    <input
-      type="text"
-      value={filter.clubOrBrand}
-      onChange={(e) => onChangeFilter({ clubOrBrand: e.target.value })}
-      placeholder="Clube / Marca"
-      className={inputClassName}
-    />
-    <input
-      type="text"
-      value={filter.size}
-      onChange={(e) => onChangeFilter({ size: e.target.value })}
-      placeholder="Tamanho"
-      className={inputClassName}
-    />
+    <>
+      <input
+        type="text"
+        list="club-options"
+        value={filter.clubOrBrand}
+        onChange={(e) => onChangeFilter({ clubOrBrand: e.target.value })}
+        placeholder="Clube / Marca"
+        className={inputClassName}
+      />
+      <datalist id="club-options">
+        {clubOptions.map((v) => (
+          <option key={v} value={v} />
+        ))}
+      </datalist>
+    </>
+    <>
+      <input
+        type="text"
+        list="size-options"
+        value={filter.size}
+        onChange={(e) => onChangeFilter({ size: e.target.value })}
+        placeholder="Tamanho"
+        className={inputClassName}
+      />
+      <datalist id="size-options">
+        {sizeOptions.map((v) => (
+          <option key={v} value={v} />
+        ))}
+      </datalist>
+    </>
     <Select
       options={STATUS_OPTIONS}
       value={filter.status}
@@ -66,6 +87,10 @@ export const InventoryFilterBar = ({
   onChangeIncludeInactive,
   onReset,
 }: InventoryFilterBarProps) => {
+  const { data: distinctValues } = useDistinctProductValuesQuery();
+  const clubOptions = distinctValues?.clubOrBrand ?? [];
+  const sizeOptions = distinctValues?.size ?? [];
+
   const activeFilterCount =
     (filter.clubOrBrand ? 1 : 0) +
     (filter.size ? 1 : 0) +
@@ -103,6 +128,8 @@ export const InventoryFilterBar = ({
             filter={filter}
             onChangeFilter={onChangeFilter}
             inputClassName={`w-full ${inputClass}`}
+            clubOptions={clubOptions}
+            sizeOptions={sizeOptions}
           />
         </div>
       </details>
@@ -111,6 +138,8 @@ export const InventoryFilterBar = ({
           filter={filter}
           onChangeFilter={onChangeFilter}
           inputClassName={`w-full max-w-xs ${inputClass}`}
+          clubOptions={clubOptions}
+          sizeOptions={sizeOptions}
         />
         <Button type="button" variant="ghost" onClick={onReset}>
           Limpar

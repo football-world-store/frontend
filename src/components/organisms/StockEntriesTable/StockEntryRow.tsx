@@ -1,4 +1,4 @@
-import { Badge, IconButton } from "@/components/atoms";
+import { Badge, IconButton, OwnerOnly } from "@/components/atoms";
 import type { StockEntry } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
 
@@ -35,12 +35,14 @@ export const StockEntryRowMobile = ({
         <span>{formatDateBR(entry.createdAt)}</span>
       </div>
       {entry.isReverse ? null : (
-        <IconButton
-          iconName="undo"
-          label={`Estornar ${entry.product.name}`}
-          filled={false}
-          onClick={() => onReverse(entry.id)}
-        />
+        <OwnerOnly>
+          <IconButton
+            iconName="undo"
+            label={`Estornar ${entry.product.name}`}
+            filled={false}
+            onClick={() => onReverse(entry.id)}
+          />
+        </OwnerOnly>
       )}
     </div>
   </div>
@@ -75,12 +77,14 @@ export const StockEntryRowDesktop = ({
     </span>
     <span className="col-span-1 flex justify-end">
       {entry.isReverse ? null : (
-        <IconButton
-          iconName="undo"
-          label={`Estornar ${entry.product.name}`}
-          filled={false}
-          onClick={() => onReverse(entry.id)}
-        />
+        <OwnerOnly>
+          <IconButton
+            iconName="undo"
+            label={`Estornar ${entry.product.name}`}
+            filled={false}
+            onClick={() => onReverse(entry.id)}
+          />
+        </OwnerOnly>
       )}
     </span>
   </div>

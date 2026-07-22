@@ -95,4 +95,14 @@ export const productsService = {
   deletePhoto: async (id: string): Promise<void> => {
     await apiClient.delete(API_ROUTES.products.photo, { data: { id } });
   },
+
+  distinctValues: async (): Promise<{
+    clubOrBrand: string[];
+    size: string[];
+  }> => {
+    const { data } = await apiClient.get<
+      ApiEnvelope<{ clubOrBrand: string[]; size: string[] }>
+    >(API_ROUTES.products.distinctValues);
+    return data.data;
+  },
 };
