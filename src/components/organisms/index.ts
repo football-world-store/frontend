@@ -1,5 +1,7 @@
 export * from "./AlertsPanel";
 export * from "./ChangePasswordForm";
+export * from "./CustomerLoginForm";
+export * from "./RegisterCustomerForm";
 export * from "./CustomerForm";
 export * from "./CustomerOrdersList";
 export * from "./CustomerPurchasesCard";

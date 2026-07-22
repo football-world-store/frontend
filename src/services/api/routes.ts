@@ -85,6 +85,8 @@ export const API_ROUTES = {
     reservationConversion: "/dashboard/reservation-conversion",
   },
   customerAuth: {
+    register: `${CUSTOMER_AUTH_BASE}/register`,
+    login: `${CUSTOMER_AUTH_BASE}/login`,
     magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
     verify: `${CUSTOMER_AUTH_BASE}/verify`,
     logout: `${CUSTOMER_AUTH_BASE}/logout`,

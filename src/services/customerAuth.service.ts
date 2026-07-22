@@ -2,6 +2,8 @@ import { API_ROUTES, customerApiClient } from "@/services/api";
 import type { ApiEnvelope } from "@/types";
 import type {
   CustomerIdentity,
+  RegisterCustomerBody,
+  CustomerLoginBody,
   RequestMagicLinkBody,
   VerifyMagicLinkBody,
   VerifyMagicLinkResponseData,
@@ -9,6 +11,20 @@ import type {
 import type { CustomerOrders } from "@/types";
 
 export const customerAuthService = {
+  register: async (body: RegisterCustomerBody): Promise<CustomerIdentity> => {
+    const { data } = await customerApiClient.post<
+      ApiEnvelope<VerifyMagicLinkResponseData>
+    >(API_ROUTES.customerAuth.register, body);
+    return data.data.customer;
+  },
+
+  login: async (body: CustomerLoginBody): Promise<CustomerIdentity> => {
+    const { data } = await customerApiClient.post<
+      ApiEnvelope<VerifyMagicLinkResponseData>
+    >(API_ROUTES.customerAuth.login, body);
+    return data.data.customer;
+  },
+
   requestMagicLink: async (body: RequestMagicLinkBody): Promise<void> => {
     await customerApiClient.post(API_ROUTES.customerAuth.magicLink, body);
   },

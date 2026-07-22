@@ -26,3 +26,5 @@ export * from "./useUpdateProductMutation";
 export * from "./useUpdateUserMutation";
 export * from "./useUploadProductPhotoMutation";
 export * from "./useVerifyMagicLinkMutation";
+export * from "./useCustomerLoginMutation";
+export * from "./useRegisterCustomerMutation";
