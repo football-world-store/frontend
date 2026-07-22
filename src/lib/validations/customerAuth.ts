@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { emailField, nameField, passwordField } from "./shared";
+import { emailField, nameField, strongPasswordField } from "./shared";
 
 export const requestMagicLinkSchema = z.object({
   email: emailField,
@@ -18,7 +18,7 @@ export type CustomerLoginFormValues = z.infer<typeof customerLoginSchema>;
 export const registerCustomerSchema = z.object({
   name: nameField,
   email: emailField,
-  password: passwordField,
+  password: strongPasswordField,
   whatsapp: z
     .string()
     .regex(

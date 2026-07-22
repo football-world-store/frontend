@@ -17,4 +17,15 @@ export const passwordField = z
   .string()
   .min(PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.passwordMin);
 
+export const strongPasswordField = z
+  .string()
+  .min(PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES.passwordMin)
+  .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+  .regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
+  .regex(/\d/, "Deve conter ao menos um número")
+  .regex(
+    /[^A-Za-z0-9]/,
+    "Deve conter ao menos um caractere especial (@, !, #…)",
+  );
+
 export const nameField = z.string().min(2, VALIDATION_MESSAGES.nameRequired);

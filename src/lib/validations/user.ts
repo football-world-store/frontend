@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { emailField, nameField, passwordField } from "./shared";
+import { emailField, nameField, strongPasswordField } from "./shared";
 
 const USER_ROLES = ["OWNER", "EMPLOYEE"] as const;
 
 export const userSchema = z.object({
   name: nameField,
   email: emailField,
-  password: passwordField,
+  password: strongPasswordField,
   role: z.enum(USER_ROLES, { error: "Selecione um perfil" }),
 });
 

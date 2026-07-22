@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
@@ -46,6 +47,12 @@ export const RegisterCustomerForm = () => {
             aprovar seu acesso, você poderá entrar normalmente.
           </p>
         </div>
+        <Link
+          href="/minha-conta/entrar"
+          className="font-label text-sm text-primary underline underline-offset-2"
+        >
+          Voltar para o login
+        </Link>
       </div>
     );
   }
