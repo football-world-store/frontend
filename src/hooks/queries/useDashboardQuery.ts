@@ -4,10 +4,14 @@ import { queryKeys } from "@/constants";
 import { dashboardService } from "@/services";
 import type { DashboardPeriod, DashboardTopList } from "@/types";
 
-export const useDashboardSummaryQuery = (params: DashboardPeriod) =>
+export const useDashboardSummaryQuery = (
+  params: DashboardPeriod,
+  enabled = true,
+) =>
   useQuery({
     queryKey: queryKeys.dashboard.summary(params),
     queryFn: () => dashboardService.summary(params),
+    enabled,
   });
 
 export const useDashboardTopProductsQuery = (params: DashboardTopList) =>

@@ -9,13 +9,14 @@ import type {
   UpdateCustomerBody,
 } from "@/types";
 
-interface CustomerApiResponse extends Omit<Customer, "phone"> {
+interface CustomerApiResponse extends Omit<Customer, "phone" | "totalOrders"> {
   whatsapp: string | null;
+  purchaseCount: number;
 }
 
 const normalizeCustomer = (raw: CustomerApiResponse): Customer => {
-  const { whatsapp, ...rest } = raw;
-  return { ...rest, phone: whatsapp };
+  const { whatsapp, purchaseCount, ...rest } = raw;
+  return { ...rest, phone: whatsapp, totalOrders: purchaseCount };
 };
 
 export const customersService = {
