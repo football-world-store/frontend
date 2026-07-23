@@ -20,16 +20,24 @@ export const useDashboardTopProductsQuery = (params: DashboardTopList) =>
     queryFn: () => dashboardService.topProducts(params),
   });
 
-export const useDashboardTopClubsQuery = (params: DashboardTopList) =>
+export const useDashboardTopClubsQuery = (
+  params: DashboardTopList,
+  enabled = true,
+) =>
   useQuery({
     queryKey: queryKeys.dashboard.topClubs(params),
     queryFn: () => dashboardService.topClubs(params),
+    enabled,
   });
 
-export const useDashboardSizesQuery = (params: DashboardPeriod) =>
+export const useDashboardSizesQuery = (
+  params: DashboardPeriod,
+  enabled = true,
+) =>
   useQuery({
     queryKey: queryKeys.dashboard.sizes(params),
     queryFn: () => dashboardService.sizes(params),
+    enabled,
   });
 
 export const useDashboardChannelsQuery = (params: DashboardPeriod) =>
@@ -38,10 +46,14 @@ export const useDashboardChannelsQuery = (params: DashboardPeriod) =>
     queryFn: () => dashboardService.channels(params),
   });
 
-export const useDashboardMarginsQuery = (params: DashboardPeriod) =>
+export const useDashboardMarginsQuery = (
+  params: DashboardPeriod,
+  enabled = true,
+) =>
   useQuery({
     queryKey: queryKeys.dashboard.margins(params),
     queryFn: () => dashboardService.margins(params),
+    enabled,
   });
 
 export const useDashboardIdleProductsQuery = (days?: number) =>
@@ -50,10 +62,14 @@ export const useDashboardIdleProductsQuery = (days?: number) =>
     queryFn: () => dashboardService.idleProducts(days),
   });
 
-export const useDashboardPaymentMethodsQuery = (params: DashboardPeriod) =>
+export const useDashboardPaymentMethodsQuery = (
+  params: DashboardPeriod,
+  enabled = true,
+) =>
   useQuery({
     queryKey: queryKeys.dashboard.paymentMethods(params),
     queryFn: () => dashboardService.paymentMethods(params),
+    enabled,
   });
 
 export const useDashboardStockVelocityQuery = () =>
@@ -88,8 +104,10 @@ export const useDashboardCustomersByTeamQuery = () =>
 
 export const useDashboardReservationConversionQuery = (
   params: DashboardPeriod,
+  enabled = true,
 ) =>
   useQuery({
     queryKey: queryKeys.dashboard.reservationConversion(params),
     queryFn: () => dashboardService.reservationConversion(params),
+    enabled,
   });
