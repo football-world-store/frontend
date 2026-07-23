@@ -1,5 +1,8 @@
 export type ReservationStatus =
-  "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED";
+  | "PENDING"
+  | "CONFIRMED"
+  | "CANCELLED"
+  | "EXPIRED";
 
 export interface Reservation {
   id: string;

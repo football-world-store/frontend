@@ -34,8 +34,8 @@ export const ChangePasswordForm = ({
     },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    await mutation.mutateAsync(values);
+  const onSubmit = handleSubmit(async ({ currentPassword, newPassword }) => {
+    await mutation.mutateAsync({ currentPassword, newPassword });
     onSuccess?.();
   });
 

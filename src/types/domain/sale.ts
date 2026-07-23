@@ -48,6 +48,7 @@ export interface CreateSaleBody {
   items: CreateSaleItemBody[];
   channel: SaleChannel;
   paymentMethod: PaymentMethod;
+  customerEmail: string;
   customerId?: string;
   discount?: number;
   saleDate?: string;

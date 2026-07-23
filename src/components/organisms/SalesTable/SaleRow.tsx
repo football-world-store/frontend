@@ -35,7 +35,7 @@ interface SaleRowProps {
 export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
   <div className={`px-4 py-3 space-y-2 ${zebraRowTier(index)}`}>
     <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-body text-sm font-semibold text-on-surface">
           #{sale.saleNumber}
         </p>
@@ -43,7 +43,21 @@ export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
           {sale.customerName ?? "Sem cliente"}
         </p>
       </div>
-      <Badge tone={STATUS_TONE[sale.status]}>{STATUS_LABEL[sale.status]}</Badge>
+      <div className="flex flex-shrink-0 items-center gap-2">
+        <Badge tone={STATUS_TONE[sale.status]}>
+          {STATUS_LABEL[sale.status]}
+        </Badge>
+        {sale.status === "CONFIRMED" ? (
+          <OwnerOnly>
+            <IconButton
+              iconName="cancel"
+              label={`Cancelar venda #${sale.saleNumber}`}
+              filled={false}
+              onClick={() => onCancel(sale.id)}
+            />
+          </OwnerOnly>
+        ) : null}
+      </div>
     </div>
     <div className="flex items-center justify-between font-label text-xs text-on-surface-variant">
       <span>
@@ -53,21 +67,9 @@ export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
         {formatPriceFromReais(sale.totalAmount)}
       </span>
     </div>
-    <div className="flex items-center justify-between gap-2">
-      <span className="font-label text-xs text-on-surface-variant">
-        {formatDateBR(sale.saleDate)}
-      </span>
-      {sale.status === "CONFIRMED" ? (
-        <OwnerOnly>
-          <IconButton
-            iconName="cancel"
-            label={`Cancelar venda #${sale.saleNumber}`}
-            filled={false}
-            onClick={() => onCancel(sale.id)}
-          />
-        </OwnerOnly>
-      ) : null}
-    </div>
+    <span className="font-label text-xs text-on-surface-variant">
+      {formatDateBR(sale.saleDate)}
+    </span>
   </div>
 );
 

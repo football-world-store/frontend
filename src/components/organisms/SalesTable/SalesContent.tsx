@@ -4,6 +4,7 @@ import type { PaginatedResult, Sale } from "@/types";
 import { SaleRowDesktop, SaleRowMobile } from "./SaleRow";
 
 interface SalesContentProps {
+  inline?: boolean;
   data: PaginatedResult<Sale> | undefined;
   page: number;
   onPageChange: (page: number) => void;
@@ -11,6 +12,7 @@ interface SalesContentProps {
 }
 
 export const SalesContent = ({
+  inline = false,
   data,
   page,
   onPageChange,
@@ -62,14 +64,16 @@ export const SalesContent = ({
         </div>
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={data?.totalPages ?? 1}
-        total={data?.total ?? 0}
-        itemCount={sales.length}
-        itemLabel="vendas"
-        onPageChange={onPageChange}
-      />
+      {inline ? null : (
+        <Pagination
+          page={page}
+          totalPages={data?.totalPages ?? 1}
+          total={data?.total ?? 0}
+          itemCount={sales.length}
+          itemLabel="vendas"
+          onPageChange={onPageChange}
+        />
+      )}
     </>
   );
 };
