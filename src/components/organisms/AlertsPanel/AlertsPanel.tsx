@@ -67,7 +67,7 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
   }
 
   const list = (
-    <ul className="space-y-3">
+    <ul className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
       {alerts.map((alert) => {
         const isResolving =
           resolveMutation.isPending &&
@@ -94,25 +94,29 @@ export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
                 size="md"
               />
             </span>
-            <div className="flex-1 space-y-1">
-              <p className="font-body text-sm font-semibold text-on-surface">
-                {alert.productName ?? alert.message}
-              </p>
-              <p className="font-label text-xs text-on-surface-variant">
-                {alert.message}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-              <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
-              <Badge tone={SEVERITY_TONE[alert.severity]}>
-                {TYPE_LABEL[alert.type]}
-              </Badge>
-              <IconButton
-                iconName="check"
-                label="Marcar como resolvido"
-                isLoading={isResolving}
-                onClick={() => setPendingResolveId(alert.id)}
-              />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1">
+                  <p className="font-body text-sm font-semibold text-on-surface">
+                    {alert.productName ?? alert.message}
+                  </p>
+                  <p className="font-label text-xs text-on-surface-variant">
+                    {alert.message}
+                  </p>
+                </div>
+                <IconButton
+                  iconName="check"
+                  label="Marcar como resolvido"
+                  isLoading={isResolving}
+                  onClick={() => setPendingResolveId(alert.id)}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <ClawIndicator level={alert.severity === "CRITICAL" ? 1 : 2} />
+                <Badge tone={SEVERITY_TONE[alert.severity]}>
+                  {TYPE_LABEL[alert.type]}
+                </Badge>
+              </div>
             </div>
           </li>
         );

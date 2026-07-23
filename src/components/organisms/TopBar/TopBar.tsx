@@ -47,7 +47,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           <span className="hidden md:inline-flex">
             <Badge tone="error" className="gap-1.5">
               <Icon name="warning" size="sm" />
-              {lowStockCount} low stock
+              {lowStockCount} estoque crítico
             </Badge>
           </span>
         ) : null}

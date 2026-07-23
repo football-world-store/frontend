@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { Card, SkeletonTableRow } from "@/components/molecules";
 import { useCancelSaleMutation } from "@/hooks/mutations";
@@ -10,7 +10,13 @@ import { CancelSaleModal } from "./CancelSaleModal";
 import { SalesContent } from "./SalesContent";
 import { SalesFilterBar, type SalesFilterValues } from "./SalesFilterBar";
 
+interface SalesTableProps {
+  /** Modo resumido (dashboard): sem filtros/paginação, só as últimas vendas. */
+  inline?: boolean;
+}
+
 const ITEMS_PER_PAGE = 10;
+const INLINE_ITEMS_LIMIT = 5;
 const CANCEL_REASON_MIN_LENGTH = 5;
 
 const EMPTY_FILTER: SalesFilterValues = {
@@ -20,18 +26,35 @@ const EMPTY_FILTER: SalesFilterValues = {
   endDate: "",
 };
 
-export const SalesTable = () => {
+const wrapInCard = (
+  inline: boolean,
+  children: ReactNode,
+  props: { title: string; description?: string },
+) =>
+  inline ? (
+    <>{children}</>
+  ) : (
+    <Card title={props.title} description={props.description}>
+      {children}
+    </Card>
+  );
+
+export const SalesTable = ({ inline = false }: SalesTableProps) => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<SalesFilterValues>(EMPTY_FILTER);
 
-  const { data, isLoading } = useSalesQuery({
-    page,
-    limit: ITEMS_PER_PAGE,
-    channel: filter.channel || undefined,
-    status: filter.status || undefined,
-    startDate: filter.startDate || undefined,
-    endDate: filter.endDate || undefined,
-  });
+  const { data, isLoading } = useSalesQuery(
+    inline
+      ? { page: 1, limit: INLINE_ITEMS_LIMIT }
+      : {
+          page,
+          limit: ITEMS_PER_PAGE,
+          channel: filter.channel || undefined,
+          status: filter.status || undefined,
+          startDate: filter.startDate || undefined,
+          endDate: filter.endDate || undefined,
+        },
+  );
   const sales = data?.items ?? [];
   const cancelMutation = useCancelSaleMutation();
 
@@ -67,28 +90,37 @@ export const SalesTable = () => {
   };
 
   if (isLoading) {
-    return (
-      <Card title="Vendas" description="Histórico completo">
-        <SkeletonTableRow count={6} cells={6} />
-      </Card>
-    );
+    return wrapInCard(inline, <SkeletonTableRow count={5} cells={6} />, {
+      title: "Vendas",
+      description: "Histórico completo",
+    });
   }
 
   return (
     <>
-      <Card title="Vendas" description={`${data?.total ?? 0} registros`}>
-        <SalesFilterBar
-          filter={filter}
-          onChange={updateFilter}
-          onReset={resetFilters}
-        />
-        <SalesContent
-          data={data}
-          page={page}
-          onPageChange={setPage}
-          onCancel={setPendingCancelId}
-        />
-      </Card>
+      {wrapInCard(
+        inline,
+        <>
+          {inline ? null : (
+            <SalesFilterBar
+              filter={filter}
+              onChange={updateFilter}
+              onReset={resetFilters}
+            />
+          )}
+          <SalesContent
+            inline={inline}
+            data={data}
+            page={page}
+            onPageChange={setPage}
+            onCancel={setPendingCancelId}
+          />
+        </>,
+        {
+          title: "Vendas",
+          description: `${data?.total ?? 0} registros`,
+        },
+      )}
 
       <CancelSaleModal
         sale={pendingSale}

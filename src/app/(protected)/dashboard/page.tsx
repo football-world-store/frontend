@@ -18,6 +18,7 @@ import {
   AlertsPanel,
   InsightsPanel,
   SaleForm,
+  SalesTable,
   StockEntriesTable,
 } from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
@@ -171,6 +172,20 @@ const DashboardPage = () => {
             }
           >
             <AlertsPanel inline />
+          </Card>
+          <Card
+            title="Vendas recentes"
+            description="Últimas vendas registradas"
+            action={
+              <Link
+                href={APP_ROUTES.app.sales}
+                className="font-label text-xs uppercase tracking-wider text-primary hover:underline focus-visible:outline-none focus-visible:ring-focus-gold rounded-lg"
+              >
+                Ver tudo
+              </Link>
+            }
+          >
+            <SalesTable inline />
           </Card>
           <Card
             title="Movimentações recentes"
