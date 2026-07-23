@@ -1,5 +1,9 @@
 export type DashboardPeriodKind =
-  "TODAY" | "LAST_7_DAYS" | "LAST_30_DAYS" | "CURRENT_MONTH" | "CUSTOM";
+  | "TODAY"
+  | "LAST_7_DAYS"
+  | "LAST_30_DAYS"
+  | "CURRENT_MONTH"
+  | "CUSTOM";
 
 export interface DashboardPeriod {
   period: DashboardPeriodKind;
@@ -189,7 +193,10 @@ export interface DashboardCustomersByTeam {
 }
 
 export type DashboardReservationStatus =
-  "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED";
+  | "PENDING"
+  | "CONFIRMED"
+  | "CANCELLED"
+  | "EXPIRED";
 
 export interface DashboardReservationConversionByStatus {
   status: DashboardReservationStatus;

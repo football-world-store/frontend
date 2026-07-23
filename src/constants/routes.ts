@@ -3,8 +3,8 @@ export const APP_ROUTES = {
   auth: {
     signIn: "/sign-in",
     register: "/register",
-    forgotPassword: "/forgot-password",
-    resetPassword: "/reset-password",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
   },
   app: {
     dashboard: "/dashboard",
