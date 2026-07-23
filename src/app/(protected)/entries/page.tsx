@@ -96,9 +96,7 @@ const EntriesPage = () => {
         </div>
       </div>
 
-      <Card title="Histórico de hoje" description="Movimentações recentes">
-        <StockEntriesTable inline />
-      </Card>
+      <StockEntriesTable />
     </DashboardLayout>
   );
 };
