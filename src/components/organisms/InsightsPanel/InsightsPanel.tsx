@@ -2,7 +2,6 @@
 
 import { Icon } from "@/components/atoms";
 import { Card, EmptyState, SkeletonListRow } from "@/components/molecules";
-import { DEFAULT_DASHBOARD_TOP_LIMIT } from "@/constants";
 import {
   useDashboardChannelsQuery,
   useDashboardPaymentMethodsQuery,
@@ -27,12 +26,14 @@ const PAYMENT_CONFIG: Record<string, { label: string; icon: string }> = {
   BOLETO: { label: "Boleto", icon: "description" },
 };
 
+const TOP_PRODUCTS_LIMIT = 8;
+
 interface InsightsPanelProps {
   period: DashboardPeriod;
 }
 
 export const InsightsPanel = ({ period }: InsightsPanelProps) => {
-  const topListParams = { ...period, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
+  const topListParams = { ...period, limit: TOP_PRODUCTS_LIMIT };
 
   const channelsQuery = useDashboardChannelsQuery(period);
   const topProductsQuery = useDashboardTopProductsQuery(topListParams);
@@ -60,7 +61,7 @@ export const InsightsPanel = ({ period }: InsightsPanelProps) => {
   }
 
   const channels = channelsQuery.data ?? [];
-  const topProducts = (topProductsQuery.data ?? []).slice(0, 8);
+  const topProducts = topProductsQuery.data ?? [];
   const paymentMethods = paymentMethodsQuery.data ?? [];
   const maxProductRevenue = topProducts.reduce(
     (acc, p) => Math.max(acc, p.totalRevenue),

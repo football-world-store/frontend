@@ -24,13 +24,13 @@ import {
 import { DashboardLayout } from "@/components/templates";
 import { APP_ROUTES, DEFAULT_DASHBOARD_TOP_LIMIT } from "@/constants";
 import { useAuth } from "@/contexts";
+import { usePeriodFilter } from "@/hooks";
 import {
   useAlertsCountQuery,
   useDashboardSizesQuery,
   useDashboardSummaryQuery,
   useDashboardTopClubsQuery,
 } from "@/hooks/queries";
-import type { DashboardPeriod, DashboardPeriodKind } from "@/types";
 import { formatPriceFromReais } from "@/utils";
 
 const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
@@ -71,15 +71,27 @@ const DashboardSkeleton = ({ subtitle }: { subtitle: string }) => (
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [period, setPeriod] = useState<DashboardPeriodKind>("LAST_30_DAYS");
+  const {
+    kind: period,
+    setKind: setPeriod,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    period: periodParam,
+  } = usePeriodFilter("LAST_30_DAYS");
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
 
-  const periodParam: DashboardPeriod = { period };
-  const topListParams = { ...periodParam, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
+  const isPeriodReady = Boolean(periodParam);
+  const fallbackParam = periodParam ?? { period: "LAST_30_DAYS" as const };
+  const topListParams = {
+    ...fallbackParam,
+    limit: DEFAULT_DASHBOARD_TOP_LIMIT,
+  };
 
-  const summaryQuery = useDashboardSummaryQuery(periodParam);
-  const topClubsQuery = useDashboardTopClubsQuery(topListParams);
-  const sizesQuery = useDashboardSizesQuery(periodParam);
+  const summaryQuery = useDashboardSummaryQuery(fallbackParam, isPeriodReady);
+  const topClubsQuery = useDashboardTopClubsQuery(topListParams, isPeriodReady);
+  const sizesQuery = useDashboardSizesQuery(fallbackParam, isPeriodReady);
   const alertsCountQuery = useAlertsCountQuery();
 
   const greeting = user ? `Olá, ${user.name.split(" ")[0]}.` : "Olá.";
@@ -122,7 +134,14 @@ const DashboardPage = () => {
       subtitle={`${greeting} Aqui está o pulso da loja agora.`}
       toolbar={
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <PeriodFilter value={period} onChange={setPeriod} />
+          <PeriodFilter
+            value={period}
+            onChange={setPeriod}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+          />
           <Button
             className="w-full sm:w-auto"
             onClick={() => setIsSaleModalOpen(true)}
@@ -157,7 +176,7 @@ const DashboardPage = () => {
         />
       </section>
 
-      <InsightsPanel period={periodParam} />
+      <InsightsPanel period={fallbackParam} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
