@@ -1,9 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
 import { Card, SkeletonTableRow } from "@/components/molecules";
-import { SaleReceiptModal } from "@/components/organisms/SaleReceipt";
 import { useCancelSaleMutation } from "@/hooks/mutations";
 import { useSalesQuery } from "@/hooks/queries";
 
@@ -59,9 +59,9 @@ export const SalesTable = ({ inline = false }: SalesTableProps) => {
   const sales = data?.items ?? [];
   const cancelMutation = useCancelSaleMutation();
 
+  const router = useRouter();
   const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [receiptSaleId, setReceiptSaleId] = useState<string | null>(null);
 
   const pendingSale = pendingCancelId
     ? (sales.find((sale) => sale.id === pendingCancelId) ?? null)
@@ -116,7 +116,7 @@ export const SalesTable = ({ inline = false }: SalesTableProps) => {
             page={page}
             onPageChange={setPage}
             onCancel={setPendingCancelId}
-            onViewReceipt={setReceiptSaleId}
+            onViewReceipt={(id) => router.push(`/sales/${id}/recibo`)}
           />
         </>,
         {
@@ -132,11 +132,6 @@ export const SalesTable = ({ inline = false }: SalesTableProps) => {
         onReasonChange={setCancelReason}
         onClose={closeCancelModal}
         onConfirm={handleConfirmCancel}
-      />
-
-      <SaleReceiptModal
-        saleId={receiptSaleId}
-        onClose={() => setReceiptSaleId(null)}
       />
     </>
   );

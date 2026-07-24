@@ -1,4 +1,4 @@
-import { Badge, Button, Icon } from "@/components/atoms";
+import { Badge } from "@/components/atoms";
 import type { PaymentMethod, Sale, SaleChannel } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
 
@@ -116,16 +116,6 @@ export const SaleReceiptContent = ({ sale }: SaleReceiptContentProps) => {
           Motivo do cancelamento: {sale.cancelReason}
         </p>
       ) : null}
-
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => window.print()}
-        className="print:hidden self-end"
-      >
-        <Icon name="print" size="sm" />
-        Imprimir recibo
-      </Button>
     </div>
   );
 };

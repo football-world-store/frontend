@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Badge, Spinner } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
-import { CustomerOrderReceiptModal } from "@/components/organisms/SaleReceipt";
 import { useCustomerOrdersQuery } from "@/hooks/queries";
 import type { CustomerReservation, Sale } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
@@ -103,7 +102,7 @@ const ReservationsSection = ({
 
 export const CustomerOrdersList = () => {
   const query = useCustomerOrdersQuery();
-  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+  const router = useRouter();
 
   if (query.isPending) {
     return (
@@ -129,13 +128,11 @@ export const CustomerOrdersList = () => {
 
   return (
     <div className="space-y-6">
-      <PurchasesSection purchases={purchases} onSelect={setSelectedSaleId} />
-      <ReservationsSection reservations={reservations} />
-
-      <CustomerOrderReceiptModal
-        saleId={selectedSaleId}
-        onClose={() => setSelectedSaleId(null)}
+      <PurchasesSection
+        purchases={purchases}
+        onSelect={(id) => router.push(`/portal/orders/${id}`)}
       />
+      <ReservationsSection reservations={reservations} />
     </div>
   );
 };

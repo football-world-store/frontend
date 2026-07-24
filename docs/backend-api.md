@@ -286,7 +286,7 @@ Responses:
 
 Auth: customer_access_token
 
-**Integrado no front** (2026-07-23) — `customerAuthService.getOrderById`, consumido por `useCustomerOrderQuery`/`CustomerOrderReceiptModal` (compras clicáveis em `/portal/orders`).
+**Integrado no front** (2026-07-23) — `customerAuthService.getOrderById`, consumido por `useCustomerOrderQuery` na página dedicada `/portal/orders/[id]` (compras clicáveis em `/portal/orders`). Recibo é página própria (não modal) para o PDF impresso sair com nome útil via `<title>`.
 
 ## Customers
 
@@ -1046,7 +1046,7 @@ Responses:
 
 Auth: access_token
 
-**Integrado no front** (2026-07-23) — `salesService.findById`, consumido por `useSaleQuery`/`SaleReceiptModal` (botão "Ver recibo" em `/sales`).
+**Integrado no front** (2026-07-23) — `salesService.findById`, consumido por `useSaleQuery` na página dedicada `/sales/[id]/recibo` (botão "Ver recibo" em `/sales`). Recibo é página própria (não modal): imprime como página normal e o PDF sai nomeado "Recibo #N - Cliente" via `<title>`. Componente `ReceiptPage` é compartilhado com o portal do cliente.
 
 ### `POST /api/v1/sales/find` _(deprecated)_
 
