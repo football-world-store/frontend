@@ -477,6 +477,27 @@ Auth: access_token
 
 ## Dashboard
 
+### `GET /api/v1/dashboard/monthly-report`
+
+**[OWNER] Relatório mensal agregado**  
+Retorna JSON com resumo do estoque, métricas de vendas, top 10 produtos, breakdown por canal e por forma de pagamento para o mês especificado.  
+`operationId: DashboardController_monthlyReport`
+
+Query/Path params:
+
+- `month` (query, obrigatório): Mês no formato YYYY-MM (ex: 2026-07)
+
+Responses:
+
+- `200`: `{ data: { period, stock, sales, topProducts[], channels[], paymentMethods[] } }`
+- `400`: INVALID_MONTH_FORMAT
+- `401`: MISSING_TOKEN / INVALID_TOKEN
+- `403`: ACCESS_DENIED — restrito a OWNER
+
+Auth: access_token
+
+**Integrado no front** (2026-07-23) — `dashboardService.monthlyReport`, consumido por `useMonthlyReportQuery` em `MonthlyReportModal` (botão "Relatório mensal" em `/settings`, visível só para OWNER). Era o item 2 do `FRONTEND-REQUESTS.md` do backend; já resolvido — optou-se pela abordagem de JSON agregado com PDF montado client-side via impressão, reaproveitando o padrão de `@media print` já usado em `/insights`.
+
 ### `GET /api/v1/dashboard/summary`
 
 **Cards de resumo do dashboard**  
@@ -1184,6 +1205,21 @@ Responses:
 - `401`: Não autenticado
 
 Auth: access_token
+
+### `GET /api/v1/users/me/last-session`
+
+**Retorna a sessão mais recente do usuário autenticado**  
+Usado no card "Perfil do gerenciador" em `/settings` — "Último acesso: 2h atrás · IP ...".  
+`operationId: UsersController_getLastSessionHandler`
+
+Responses:
+
+- `200`: `{ data: { ipAddress: string | null, userAgent: string | null, createdAt: string } | null }`
+- `401`: Não autenticado
+
+Auth: access_token
+
+**Integrado no front** (2026-07-23) — `usersService.lastSession`, consumido por `useLastSessionQuery` em `ManagerProfileCard`. Era o item 1 do `FRONTEND-REQUESTS.md` do backend; já resolvido.
 
 ### `PATCH /api/v1/users/me/password`
 

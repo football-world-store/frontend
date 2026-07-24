@@ -19,6 +19,8 @@ export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";
 export * from "./SaleReceipt";
+export * from "./MonthlyReport";
+export * from "./ManagerProfileCard";
 export * from "./StockEntriesTable";
 export * from "./StockMovementForm";
 export * from "./TopBar";

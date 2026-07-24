@@ -10,6 +10,7 @@ import {
   Icon,
   IconButton,
   Modal,
+  OwnerOnly,
   Select,
 } from "@/components/atoms";
 import {
@@ -18,7 +19,12 @@ import {
   EmptyState,
   SkeletonListRow,
 } from "@/components/molecules";
-import { ChangePasswordForm, UserForm } from "@/components/organisms";
+import {
+  ChangePasswordForm,
+  ManagerProfileCard,
+  MonthlyReportModal,
+  UserForm,
+} from "@/components/organisms";
 import { DashboardLayout } from "@/components/templates";
 import { useAuth } from "@/contexts";
 import {
@@ -51,6 +57,7 @@ const SettingsPage = () => {
   );
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [isClearSessionsOpen, setIsClearSessionsOpen] = useState(false);
+  const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
   const { data: pendingCustomersData, isLoading: isPendingCustomersLoading } =
@@ -95,32 +102,10 @@ const SettingsPage = () => {
       subtitle="Gerencie usuários, preferências e operações do sistema."
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card tier="container-high" title="Perfil do gerenciador">
-          <div className="flex flex-col items-center gap-4 text-center">
-            {user ? (
-              <Avatar name={user.name} className="h-20 w-20 text-2xl" />
-            ) : null}
-            <div>
-              <p className="font-headline text-lg font-bold text-on-surface">
-                {user?.name ?? "—"}
-              </p>
-              <p className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
-                {user?.email}
-              </p>
-              <Badge tone="primary" className="mt-2">
-                Acesso primário
-              </Badge>
-            </div>
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={() => setIsChangePasswordOpen(true)}
-            >
-              <Icon name="lock_reset" size="sm" filled={false} />
-              Trocar senha
-            </Button>
-          </div>
-        </Card>
+        <ManagerProfileCard
+          user={user}
+          onChangePassword={() => setIsChangePasswordOpen(true)}
+        />
 
         <Card tier="container-high" title="Preferências do sistema">
           <ul className="space-y-4">
@@ -147,6 +132,16 @@ const SettingsPage = () => {
 
         <Card tier="container-high" title="Ações críticas">
           <div className="space-y-3">
+            <OwnerOnly>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3"
+                onClick={() => setIsMonthlyReportOpen(true)}
+              >
+                <Icon name="summarize" size="sm" filled={false} />
+                Relatório mensal
+              </Button>
+            </OwnerOnly>
             <Button
               variant="ghost"
               className="w-full justify-start gap-3"
@@ -398,6 +393,11 @@ const SettingsPage = () => {
         confirmLabel="Excluir"
         tone="danger"
         isPending={deleteUserMutation.isPending}
+      />
+
+      <MonthlyReportModal
+        isOpen={isMonthlyReportOpen}
+        onClose={() => setIsMonthlyReportOpen(false)}
       />
 
       <ConfirmDialog

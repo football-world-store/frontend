@@ -37,6 +37,12 @@ export interface ListUsersParams extends ListQueryParams {
   isActive?: boolean;
 }
 
+export interface LastSession {
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
 export type AuditAction =
   | "CREATE"
   | "UPDATE"

@@ -1,9 +1,5 @@
 export type DashboardPeriodKind =
-  | "TODAY"
-  | "LAST_7_DAYS"
-  | "LAST_30_DAYS"
-  | "CURRENT_MONTH"
-  | "CUSTOM";
+  "TODAY" | "LAST_7_DAYS" | "LAST_30_DAYS" | "CURRENT_MONTH" | "CUSTOM";
 
 export interface DashboardPeriod {
   period: DashboardPeriodKind;
@@ -193,10 +189,7 @@ export interface DashboardCustomersByTeam {
 }
 
 export type DashboardReservationStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "CANCELLED"
-  | "EXPIRED";
+  "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED";
 
 export interface DashboardReservationConversionByStatus {
   status: DashboardReservationStatus;
@@ -231,4 +224,29 @@ export interface DashboardStockVelocityItem {
   avgDailySales: number;
   daysUntilStockout: number | null;
   risk: DashboardStockVelocityRisk;
+}
+
+export interface MonthlyReportTopProduct {
+  id: string;
+  internalCode: string;
+  name: string;
+  clubOrBrand: string;
+  size: string;
+  totalSold: number;
+  totalRevenue: number;
+}
+
+export interface MonthlyReportPeriod {
+  month: string;
+  from: string;
+  to: string;
+}
+
+export interface MonthlyReport {
+  period: MonthlyReportPeriod;
+  stock: DashboardStockSnapshot;
+  sales: DashboardSalesSummary;
+  topProducts: MonthlyReportTopProduct[];
+  channels: DashboardChannel[];
+  paymentMethods: DashboardPaymentMethod[];
 }

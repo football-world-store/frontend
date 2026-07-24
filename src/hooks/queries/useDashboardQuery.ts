@@ -4,6 +4,13 @@ import { queryKeys } from "@/constants";
 import { dashboardService } from "@/services";
 import type { DashboardPeriod, DashboardTopList } from "@/types";
 
+export const useMonthlyReportQuery = (month: string, enabled = true) =>
+  useQuery({
+    queryKey: queryKeys.dashboard.monthlyReport(month),
+    queryFn: () => dashboardService.monthlyReport(month),
+    enabled: enabled && Boolean(month),
+  });
+
 export const useDashboardSummaryQuery = (
   params: DashboardPeriod,
   enabled = true,
