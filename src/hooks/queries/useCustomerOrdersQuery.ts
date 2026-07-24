@@ -10,3 +10,12 @@ export const useCustomerOrdersQuery = () =>
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+export const useCustomerOrderQuery = (id: string) =>
+  useQuery({
+    queryKey: queryKeys.customerAuth.orderDetail(id),
+    queryFn: () => customerAuthService.getOrderById(id),
+    enabled: Boolean(id),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });

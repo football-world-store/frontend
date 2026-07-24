@@ -30,9 +30,15 @@ interface SaleRowProps {
   sale: Sale;
   index: number;
   onCancel: (id: string) => void;
+  onViewReceipt: (id: string) => void;
 }
 
-export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
+export const SaleRowMobile = ({
+  sale,
+  index,
+  onCancel,
+  onViewReceipt,
+}: SaleRowProps) => (
   <div className={`px-4 py-3 space-y-2 ${zebraRowTier(index)}`}>
     <div className="flex items-start justify-between gap-2">
       <div className="min-w-0 flex-1">
@@ -47,6 +53,12 @@ export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
         <Badge tone={STATUS_TONE[sale.status]}>
           {STATUS_LABEL[sale.status]}
         </Badge>
+        <IconButton
+          iconName="receipt_long"
+          label={`Ver recibo da venda #${sale.saleNumber}`}
+          filled={false}
+          onClick={() => onViewReceipt(sale.id)}
+        />
         {sale.status === "CONFIRMED" ? (
           <OwnerOnly>
             <IconButton
@@ -73,7 +85,12 @@ export const SaleRowMobile = ({ sale, index, onCancel }: SaleRowProps) => (
   </div>
 );
 
-export const SaleRowDesktop = ({ sale, index, onCancel }: SaleRowProps) => (
+export const SaleRowDesktop = ({
+  sale,
+  index,
+  onCancel,
+  onViewReceipt,
+}: SaleRowProps) => (
   <div
     className={`grid grid-cols-12 items-center px-4 py-4 gap-2 ${zebraRowTier(index)}`}
   >
@@ -95,7 +112,13 @@ export const SaleRowDesktop = ({ sale, index, onCancel }: SaleRowProps) => (
     <span className="col-span-1">
       <Badge tone={STATUS_TONE[sale.status]}>{STATUS_LABEL[sale.status]}</Badge>
     </span>
-    <span className="col-span-1 flex justify-end">
+    <span className="col-span-1 flex justify-end gap-1">
+      <IconButton
+        iconName="receipt_long"
+        label={`Ver recibo da venda #${sale.saleNumber}`}
+        filled={false}
+        onClick={() => onViewReceipt(sale.id)}
+      />
       {sale.status === "CONFIRMED" ? (
         <OwnerOnly>
           <IconButton

@@ -9,6 +9,7 @@ interface SalesContentProps {
   page: number;
   onPageChange: (page: number) => void;
   onCancel: (id: string) => void;
+  onViewReceipt: (id: string) => void;
 }
 
 export const SalesContent = ({
@@ -17,6 +18,7 @@ export const SalesContent = ({
   page,
   onPageChange,
   onCancel,
+  onViewReceipt,
 }: SalesContentProps) => {
   const sales = data?.items ?? [];
 
@@ -39,6 +41,7 @@ export const SalesContent = ({
             sale={sale}
             index={index}
             onCancel={onCancel}
+            onViewReceipt={onViewReceipt}
           />
         ))}
       </div>
@@ -59,6 +62,7 @@ export const SalesContent = ({
               sale={sale}
               index={index}
               onCancel={onCancel}
+              onViewReceipt={onViewReceipt}
             />
           ))}
         </div>

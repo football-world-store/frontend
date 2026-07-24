@@ -18,6 +18,7 @@ export * from "./ReservationsTable";
 export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";
+export * from "./SaleReceipt";
 export * from "./StockEntriesTable";
 export * from "./StockMovementForm";
 export * from "./TopBar";

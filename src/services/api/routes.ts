@@ -44,6 +44,7 @@ export const API_ROUTES = {
   sales: {
     list: "/sales",
     create: "/sales",
+    byId: (id: string) => `/sales/${id}`,
     find: "/sales/find",
     cancel: "/sales/cancel",
   },
@@ -92,5 +93,6 @@ export const API_ROUTES = {
     verify: `${CUSTOMER_AUTH_BASE}/verify`,
     logout: `${CUSTOMER_AUTH_BASE}/logout`,
     orders: `${CUSTOMER_AUTH_BASE}/me/orders`,
+    orderById: (id: string) => `${CUSTOMER_AUTH_BASE}/me/orders/${id}`,
   },
 } as const;

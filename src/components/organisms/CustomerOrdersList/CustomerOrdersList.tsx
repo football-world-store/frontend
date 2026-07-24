@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
 import { Badge, Spinner } from "@/components/atoms";
 import { Card, EmptyState } from "@/components/molecules";
+import { CustomerOrderReceiptModal } from "@/components/organisms/SaleReceipt";
 import { useCustomerOrdersQuery } from "@/hooks/queries";
 import type { CustomerReservation, Sale } from "@/types";
 import { formatDateBR, formatPriceFromReais, zebraRowTier } from "@/utils";
@@ -21,7 +24,12 @@ const RESERVATION_STATUS_TONE: Record<
   EXPIRED: "error",
 };
 
-const PurchasesSection = ({ purchases }: { purchases: Sale[] }) => (
+interface PurchasesSectionProps {
+  purchases: Sale[];
+  onSelect: (id: string) => void;
+}
+
+const PurchasesSection = ({ purchases, onSelect }: PurchasesSectionProps) => (
   <Card title="Compras">
     {purchases.length === 0 ? (
       <EmptyState
@@ -32,20 +40,23 @@ const PurchasesSection = ({ purchases }: { purchases: Sale[] }) => (
     ) : (
       <ul className="space-y-2">
         {purchases.map((sale, index) => (
-          <li
-            key={sale.id}
-            className={`flex items-center justify-between gap-4 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
-          >
-            <div>
-              <p className="font-body text-sm font-semibold text-on-surface">
-                Pedido #{sale.saleNumber}
-              </p>
-              <p className="font-label text-xs text-on-surface-variant">
-                {formatDateBR(sale.saleDate)} ·{" "}
-                {formatPriceFromReais(sale.totalAmount)}
-              </p>
-            </div>
-            <Badge tone={SALE_STATUS_TONE[sale.status]}>{sale.status}</Badge>
+          <li key={sale.id}>
+            <button
+              type="button"
+              onClick={() => onSelect(sale.id)}
+              className={`flex w-full items-center justify-between gap-4 rounded-xl px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-focus-gold ${zebraRowTier(index)}`}
+            >
+              <div>
+                <p className="font-body text-sm font-semibold text-on-surface">
+                  Pedido #{sale.saleNumber}
+                </p>
+                <p className="font-label text-xs text-on-surface-variant">
+                  {formatDateBR(sale.saleDate)} ·{" "}
+                  {formatPriceFromReais(sale.totalAmount)}
+                </p>
+              </div>
+              <Badge tone={SALE_STATUS_TONE[sale.status]}>{sale.status}</Badge>
+            </button>
           </li>
         ))}
       </ul>
@@ -92,6 +103,7 @@ const ReservationsSection = ({
 
 export const CustomerOrdersList = () => {
   const query = useCustomerOrdersQuery();
+  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 
   if (query.isPending) {
     return (
@@ -117,8 +129,13 @@ export const CustomerOrdersList = () => {
 
   return (
     <div className="space-y-6">
-      <PurchasesSection purchases={purchases} />
+      <PurchasesSection purchases={purchases} onSelect={setSelectedSaleId} />
       <ReservationsSection reservations={reservations} />
+
+      <CustomerOrderReceiptModal
+        saleId={selectedSaleId}
+        onClose={() => setSelectedSaleId(null)}
+      />
     </div>
   );
 };
