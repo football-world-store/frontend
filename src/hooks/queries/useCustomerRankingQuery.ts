@@ -12,3 +12,13 @@ export const useCustomerRankingByAmountQuery = (
     queryFn: () => customersService.rankingByAmount(limit),
     enabled,
   });
+
+export const useCustomerRankingByPurchasesQuery = (
+  limit?: number,
+  enabled = true,
+) =>
+  useQuery({
+    queryKey: queryKeys.customers.rankingByPurchases(limit),
+    queryFn: () => customersService.rankingByPurchases(limit),
+    enabled,
+  });

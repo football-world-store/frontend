@@ -475,6 +475,8 @@ Responses:
 
 Auth: access_token
 
+**Integrado no front** (2026-07-24) — `useCustomerRankingByPurchasesQuery`, consumido pelo card "Ranking de Elite" em `/customers` via toggle Faturamento/Compras (`RankingCard` + `useCustomerRanking`). Antes só o ranking por valor gasto era exibido.
+
 ## Dashboard
 
 ### `GET /api/v1/dashboard/monthly-report`

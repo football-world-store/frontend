@@ -11,19 +11,15 @@ import {
 } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
 import { useDebouncedValue, usePermission } from "@/hooks";
-import {
-  useCustomerRankingByAmountQuery,
-  useCustomersQuery,
-  useDashboardSummaryQuery,
-} from "@/hooks/queries";
+import { useCustomersQuery, useDashboardSummaryQuery } from "@/hooks/queries";
 import type { DashboardPeriodKind } from "@/types";
 
 import { AverageTicketCard } from "./AverageTicketCard";
 import { CustomerRow } from "./CustomerRow";
 import { CustomerTabs, type TabKey } from "./CustomerTabs";
 import { RankingCard } from "./RankingCard";
+import { useCustomerRanking } from "./useCustomerRanking";
 
-const RANKING_LIMIT = 3;
 const ITEMS_PER_PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
 const VIP_THRESHOLD = 2000;
@@ -77,14 +73,18 @@ export const CustomersList = () => {
     useState<TicketPeriod>("CURRENT_MONTH");
   const [ticketStartDate, setTicketStartDate] = useState("");
   const [ticketEndDate, setTicketEndDate] = useState("");
+  const {
+    ranking,
+    metric: rankingMetric,
+    setMetric: setRankingMetric,
+    isLoading: isRankingLoading,
+  } = useCustomerRanking(isOwner);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
   const { data, isLoading } = useCustomersQuery(
     buildQueryParams(page, tab, debouncedSearch),
   );
-  const { data: ranking = [], isLoading: isRankingLoading } =
-    useCustomerRankingByAmountQuery(RANKING_LIMIT, isOwner);
 
   const isCustomRangeReady = Boolean(ticketStartDate && ticketEndDate);
   const isCustomPeriod = ticketPeriod === "CUSTOM";
@@ -120,7 +120,13 @@ export const CustomersList = () => {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-6">
-          {isOwner ? <RankingCard ranking={ranking} /> : null}
+          {isOwner ? (
+            <RankingCard
+              ranking={ranking}
+              metric={rankingMetric}
+              onMetricChange={setRankingMetric}
+            />
+          ) : null}
           {isOwner ? (
             <AverageTicketCard
               period={ticketPeriod}
