@@ -38,22 +38,30 @@ const buildQueryParams = (
   minSpent: tab === "vip" ? VIP_THRESHOLD : undefined,
 });
 
-const LoadingState = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div className="space-y-6">
-      <Card
-        tier="container-highest"
-        title="Ranking de Elite"
-        description="Top 3 do faturamento"
-      >
-        <SkeletonListRow count={3} withAvatar />
-      </Card>
-      <Card title="Ticket médio">
-        <SkeletonListRow count={1} withTrailingValue={false} />
-      </Card>
-    </div>
+const LoadingState = ({ isOwner }: { isOwner: boolean }) => (
+  <div
+    className={
+      isOwner
+        ? "grid grid-cols-1 lg:grid-cols-3 gap-6"
+        : "grid grid-cols-1 gap-6"
+    }
+  >
+    {isOwner ? (
+      <div className="space-y-6">
+        <Card
+          tier="container-highest"
+          title="Ranking de Elite"
+          description="Top 3 do faturamento"
+        >
+          <SkeletonListRow count={3} withAvatar />
+        </Card>
+        <Card title="Ticket médio">
+          <SkeletonListRow count={1} withTrailingValue={false} />
+        </Card>
+      </div>
+    ) : null}
     <Card
-      className="lg:col-span-2"
+      className={isOwner ? "lg:col-span-2" : undefined}
       tier="container-high"
       title="Gestão de Elite"
       description="Controle de performance e ranking de clientes."
@@ -113,21 +121,25 @@ export const CustomersList = () => {
   };
 
   if (isLoading || isRankingLoading) {
-    return <LoadingState />;
+    return <LoadingState isOwner={isOwner} />;
   }
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-6">
-          {isOwner ? (
+      <div
+        className={
+          isOwner
+            ? "grid grid-cols-1 lg:grid-cols-3 gap-6"
+            : "grid grid-cols-1 gap-6"
+        }
+      >
+        {isOwner ? (
+          <div className="space-y-6">
             <RankingCard
               ranking={ranking}
               metric={rankingMetric}
               onMetricChange={setRankingMetric}
             />
-          ) : null}
-          {isOwner ? (
             <AverageTicketCard
               period={ticketPeriod}
               onPeriodChange={setTicketPeriod}
@@ -137,11 +149,11 @@ export const CustomersList = () => {
               onEndDateChange={setTicketEndDate}
               averageTicket={averageTicket}
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
         <Card
-          className="lg:col-span-2"
+          className={isOwner ? "lg:col-span-2" : undefined}
           tier="container-high"
           title="Gestão de Elite"
           description="Controle de performance e ranking de clientes."

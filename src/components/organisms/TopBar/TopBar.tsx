@@ -18,7 +18,7 @@ interface TopBarProps {
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut, isSigningOut } = useAuth();
-  const { data: alertsCount } = useAlertsCountQuery();
+  const { data: alertsCount } = useAlertsCountQuery(user?.role === "OWNER");
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
@@ -97,7 +97,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           </Link>
         }
       >
-        <AlertsPanel inline />
+        <AlertsPanel inline enabled={isNotificationsOpen} />
       </Modal>
     </header>
   );

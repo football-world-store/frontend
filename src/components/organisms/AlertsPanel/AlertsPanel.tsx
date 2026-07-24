@@ -25,10 +25,14 @@ const TYPE_LABEL = {
 
 interface AlertsPanelProps {
   inline?: boolean;
+  enabled?: boolean;
 }
 
-export const AlertsPanel = ({ inline = false }: AlertsPanelProps) => {
-  const { data: alerts, isLoading } = useAlertsQuery();
+export const AlertsPanel = ({
+  inline = false,
+  enabled = true,
+}: AlertsPanelProps) => {
+  const { data: alerts, isLoading } = useAlertsQuery(enabled);
   const resolveMutation = useResolveAlertMutation();
   const [pendingResolveId, setPendingResolveId] = useState<string | null>(null);
 

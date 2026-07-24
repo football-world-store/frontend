@@ -3,7 +3,6 @@ import type { ApiEnvelope } from "@/types";
 import type {
   CustomerIdentity,
   RegisterCustomerBody,
-  CustomerLoginBody,
   RequestMagicLinkBody,
   VerifyMagicLinkBody,
   VerifyMagicLinkResponseData,
@@ -16,22 +15,6 @@ export const customerAuthService = {
       ApiEnvelope<VerifyMagicLinkResponseData>
     >(API_ROUTES.customerAuth.register, body);
     return data.data.customer;
-  },
-
-  login: async (body: CustomerLoginBody): Promise<CustomerIdentity> => {
-    try {
-      const { data } = await customerApiClient.post<
-        ApiEnvelope<VerifyMagicLinkResponseData>
-      >(API_ROUTES.customerAuth.login, body);
-      return data.data.customer;
-    } catch (err: unknown) {
-      // Normaliza para Error nativo cujo .message é o código do backend
-      // (ex: "ACCOUNT_PENDING_APPROVAL"), tornando a detecção no onError
-      // independente da estrutura interna do AxiosError.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const code = (err as any)?.response?.data?.message;
-      throw new Error(typeof code === "string" ? code : "LOGIN_FAILED");
-    }
   },
 
   requestMagicLink: async (body: RequestMagicLinkBody): Promise<void> => {

@@ -6,7 +6,6 @@ import { ThemeProvider } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
-import { AuthProvider } from "@/contexts";
 import { createQueryClient } from "@/lib/queryClient";
 
 interface ProvidersProps {
@@ -65,11 +64,9 @@ export const Providers = ({ children }: ProvidersProps) => {
         enableSystem
         value={{ light: "light", dark: "dark" }}
       >
-        <AuthProvider>
-          {children}
-          <Toaster richColors position="top-right" closeButton />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </AuthProvider>
+        {children}
+        <Toaster richColors position="top-right" closeButton />
+        <ReactQueryDevtools initialIsOpen={false} />
       </ThemeProvider>
     </QueryClientProvider>
   );
