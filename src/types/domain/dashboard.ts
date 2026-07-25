@@ -232,3 +232,28 @@ export interface DashboardStockVelocityItem {
   daysUntilStockout: number | null;
   risk: DashboardStockVelocityRisk;
 }
+
+export interface MonthlyReportTopProduct {
+  id: string;
+  internalCode: string;
+  name: string;
+  clubOrBrand: string;
+  size: string;
+  totalSold: number;
+  totalRevenue: number;
+}
+
+export interface MonthlyReportPeriod {
+  month: string;
+  from: string;
+  to: string;
+}
+
+export interface MonthlyReport {
+  period: MonthlyReportPeriod;
+  stock: DashboardStockSnapshot;
+  sales: DashboardSalesSummary;
+  topProducts: MonthlyReportTopProduct[];
+  channels: DashboardChannel[];
+  paymentMethods: DashboardPaymentMethod[];
+}

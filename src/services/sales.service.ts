@@ -19,10 +19,9 @@ export const salesService = {
     return data.data;
   },
 
-  find: async (id: string): Promise<Sale> => {
-    const { data } = await apiClient.post<ApiEnvelope<Sale>>(
-      API_ROUTES.sales.find,
-      { id },
+  findById: async (id: string): Promise<Sale> => {
+    const { data } = await apiClient.get<ApiEnvelope<Sale>>(
+      API_ROUTES.sales.byId(id),
     );
     return data.data;
   },

@@ -14,6 +14,7 @@ export const queryKeys = {
   user: {
     all: ["user"] as const,
     me: () => [...queryKeys.user.all, "me"] as const,
+    lastSession: () => [...queryKeys.user.all, "lastSession"] as const,
   },
   products: {
     all: ["products"] as const,
@@ -69,6 +70,8 @@ export const queryKeys = {
   },
   dashboard: {
     all: ["dashboard"] as const,
+    monthlyReport: (month: string) =>
+      [...queryKeys.dashboard.all, "monthlyReport", month] as const,
     summary: (params?: DashboardPeriod) =>
       [...queryKeys.dashboard.all, "summary", params ?? {}] as const,
     topProducts: (params?: DashboardTopList) =>
@@ -108,5 +111,7 @@ export const queryKeys = {
     all: ["customerAuth"] as const,
     identity: () => [...queryKeys.customerAuth.all, "identity"] as const,
     orders: () => [...queryKeys.customerAuth.all, "orders"] as const,
+    orderDetail: (id: string) =>
+      [...queryKeys.customerAuth.all, "orders", id] as const,
   },
 } as const;

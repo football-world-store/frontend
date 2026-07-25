@@ -11,29 +11,20 @@ import {
 } from "@/components/molecules";
 import { CustomerForm } from "@/components/organisms/CustomerForm";
 import { useDebouncedValue, usePermission } from "@/hooks";
-import {
-  useCustomerRankingByAmountQuery,
-  useCustomersQuery,
-} from "@/hooks/queries";
-import type { Customer } from "@/types";
-import { formatCurrencyBRL } from "@/utils";
+import { useCustomersQuery, useDashboardSummaryQuery } from "@/hooks/queries";
+import type { DashboardPeriodKind } from "@/types";
 
+import { AverageTicketCard } from "./AverageTicketCard";
 import { CustomerRow } from "./CustomerRow";
 import { CustomerTabs, type TabKey } from "./CustomerTabs";
 import { RankingCard } from "./RankingCard";
+import { useCustomerRanking } from "./useCustomerRanking";
 
-const PRICE_CENTS_MULTIPLIER = 100;
-const RANKING_LIMIT = 3;
 const ITEMS_PER_PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
 const VIP_THRESHOLD = 2000;
 
-const calculateAverageTicket = (customers: Customer[]) => {
-  const orders = customers.reduce((sum, c) => sum + c.totalOrders, 0);
-  if (orders === 0) return 0;
-  const spent = customers.reduce((sum, c) => sum + c.totalSpent, 0);
-  return spent / orders;
-};
+type TicketPeriod = DashboardPeriodKind | "CUSTOM";
 
 const buildQueryParams = (
   page: number,
@@ -47,22 +38,30 @@ const buildQueryParams = (
   minSpent: tab === "vip" ? VIP_THRESHOLD : undefined,
 });
 
-const LoadingState = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div className="space-y-6">
-      <Card
-        tier="container-highest"
-        title="Ranking de Elite"
-        description="Top 3 do faturamento"
-      >
-        <SkeletonListRow count={3} withAvatar />
-      </Card>
-      <Card title="Ticket médio mensal">
-        <SkeletonListRow count={1} withTrailingValue={false} />
-      </Card>
-    </div>
+const LoadingState = ({ isOwner }: { isOwner: boolean }) => (
+  <div
+    className={
+      isOwner
+        ? "grid grid-cols-1 lg:grid-cols-3 gap-6"
+        : "grid grid-cols-1 gap-6"
+    }
+  >
+    {isOwner ? (
+      <div className="space-y-6">
+        <Card
+          tier="container-highest"
+          title="Ranking de Elite"
+          description="Top 3 do faturamento"
+        >
+          <SkeletonListRow count={3} withAvatar />
+        </Card>
+        <Card title="Ticket médio">
+          <SkeletonListRow count={1} withTrailingValue={false} />
+        </Card>
+      </div>
+    ) : null}
     <Card
-      className="lg:col-span-2"
+      className={isOwner ? "lg:col-span-2" : undefined}
       tier="container-high"
       title="Gestão de Elite"
       description="Controle de performance e ranking de clientes."
@@ -78,17 +77,38 @@ export const CustomersList = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ticketPeriod, setTicketPeriod] =
+    useState<TicketPeriod>("CURRENT_MONTH");
+  const [ticketStartDate, setTicketStartDate] = useState("");
+  const [ticketEndDate, setTicketEndDate] = useState("");
+  const {
+    ranking,
+    metric: rankingMetric,
+    setMetric: setRankingMetric,
+    isLoading: isRankingLoading,
+  } = useCustomerRanking(isOwner);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
   const { data, isLoading } = useCustomersQuery(
     buildQueryParams(page, tab, debouncedSearch),
   );
-  const { data: ranking = [], isLoading: isRankingLoading } =
-    useCustomerRankingByAmountQuery(RANKING_LIMIT, isOwner);
 
-  const customers: Customer[] = data?.items ?? [];
-  const averageTicket = calculateAverageTicket(customers);
+  const isCustomRangeReady = Boolean(ticketStartDate && ticketEndDate);
+  const isCustomPeriod = ticketPeriod === "CUSTOM";
+  const { data: summary } = useDashboardSummaryQuery(
+    isCustomPeriod
+      ? {
+          period: "CUSTOM",
+          startDate: ticketStartDate,
+          endDate: ticketEndDate,
+        }
+      : { period: ticketPeriod },
+    isOwner && (!isCustomPeriod || isCustomRangeReady),
+  );
+
+  const customers = data?.items ?? [];
+  const averageTicket = summary?.sales.averageTicket ?? 0;
 
   const handleTabChange = (nextTab: TabKey) => {
     setTab(nextTab);
@@ -101,26 +121,39 @@ export const CustomersList = () => {
   };
 
   if (isLoading || isRankingLoading) {
-    return <LoadingState />;
+    return <LoadingState isOwner={isOwner} />;
   }
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-6">
-          {isOwner ? <RankingCard ranking={ranking} /> : null}
-          <Card title="Ticket médio mensal">
-            <strong className="font-headline text-3xl font-extrabold text-on-surface">
-              {formatCurrencyBRL(averageTicket * PRICE_CENTS_MULTIPLIER)}
-            </strong>
-            <p className="font-label text-xs text-on-surface-variant mt-2">
-              Em pedidos confirmados
-            </p>
-          </Card>
-        </div>
+      <div
+        className={
+          isOwner
+            ? "grid grid-cols-1 lg:grid-cols-3 gap-6"
+            : "grid grid-cols-1 gap-6"
+        }
+      >
+        {isOwner ? (
+          <div className="space-y-6">
+            <RankingCard
+              ranking={ranking}
+              metric={rankingMetric}
+              onMetricChange={setRankingMetric}
+            />
+            <AverageTicketCard
+              period={ticketPeriod}
+              onPeriodChange={setTicketPeriod}
+              startDate={ticketStartDate}
+              endDate={ticketEndDate}
+              onStartDateChange={setTicketStartDate}
+              onEndDateChange={setTicketEndDate}
+              averageTicket={averageTicket}
+            />
+          </div>
+        ) : null}
 
         <Card
-          className="lg:col-span-2"
+          className={isOwner ? "lg:col-span-2" : undefined}
           tier="container-high"
           title="Gestão de Elite"
           description="Controle de performance e ranking de clientes."

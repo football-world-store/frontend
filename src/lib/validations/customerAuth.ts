@@ -8,13 +8,6 @@ export const requestMagicLinkSchema = z.object({
 
 export type RequestMagicLinkFormValues = z.infer<typeof requestMagicLinkSchema>;
 
-export const customerLoginSchema = z.object({
-  email: emailField,
-  password: z.string().min(1, "Senha obrigatória"),
-});
-
-export type CustomerLoginFormValues = z.infer<typeof customerLoginSchema>;
-
 export const registerCustomerSchema = z.object({
   name: nameField,
   email: emailField,

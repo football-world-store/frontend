@@ -3,28 +3,25 @@
 import { useState } from "react";
 
 import {
-  CustomerLoginForm,
   RegisterCustomerForm,
   RequestMagicLinkForm,
 } from "@/components/organisms";
 import { AuthLayout } from "@/components/templates";
 
-type Tab = "login" | "register" | "magic-link";
+type Tab = "register" | "magic-link";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "login", label: "Entrar" },
+  { id: "magic-link", label: "Entrar" },
   { id: "register", label: "Criar conta" },
-  { id: "magic-link", label: "Link mágico" },
 ];
 
 const DESCRIPTIONS: Record<Tab, string> = {
-  login: "Acesse seus pedidos com seu email e senha.",
   register: "Crie uma conta para acompanhar seus pedidos.",
   "magic-link": "Informe seu email e enviaremos um link de acesso — sem senha.",
 };
 
 const PortalPage = () => {
-  const [tab, setTab] = useState<Tab>("login");
+  const [tab, setTab] = useState<Tab>("magic-link");
 
   return (
     <AuthLayout
@@ -58,7 +55,6 @@ const PortalPage = () => {
         ))}
       </nav>
 
-      {tab === "login" && <CustomerLoginForm />}
       {tab === "register" && <RegisterCustomerForm />}
       {tab === "magic-link" && <RequestMagicLinkForm />}
     </AuthLayout>

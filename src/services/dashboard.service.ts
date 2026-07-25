@@ -7,6 +7,7 @@ import type {
   DashboardCustomersByTeam,
   DashboardIdleProducts,
   DashboardMargins,
+  MonthlyReport,
   DashboardPaymentMethod,
   DashboardPeriod,
   DashboardReorderItem,
@@ -25,6 +26,9 @@ const get = async <T>(url: string, params?: unknown): Promise<T> => {
 };
 
 export const dashboardService = {
+  monthlyReport: (month: string) =>
+    get<MonthlyReport>(API_ROUTES.dashboard.monthlyReport, { month }),
+
   summary: (params: DashboardPeriod) =>
     get<DashboardSummary>(API_ROUTES.dashboard.summary, params),
 

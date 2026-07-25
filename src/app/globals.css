@@ -424,6 +424,14 @@ h6 {
     color: #555 !important;
   }
 
+  /*
+   * Badges perdem o fundo colorido acima (viram branco no branco).
+   * Uma borda fina mantém o status legível no papel.
+   */
+  [class*="rounded-pill"][class*="bg-"] {
+    border: 0.0625rem solid #555 !important;
+  }
+
   /* Page breaks */
   section,
   .grid > * {

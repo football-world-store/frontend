@@ -55,6 +55,7 @@ export const SaleForm = ({ onSuccess, onCancel }: SaleFormProps) => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("PIX");
   const [discountInput, setDiscountInput] = useState("0");
   const [productPickerId, setProductPickerId] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
 
   const productOptions = useMemo(
     () => [
@@ -101,7 +102,11 @@ export const SaleForm = ({ onSuccess, onCancel }: SaleFormProps) => {
     setItems((prev) => prev.filter((item) => item.productId !== productId));
   };
 
-  const canSubmit = items.length > 0 && total > 0 && !mutation.isPending;
+  const canSubmit =
+    items.length > 0 &&
+    total > 0 &&
+    customerEmail.trim().length > 0 &&
+    !mutation.isPending;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -116,12 +121,14 @@ export const SaleForm = ({ onSuccess, onCancel }: SaleFormProps) => {
         items: payload,
         channel,
         paymentMethod,
+        customerEmail: customerEmail.trim(),
         discount: discount || undefined,
       },
       {
         onSuccess: () => {
           setItems([]);
           setDiscountInput("0");
+          setCustomerEmail("");
           onSuccess?.();
         },
       },
@@ -239,6 +246,16 @@ export const SaleForm = ({ onSuccess, onCancel }: SaleFormProps) => {
           </ul>
         )}
       </div>
+
+      <FormField
+        label="E-mail do cliente"
+        type="email"
+        required
+        value={customerEmail}
+        onChange={(event) => setCustomerEmail(event.target.value)}
+        placeholder="cliente@email.com"
+        hint="O cliente precisa já estar cadastrado com esse e-mail."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SelectField

@@ -3,13 +3,13 @@
 import { type ReactNode } from "react";
 
 import { Spinner } from "@/components/atoms";
-import { useAuth } from "@/contexts";
+import { AuthProvider, useAuth } from "@/contexts";
 
 interface ProtectedLayoutProps {
   children: ReactNode;
 }
 
-const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
+const ProtectedGate = ({ children }: ProtectedLayoutProps) => {
   const { isLoading } = useAuth();
 
   // Proxy (src/proxy.ts) já barrou não-autenticados via cookie de sessão.
@@ -25,5 +25,11 @@ const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 
   return <>{children}</>;
 };
+
+const ProtectedLayout = ({ children }: ProtectedLayoutProps) => (
+  <AuthProvider>
+    <ProtectedGate>{children}</ProtectedGate>
+  </AuthProvider>
+);
 
 export default ProtectedLayout;

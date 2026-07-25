@@ -11,3 +11,10 @@ export const useMeQuery = () =>
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   });
+
+export const useLastSessionQuery = () =>
+  useQuery({
+    queryKey: queryKeys.user.lastSession(),
+    queryFn: usersService.lastSession,
+    retry: false,
+  });

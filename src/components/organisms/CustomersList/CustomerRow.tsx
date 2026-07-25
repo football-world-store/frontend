@@ -35,12 +35,12 @@ export const CustomerRow = ({ customer }: CustomerRowProps) => {
   const isVip = customer.totalSpent >= VIP_THRESHOLD;
 
   return (
-    <li className="bg-surface-container-low rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-surface-bright transition-colors">
+    <li className="relative bg-surface-container-low rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-surface-bright transition-colors">
       <Avatar name={customer.name} />
       <div className="flex-1 min-w-0">
         <Link
           href={APP_ROUTES.app.customerDetail(customer.id)}
-          className="font-body text-sm font-semibold text-on-surface hover:text-primary transition-colors"
+          className="font-body text-sm font-semibold text-on-surface hover:text-primary transition-colors after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-focus-gold rounded-lg"
         >
           {customer.name}
         </Link>
@@ -48,7 +48,7 @@ export const CustomerRow = ({ customer }: CustomerRowProps) => {
           {customer.phone ?? customer.email ?? "Sem contato"}
         </p>
       </div>
-      <div className="ml-auto flex-shrink-0 flex items-center gap-3">
+      <div className="relative z-10 ml-auto flex-shrink-0 flex items-center gap-3">
         <div className="text-right hidden sm:block">
           <p className="font-label text-xs text-on-surface-variant">
             Total gasto

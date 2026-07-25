@@ -7,6 +7,7 @@ import type {
 } from "@/types";
 import type {
   CreateUserBody,
+  LastSession,
   ListUsersParams,
   RegisterUserBody,
   SystemUser,
@@ -17,6 +18,13 @@ export const usersService = {
   me: async (): Promise<AuthUser> => {
     const { data } = await apiClient.get<ApiEnvelope<AuthUser>>(
       API_ROUTES.users.me,
+    );
+    return data.data;
+  },
+
+  lastSession: async (): Promise<LastSession | null> => {
+    const { data } = await apiClient.get<ApiEnvelope<LastSession | null>>(
+      API_ROUTES.users.lastSession,
     );
     return data.data;
   },

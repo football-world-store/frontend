@@ -4,17 +4,21 @@ import type { PaginatedResult, Sale } from "@/types";
 import { SaleRowDesktop, SaleRowMobile } from "./SaleRow";
 
 interface SalesContentProps {
+  inline?: boolean;
   data: PaginatedResult<Sale> | undefined;
   page: number;
   onPageChange: (page: number) => void;
   onCancel: (id: string) => void;
+  onViewReceipt: (id: string) => void;
 }
 
 export const SalesContent = ({
+  inline = false,
   data,
   page,
   onPageChange,
   onCancel,
+  onViewReceipt,
 }: SalesContentProps) => {
   const sales = data?.items ?? [];
 
@@ -37,6 +41,7 @@ export const SalesContent = ({
             sale={sale}
             index={index}
             onCancel={onCancel}
+            onViewReceipt={onViewReceipt}
           />
         ))}
       </div>
@@ -57,19 +62,22 @@ export const SalesContent = ({
               sale={sale}
               index={index}
               onCancel={onCancel}
+              onViewReceipt={onViewReceipt}
             />
           ))}
         </div>
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={data?.totalPages ?? 1}
-        total={data?.total ?? 0}
-        itemCount={sales.length}
-        itemLabel="vendas"
-        onPageChange={onPageChange}
-      />
+      {inline ? null : (
+        <Pagination
+          page={page}
+          totalPages={data?.totalPages ?? 1}
+          total={data?.total ?? 0}
+          itemCount={sales.length}
+          itemLabel="vendas"
+          onPageChange={onPageChange}
+        />
+      )}
     </>
   );
 };

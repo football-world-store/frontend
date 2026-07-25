@@ -18,7 +18,7 @@ interface TopBarProps {
 
 export const TopBar = ({ title, subtitle }: TopBarProps) => {
   const { user, signOut, isSigningOut } = useAuth();
-  const { data: alertsCount } = useAlertsCountQuery();
+  const { data: alertsCount } = useAlertsCountQuery(user?.role === "OWNER");
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           <span className="hidden md:inline-flex">
             <Badge tone="error" className="gap-1.5">
               <Icon name="warning" size="sm" />
-              {lowStockCount} low stock
+              {lowStockCount} estoque crítico
             </Badge>
           </span>
         ) : null}
@@ -97,7 +97,7 @@ export const TopBar = ({ title, subtitle }: TopBarProps) => {
           </Link>
         }
       >
-        <AlertsPanel inline />
+        <AlertsPanel inline enabled={isNotificationsOpen} />
       </Modal>
     </header>
   );

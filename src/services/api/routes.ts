@@ -12,6 +12,7 @@ export const API_ROUTES = {
   },
   users: {
     me: "/users/me",
+    lastSession: "/users/me/last-session",
     changePassword: "/users/me/password",
     register: "/users/register",
     list: "/users",
@@ -44,6 +45,7 @@ export const API_ROUTES = {
   sales: {
     list: "/sales",
     create: "/sales",
+    byId: (id: string) => `/sales/${id}`,
     find: "/sales/find",
     cancel: "/sales/cancel",
   },
@@ -70,6 +72,7 @@ export const API_ROUTES = {
     resolve: (id: string) => `/alerts/${id}/resolve`,
   },
   dashboard: {
+    monthlyReport: "/dashboard/monthly-report",
     summary: "/dashboard/summary",
     topProducts: "/dashboard/top-products",
     topClubs: "/dashboard/top-clubs",
@@ -87,10 +90,10 @@ export const API_ROUTES = {
   },
   customerAuth: {
     register: `${CUSTOMER_AUTH_BASE}/register`,
-    login: `${CUSTOMER_AUTH_BASE}/login`,
     magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
     verify: `${CUSTOMER_AUTH_BASE}/verify`,
     logout: `${CUSTOMER_AUTH_BASE}/logout`,
     orders: `${CUSTOMER_AUTH_BASE}/me/orders`,
+    orderById: (id: string) => `${CUSTOMER_AUTH_BASE}/me/orders/${id}`,
   },
 } as const;

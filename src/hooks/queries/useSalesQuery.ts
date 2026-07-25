@@ -13,6 +13,6 @@ export const useSalesQuery = (params?: ListSalesParams) =>
 export const useSaleQuery = (id: string) =>
   useQuery({
     queryKey: queryKeys.sales.detail(id),
-    queryFn: () => salesService.find(id),
+    queryFn: () => salesService.findById(id),
     enabled: Boolean(id),
   });

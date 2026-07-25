@@ -6,11 +6,6 @@ export interface RegisterCustomerBody {
   birthDate?: string;
 }
 
-export interface CustomerLoginBody {
-  email: string;
-  password: string;
-}
-
 export interface RequestMagicLinkBody {
   email: string;
 }

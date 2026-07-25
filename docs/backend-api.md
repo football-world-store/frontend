@@ -257,13 +257,36 @@ Auth: customer_access_token
 ### `GET /api/v1/customer-auth/me/orders`
 
 **Lista as compras e reservas do cliente autenticado**  
+Busca vendas por `customerId` **e** por email da sessão, então o histórico completo aparece mesmo para compras registradas antes de o cliente criar conta.  
 `operationId: CustomerAuthController_orders`
 
 Responses:
 
-- `200`: Compras e reservas do cliente
+- `200`: `{ purchases: SaleResponse[], reservations: MyReservationResponse[] }`
 
 Auth: customer_access_token
+
+**Integrado no front** — sem mudança de interface, `customerAuthService.getOrders` / `useCustomerOrdersQuery`.
+
+### `GET /api/v1/customer-auth/me/orders/{id}`
+
+**Busca um pedido por ID (recibo)**  
+Retorna os dados completos de uma venda do cliente autenticado — itens, valores, data e canal (mesmo shape de `GET /sales/{id}`). Usado para geração de recibo no portal.  
+`operationId: CustomerAuthController_order`
+
+Query/Path params:
+
+- `id` (path, obrigatório)
+
+Responses:
+
+- `200`: Dados completos do pedido
+- `403`: ACCESS_DENIED — pedido não pertence ao cliente autenticado
+- `404`: SALE_NOT_FOUND
+
+Auth: customer_access_token
+
+**Integrado no front** (2026-07-23) — `customerAuthService.getOrderById`, consumido por `useCustomerOrderQuery` na página dedicada `/portal/orders/[id]` (compras clicáveis em `/portal/orders`). Recibo é página própria (não modal) para o PDF impresso sair com nome útil via `<title>`.
 
 ## Customers
 
@@ -452,7 +475,30 @@ Responses:
 
 Auth: access_token
 
+**Integrado no front** (2026-07-24) — `useCustomerRankingByPurchasesQuery`, consumido pelo card "Ranking de Elite" em `/customers` via toggle Faturamento/Compras (`RankingCard` + `useCustomerRanking`). Antes só o ranking por valor gasto era exibido.
+
 ## Dashboard
+
+### `GET /api/v1/dashboard/monthly-report`
+
+**[OWNER] Relatório mensal agregado**  
+Retorna JSON com resumo do estoque, métricas de vendas, top 10 produtos, breakdown por canal e por forma de pagamento para o mês especificado.  
+`operationId: DashboardController_monthlyReport`
+
+Query/Path params:
+
+- `month` (query, obrigatório): Mês no formato YYYY-MM (ex: 2026-07)
+
+Responses:
+
+- `200`: `{ data: { period, stock, sales, topProducts[], channels[], paymentMethods[] } }`
+- `400`: INVALID_MONTH_FORMAT
+- `401`: MISSING_TOKEN / INVALID_TOKEN
+- `403`: ACCESS_DENIED — restrito a OWNER
+
+Auth: access_token
+
+**Integrado no front** (2026-07-23) — `dashboardService.monthlyReport`, consumido por `useMonthlyReportQuery` em `MonthlyReportModal` (botão "Relatório mensal" em `/settings`, visível só para OWNER). Era o item 2 do `FRONTEND-REQUESTS.md` do backend; já resolvido — optou-se pela abordagem de JSON agregado com PDF montado client-side via impressão, reaproveitando o padrão de `@media print` já usado em `/insights`.
 
 ### `GET /api/v1/dashboard/summary`
 
@@ -966,7 +1012,8 @@ Body (application/json): `CreateSaleDto`
 - `items`: array (obrigatório)
 - `channel`: string (obrigatório) — enum: ['LOJA_FISICA', 'INSTAGRAM', 'WHATSAPP', 'SITE']
 - `paymentMethod`: string (obrigatório) — enum: ['DINHEIRO', 'PIX', 'DEBITO', 'CREDITO']
-- `customerId`: string (opcional)
+- `customerEmail`: string (**obrigatório** — mudança de 2026-07-23; resolve o `customerId` automaticamente no backend)
+- `customerId`: string (opcional — se enviado junto de `customerEmail`, o backend prioriza o ID)
 - `discount`: number (opcional)
 - `saleDate`: string (opcional)
 
@@ -979,10 +1026,32 @@ Responses:
 
 Auth: access_token
 
-### `POST /api/v1/sales/find`
+**Integrado no front** (`SaleForm.tsx`, `CreateSaleBody`) — `customerEmail` já é obrigatório na UI, sem busca prévia de `customerId`.
+
+### `GET /api/v1/sales/{id}`
+
+**Busca venda por ID**  
+Retorna os dados completos da venda com todos os itens. Usado pelo admin para visualizar detalhes e gerar recibo.  
+`operationId: SalesController_findById`
+
+Query/Path params:
+
+- `id` (path, obrigatório)
+
+Responses:
+
+- `200`: Dados da venda encontrada (mesmo shape da listagem, objeto único)
+- `401`: MISSING_TOKEN / INVALID_TOKEN
+- `404`: SALE_NOT_FOUND
+
+Auth: access_token
+
+**Integrado no front** (2026-07-23) — `salesService.findById`, consumido por `useSaleQuery` na página dedicada `/sales/[id]/recibo` (botão "Ver recibo" em `/sales`). Recibo é página própria (não modal): imprime como página normal e o PDF sai nomeado "Recibo #N - Cliente" via `<title>`. Componente `ReceiptPage` é compartilhado com o portal do cliente.
+
+### `POST /api/v1/sales/find` _(deprecated)_
 
 **Busca venda por ID (ID no body — IDOR mitigation)**  
-Retorna a venda com todos os itens incluídos.  
+Mantido para compatibilidade. Prefira `GET /api/v1/sales/{id}`.  
 `operationId: SalesController_find`
 
 Body (application/json): `FindSaleDto`
@@ -996,6 +1065,8 @@ Responses:
 - `404`: SALE_NOT_FOUND
 
 Auth: access_token
+
+⚠️ O front não usa mais essa rota — migrado para `GET /api/v1/sales/{id}` em 2026-07-23.
 
 ### `POST /api/v1/sales/cancel`
 
@@ -1136,6 +1207,21 @@ Responses:
 - `401`: Não autenticado
 
 Auth: access_token
+
+### `GET /api/v1/users/me/last-session`
+
+**Retorna a sessão mais recente do usuário autenticado**  
+Usado no card "Perfil do gerenciador" em `/settings` — "Último acesso: 2h atrás · IP ...".  
+`operationId: UsersController_getLastSessionHandler`
+
+Responses:
+
+- `200`: `{ data: { ipAddress: string | null, userAgent: string | null, createdAt: string } | null }`
+- `401`: Não autenticado
+
+Auth: access_token
+
+**Integrado no front** (2026-07-23) — `usersService.lastSession`, consumido por `useLastSessionQuery` em `ManagerProfileCard`. Era o item 1 do `FRONTEND-REQUESTS.md` do backend; já resolvido.
 
 ### `PATCH /api/v1/users/me/password`
 

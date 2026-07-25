@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { Badge, Button, Icon } from "@/components/atoms";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
 import { DEFAULT_DASHBOARD_TOP_LIMIT, DEFAULT_IDLE_DAYS } from "@/constants";
+import { usePeriodFilter } from "@/hooks";
 import {
   useDashboardCapitalByClubQuery,
   useDashboardClubTrendQuery,
@@ -34,7 +35,6 @@ import type {
   DashboardIdleProduct,
   DashboardMargins,
   DashboardPaymentMethod,
-  DashboardPeriodKind,
   DashboardReorderItem,
   DashboardReservationConversion,
   DashboardStockVelocityItem,
@@ -93,8 +93,8 @@ const StockVelocityCard = ({
         description="Sem vendas suficientes para calcular velocidade."
       />
     ) : (
-      <ul className="space-y-2">
-        {items.slice(0, 8).map((item, index) => (
+      <ul className="space-y-2 max-h-96 overflow-y-auto pr-1">
+        {items.map((item, index) => (
           <li
             key={item.id}
             className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
@@ -127,8 +127,8 @@ const ReorderListCard = ({ items }: { items: DashboardReorderItem[] }) => (
         description="Nenhum produto precisa de reposição agora."
       />
     ) : (
-      <ul className="space-y-2">
-        {items.slice(0, 8).map((item, index) => (
+      <ul className="space-y-2 max-h-96 overflow-y-auto pr-1">
+        {items.map((item, index) => (
           <li
             key={item.id}
             className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
@@ -164,8 +164,8 @@ const IdleProductsCard = ({ items }: { items: DashboardIdleProduct[] }) => (
         description="Todo o estoque está girando."
       />
     ) : (
-      <ul className="space-y-2">
-        {items.slice(0, 8).map((item, index) => (
+      <ul className="space-y-2 max-h-96 overflow-y-auto pr-1">
+        {items.map((item, index) => (
           <li
             key={item.id}
             className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${zebraRowTier(index)}`}
@@ -232,8 +232,8 @@ const CapitalByClubCard = ({ items }: { items: DashboardCapitalByClub[] }) => (
         description="Capital aparecerá aqui."
       />
     ) : (
-      <ul className="space-y-3">
-        {items.slice(0, 8).map((item) => (
+      <ul className="space-y-3 max-h-96 overflow-y-auto pr-1">
+        {items.map((item) => (
           <li
             key={item.clubOrBrand}
             className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
@@ -294,8 +294,8 @@ const CustomersByTeamCard = ({
         description="Cadastre clientes com time do coração para ver o ranking."
       />
     ) : (
-      <ul className="space-y-3">
-        {items.slice(0, 8).map((item) => (
+      <ul className="space-y-3 max-h-96 overflow-y-auto pr-1">
+        {items.map((item) => (
           <li
             key={item.favoriteTeam}
             className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3"
@@ -370,22 +370,39 @@ const useClubProgressItems = (
   }, [data]);
 
 const InsightsPage = () => {
-  const [periodKind, setPeriodKind] =
-    useState<DashboardPeriodKind>("LAST_30_DAYS");
-  const period = { period: periodKind };
-  const topListParams = { ...period, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
+  const {
+    kind: periodKind,
+    setKind: setPeriodKind,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    period,
+  } = usePeriodFilter("LAST_30_DAYS");
+  const isPeriodReady = Boolean(period);
+  const topListParams = period
+    ? { ...period, limit: DEFAULT_DASHBOARD_TOP_LIMIT }
+    : { period: "LAST_30_DAYS" as const, limit: DEFAULT_DASHBOARD_TOP_LIMIT };
 
-  const marginsQuery = useDashboardMarginsQuery(period);
-  const paymentMethodsQuery = useDashboardPaymentMethodsQuery(period);
+  const marginsQuery = useDashboardMarginsQuery(
+    period ?? { period: "LAST_30_DAYS" },
+    isPeriodReady,
+  );
+  const paymentMethodsQuery = useDashboardPaymentMethodsQuery(
+    period ?? { period: "LAST_30_DAYS" },
+    isPeriodReady,
+  );
   const stockVelocityQuery = useDashboardStockVelocityQuery();
   const idleProductsQuery = useDashboardIdleProductsQuery(DEFAULT_IDLE_DAYS);
   const reorderListQuery = useDashboardReorderListQuery();
   const capitalByClubQuery = useDashboardCapitalByClubQuery();
-  const topClubsQuery = useDashboardTopClubsQuery(topListParams);
+  const topClubsQuery = useDashboardTopClubsQuery(topListParams, isPeriodReady);
   const clubTrendQuery = useDashboardClubTrendQuery();
   const customersByTeamQuery = useDashboardCustomersByTeamQuery();
-  const reservationConversionQuery =
-    useDashboardReservationConversionQuery(period);
+  const reservationConversionQuery = useDashboardReservationConversionQuery(
+    period ?? { period: "LAST_30_DAYS" },
+    isPeriodReady,
+  );
 
   const isLoading =
     marginsQuery.isLoading ||
@@ -408,7 +425,14 @@ const InsightsPage = () => {
       subtitle="Análise em tempo real da performance do inventário."
     >
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <PeriodFilter value={periodKind} onChange={setPeriodKind} />
+        <PeriodFilter
+          value={periodKind}
+          onChange={setPeriodKind}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
         <Button
           variant="secondary"
           onClick={() => window.print()}

@@ -1,6 +1,5 @@
 export * from "./AlertsPanel";
 export * from "./ChangePasswordForm";
-export * from "./CustomerLoginForm";
 export * from "./RegisterCustomerForm";
 export * from "./CustomerForm";
 export * from "./CustomerOrdersList";
@@ -18,6 +17,10 @@ export * from "./ReservationsTable";
 export * from "./ResetPasswordForm";
 export * from "./SaleForm";
 export * from "./SalesTable";
+export * from "./SaleReceipt";
+export * from "./ReceiptPage";
+export * from "./MonthlyReport";
+export * from "./ManagerProfileCard";
 export * from "./StockEntriesTable";
 export * from "./StockMovementForm";
 export * from "./TopBar";

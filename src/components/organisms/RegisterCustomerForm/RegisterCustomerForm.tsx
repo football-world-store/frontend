@@ -48,7 +48,7 @@ export const RegisterCustomerForm = () => {
           </p>
         </div>
         <Link
-          href="/minha-conta/entrar"
+          href="/portal"
           className="font-label text-sm text-primary underline underline-offset-2"
         >
           Voltar para o login
