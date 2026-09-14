@@ -1,12 +1,6 @@
-import type { CustomerIdentity, CustomerOrders } from "@/types";
+import type { CustomerOrders } from "@/types";
 
 const CUSTOMER_PORTAL_NAME = "Lucas Andrade";
-
-export const customerIdentityFixture: CustomerIdentity = {
-  id: "cust-portal-001",
-  name: CUSTOMER_PORTAL_NAME,
-  email: "lucas@example.com",
-};
 
 export const customerOrdersFixture: CustomerOrders = {
   purchases: [

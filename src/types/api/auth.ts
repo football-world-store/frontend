@@ -4,7 +4,8 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  /** The login endpoint also authenticates customer accounts. */
+  role: UserRole | "CUSTOMER";
 }
 
 export interface LoginRequest {

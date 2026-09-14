@@ -90,10 +90,10 @@ export const API_ROUTES = {
   },
   customerAuth: {
     register: `${CUSTOMER_AUTH_BASE}/register`,
-    magicLink: `${CUSTOMER_AUTH_BASE}/magic-link`,
-    verify: `${CUSTOMER_AUTH_BASE}/verify`,
     logout: `${CUSTOMER_AUTH_BASE}/logout`,
     orders: `${CUSTOMER_AUTH_BASE}/me/orders`,
     orderById: (id: string) => `${CUSTOMER_AUTH_BASE}/me/orders/${id}`,
+    me: `${CUSTOMER_AUTH_BASE}/me`,
+    changePassword: `${CUSTOMER_AUTH_BASE}/me/password`,
   },
 } as const;
