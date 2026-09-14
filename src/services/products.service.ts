@@ -11,6 +11,7 @@ import type {
   Product,
   UpdateProductBody,
 } from "@/types";
+import { isAllowedImageContentType } from "@/utils";
 
 interface UploadProductPhotoParams {
   id: string;
@@ -20,18 +21,6 @@ interface UploadProductPhotoParams {
 interface ProductPhotoResponse {
   uploadUrl: string;
 }
-
-const ALLOWED_PHOTO_CONTENT_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-] as const;
-
-const isAllowedContentType = (
-  contentType: string,
-): contentType is (typeof ALLOWED_PHOTO_CONTENT_TYPES)[number] =>
-  (ALLOWED_PHOTO_CONTENT_TYPES as readonly string[]).includes(contentType);
 
 export const productsService = {
   list: async (
@@ -79,7 +68,7 @@ export const productsService = {
     id,
     file,
   }: UploadProductPhotoParams): Promise<ProductPhotoResponse> => {
-    if (!isAllowedContentType(file.type)) {
+    if (!isAllowedImageContentType(file.type)) {
       throw new Error("Formato inválido. Use JPG, JPEG, PNG ou WEBP.");
     }
 

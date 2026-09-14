@@ -95,5 +95,6 @@ export const API_ROUTES = {
     orderById: (id: string) => `${CUSTOMER_AUTH_BASE}/me/orders/${id}`,
     me: `${CUSTOMER_AUTH_BASE}/me`,
     changePassword: `${CUSTOMER_AUTH_BASE}/me/password`,
+    avatarUploadUrl: `${CUSTOMER_AUTH_BASE}/me/avatar`,
   },
 } as const;

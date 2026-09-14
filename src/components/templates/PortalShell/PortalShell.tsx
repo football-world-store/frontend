@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { Icon, Logo } from "@/components/atoms";
+import { Avatar, Icon, Logo } from "@/components/atoms";
 import { APP_ROUTES } from "@/constants";
 import { useCustomerLogoutMutation } from "@/hooks/mutations";
 import { useCustomerProfileQuery } from "@/hooks/queries";
@@ -31,14 +31,6 @@ const PORTAL_NAV_ITEMS: PortalNavItem[] = [
     label: "Configurações",
   },
 ];
-
-const getInitials = (name: string): string =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
 interface SidebarLinkProps {
   item: PortalNavItem;
@@ -111,7 +103,7 @@ export const PortalShell = ({
   const { data: profile } = useCustomerProfileQuery();
   const name = profile?.name ?? "Cliente";
   const email = profile?.email;
-  const initials = getInitials(name);
+  const photoUrl = profile?.photoUrl;
 
   return (
     <main className="min-h-screen bg-surface font-body text-on-surface lg:flex">
@@ -130,9 +122,7 @@ export const PortalShell = ({
         </nav>
         <div className="mt-auto space-y-4">
           <div className="flex items-center gap-3 rounded-2xl bg-surface-container p-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-metallic font-headline text-sm font-bold text-on-primary">
-              {initials}
-            </span>
+            <Avatar name={name} src={photoUrl} className="h-10 w-10 shrink-0" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{name}</p>
               <p className="truncate text-xs text-on-surface-variant">
@@ -165,9 +155,11 @@ export const PortalShell = ({
                 {description}
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-metallic font-headline font-bold text-on-primary lg:hidden">
-              {initials}
-            </span>
+            <Avatar
+              name={name}
+              src={photoUrl}
+              className="h-11 w-11 shrink-0 lg:hidden"
+            />
           </header>
           {children}
         </div>
