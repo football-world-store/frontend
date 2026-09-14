@@ -1,5 +1,6 @@
 export * from "./useAlertsQuery";
 export * from "./useAuditLogsQuery";
+export * from "./useCustomerBirthdaysQuery";
 export * from "./useCustomerOrdersQuery";
 export * from "./useCustomerProfileQuery";
 export * from "./useCustomerPurchasesQuery";

@@ -1,11 +1,14 @@
 import { apiClient, API_ROUTES, fetchPaginated } from "@/services/api";
 import type { ApiEnvelope, PaginatedResult } from "@/types";
 import type {
+  BirthdaysResult,
   CreateCustomerBody,
   Customer,
   CustomerPurchasesResult,
   CustomerRankingEntry,
   ListCustomersParams,
+  NotifyBirthdaysBody,
+  NotifyBirthdaysResult,
   UpdateCustomerBody,
 } from "@/types";
 
@@ -92,6 +95,24 @@ export const customersService = {
     const { data } = await apiClient.get<ApiEnvelope<CustomerRankingEntry[]>>(
       API_ROUTES.customers.rankingByPurchases,
       { params: { limit } },
+    );
+    return data.data;
+  },
+
+  birthdays: async (daysAhead?: number): Promise<BirthdaysResult> => {
+    const { data } = await apiClient.get<ApiEnvelope<BirthdaysResult>>(
+      API_ROUTES.customers.birthdays,
+      { params: { daysAhead } },
+    );
+    return data.data;
+  },
+
+  notifyBirthdays: async (
+    body: NotifyBirthdaysBody,
+  ): Promise<NotifyBirthdaysResult> => {
+    const { data } = await apiClient.post<ApiEnvelope<NotifyBirthdaysResult>>(
+      API_ROUTES.customers.notifyBirthdays,
+      body,
     );
     return data.data;
   },

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { Badge, Button, Icon } from "@/components/atoms";
+import { Badge, Button, Icon, OwnerOnly, Spinner } from "@/components/atoms";
 import {
   Card,
   ClubProgressList,
@@ -10,13 +10,16 @@ import {
   EmptyState,
   PeriodFilter,
   SkeletonCard,
+  SkeletonListRow,
   SkeletonStatTile,
   StatTile,
 } from "@/components/molecules";
 import { DashboardLayout } from "@/components/templates";
 import { DEFAULT_DASHBOARD_TOP_LIMIT, DEFAULT_IDLE_DAYS } from "@/constants";
 import { usePeriodFilter } from "@/hooks";
+import { useNotifyBirthdaysMutation } from "@/hooks/mutations";
 import {
+  useCustomerBirthdaysQuery,
   useDashboardCapitalByClubQuery,
   useDashboardClubTrendQuery,
   useDashboardCustomersByTeamQuery,
@@ -29,6 +32,7 @@ import {
   useDashboardTopClubsQuery,
 } from "@/hooks/queries";
 import type {
+  BirthdayCustomer,
   DashboardCapitalByClub,
   DashboardClubTrendEntry,
   DashboardCustomersByTeam,
@@ -323,6 +327,92 @@ const CustomersByTeamCard = ({
   </Card>
 );
 
+const DAYS_UNTIL_LABEL: Record<number, string> = {
+  0: "Hoje",
+  1: "Amanhã",
+};
+
+const daysUntilLabel = (days: number): string =>
+  DAYS_UNTIL_LABEL[days] ?? `em ${days} dias`;
+
+const BirthdayRow = ({ customer }: { customer: BirthdayCustomer }) => (
+  <li className="flex items-center justify-between gap-3 rounded-xl bg-surface-container-low px-4 py-3">
+    <div className="min-w-0">
+      <p className="truncate font-body text-sm font-semibold text-on-surface">
+        {customer.name}
+      </p>
+      <p className="truncate font-label text-xs text-on-surface-variant">
+        {customer.favoriteTeam ?? "—"} ·{" "}
+        {customer.email ?? customer.whatsapp ?? "sem contato"}
+      </p>
+    </div>
+    <Badge tone={customer.daysUntilBirthday === 0 ? "success" : "neutral"}>
+      {daysUntilLabel(customer.daysUntilBirthday)}
+    </Badge>
+  </li>
+);
+
+const BirthdaysCardBody = ({
+  isLoading,
+  customers,
+}: {
+  isLoading: boolean;
+  customers: BirthdayCustomer[];
+}) => {
+  if (isLoading) return <SkeletonListRow count={3} />;
+  if (customers.length === 0) {
+    return (
+      <EmptyState
+        iconName="cake"
+        title="Sem aniversariantes"
+        description="Ninguém faz aniversário nos próximos 7 dias."
+      />
+    );
+  }
+  return (
+    <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
+      {customers.map((customer) => (
+        <BirthdayRow key={customer.id} customer={customer} />
+      ))}
+    </ul>
+  );
+};
+
+const BirthdaysCard = () => {
+  const { data, isLoading } = useCustomerBirthdaysQuery(7);
+  const notifyMutation = useNotifyBirthdaysMutation();
+  const today = data?.today ?? [];
+  const upcoming = data?.upcoming ?? [];
+
+  return (
+    <Card
+      title="Aniversariantes"
+      description="Hoje e nos próximos 7 dias"
+      action={
+        <OwnerOnly>
+          <Button
+            variant="secondary"
+            onClick={() => notifyMutation.mutate({})}
+            disabled={notifyMutation.isPending || today.length === 0}
+          >
+            {notifyMutation.isPending ? (
+              <Spinner size="sm" />
+            ) : (
+              <Icon name="cake" size="sm" filled={false} />
+            )}
+            Enviar emails de hoje
+          </Button>
+        </OwnerOnly>
+      }
+    >
+      <BirthdaysCardBody
+        isLoading={isLoading}
+        customers={[...today, ...upcoming]}
+      />
+    </Card>
+  );
+};
+
 const SummaryStats = ({
   margins,
   reservationConversion,
@@ -477,6 +567,8 @@ const InsightsPage = () => {
         <ClubTrendCard entries={clubTrendQuery.data ?? []} />
         <CustomersByTeamCard items={customersByTeamQuery.data ?? []} />
       </div>
+
+      <BirthdaysCard />
     </DashboardLayout>
   );
 };

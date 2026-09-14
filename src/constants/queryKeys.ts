@@ -62,6 +62,8 @@ export const queryKeys = {
         "rankingByPurchases",
         limit ?? null,
       ] as const,
+    birthdays: (daysAhead?: number) =>
+      [...queryKeys.customers.all, "birthdays", daysAhead ?? null] as const,
   },
   alerts: {
     all: ["alerts"] as const,

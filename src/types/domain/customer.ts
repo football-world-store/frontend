@@ -97,3 +97,30 @@ export interface CustomerRankingEntry {
   totalSpent: number;
   purchaseCount: number;
 }
+
+export interface BirthdayCustomer {
+  id: string;
+  name: string;
+  email: string | null;
+  whatsapp: string | null;
+  birthDate: string;
+  favoriteTeam: string | null;
+  daysUntilBirthday: number;
+}
+
+export interface BirthdaysResult {
+  total: number;
+  today: BirthdayCustomer[];
+  upcoming: BirthdayCustomer[];
+}
+
+export interface NotifyBirthdaysBody {
+  coupon?: string;
+  message?: string;
+}
+
+export interface NotifyBirthdaysResult {
+  notified: number;
+  skipped: number;
+  customers: { name: string; email: string | null; notified: boolean }[];
+}
