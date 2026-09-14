@@ -65,6 +65,8 @@ export const API_ROUTES = {
     purchases: (id: string) => `${CUSTOMERS_BASE}/${id}/purchases`,
     rankingByAmount: `${CUSTOMERS_BASE}/ranking/by-amount`,
     rankingByPurchases: `${CUSTOMERS_BASE}/ranking/by-purchases`,
+    birthdays: `${CUSTOMERS_BASE}/birthdays`,
+    notifyBirthdays: `${CUSTOMERS_BASE}/birthdays/notify`,
   },
   alerts: {
     list: "/alerts",

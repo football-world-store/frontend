@@ -16,6 +16,7 @@ export * from "./useDeleteUserMutation";
 export * from "./useForgotPasswordMutation";
 export * from "./useLoginMutation";
 export * from "./useLogoutMutation";
+export * from "./useNotifyBirthdaysMutation";
 export * from "./useRegisterUserMutation";
 export * from "./useResetPasswordMutation";
 export * from "./useResolveAlertMutation";
