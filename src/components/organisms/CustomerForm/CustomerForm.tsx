@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
-import { FormField } from "@/components/molecules";
+import { FormField, PasswordField } from "@/components/molecules";
 import {
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
 } from "@/hooks/mutations";
 import { customerSchema, type CustomerFormValues } from "@/lib/validations";
 import type { Customer } from "@/types";
+import { formatPhoneInput } from "@/utils";
 
 interface CustomerFormProps {
   onSuccess?: () => void;
@@ -21,9 +22,13 @@ interface CustomerFormProps {
 const CustomerFields = ({
   register,
   errors,
+  setValue,
+  showPassword = false,
 }: {
   register: ReturnType<typeof useForm<CustomerFormValues>>["register"];
   errors: ReturnType<typeof useForm<CustomerFormValues>>["formState"]["errors"];
+  setValue: ReturnType<typeof useForm<CustomerFormValues>>["setValue"];
+  showPassword?: boolean;
 }) => (
   <>
     <FormField
@@ -36,9 +41,15 @@ const CustomerFields = ({
       <FormField
         label="Telefone"
         type="tel"
-        placeholder="+55 11 99999-0000"
+        placeholder="(11) 99999-0000"
         error={errors.phone?.message}
-        {...register("phone")}
+        {...register("phone", {
+          onChange: (event) => {
+            setValue("phone", formatPhoneInput(event.target.value), {
+              shouldValidate: true,
+            });
+          },
+        })}
       />
       <FormField
         label="Email"
@@ -48,6 +59,15 @@ const CustomerFields = ({
         {...register("email")}
       />
     </div>
+    {showPassword ? (
+      <PasswordField
+        label="Senha de acesso ao portal"
+        autoComplete="new-password"
+        placeholder="Mínimo de 8 caracteres"
+        error={errors.password?.message}
+        {...register("password")}
+      />
+    ) : null}
     <FormField
       label="Notas"
       placeholder="Observações do consultor (opcional)"
@@ -94,10 +114,11 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
-    defaultValues: { name: "", phone: "", email: "", notes: "" },
+    defaultValues: { name: "", phone: "", email: "", password: "", notes: "" },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -106,6 +127,7 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
         name: values.name,
         whatsapp: values.phone.replace(/\D/g, ""),
         email: values.email ?? undefined,
+        password: values.password || undefined,
         notes: values.notes,
       });
       onSuccess?.();
@@ -118,7 +140,12 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
-      <CustomerFields register={register} errors={errors} />
+      <CustomerFields
+        register={register}
+        errors={errors}
+        setValue={setValue}
+        showPassword
+      />
       <FormFooter
         onCancel={onCancel}
         isPending={isPending}
@@ -138,12 +165,13 @@ const EditCustomerForm = ({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       name: customer.name,
-      phone: customer.phone ?? "",
+      phone: formatPhoneInput(customer.phone ?? ""),
       email: customer.email ?? "",
       notes: customer.notes ?? "",
     },
@@ -168,7 +196,7 @@ const EditCustomerForm = ({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
-      <CustomerFields register={register} errors={errors} />
+      <CustomerFields register={register} errors={errors} setValue={setValue} />
       <FormFooter
         onCancel={onCancel}
         isPending={isPending}

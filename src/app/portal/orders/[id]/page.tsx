@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 
 import { ReceiptPage } from "@/components/organisms";
+import { APP_ROUTES } from "@/constants";
 import { useCustomerOrderQuery } from "@/hooks/queries";
 
 const CustomerOrderReceiptPage = () => {
@@ -16,7 +17,7 @@ const CustomerOrderReceiptPage = () => {
       sale={query.data}
       isLoading={query.isPending}
       isError={query.isError}
-      onBack={() => router.push("/portal/orders")}
+      onBack={() => router.push(APP_ROUTES.portal.orders)}
       backLabel="Voltar para meus pedidos"
     />
   );

@@ -27,6 +27,7 @@ const OWNER_ONLY_ROUTES: readonly string[] = [
 const EMPLOYEE_FALLBACK_ROUTE = APP_ROUTES.app.inventory;
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3333";
+const CUSTOMER_SESSION_COOKIE = "customer_access_token";
 
 const isAuthRoute = (pathname: string): boolean =>
   AUTH_ROUTES.some((route) => pathname.startsWith(route));
@@ -35,8 +36,7 @@ const isHomeRoute = (pathname: string): boolean => pathname === APP_ROUTES.home;
 
 const isPortalRoute = (pathname: string): boolean =>
   pathname === APP_ROUTES.portal.root ||
-  pathname.startsWith(`${APP_ROUTES.portal.root}/`) ||
-  pathname === APP_ROUTES.portal.verify;
+  pathname.startsWith(`${APP_ROUTES.portal.root}/`);
 
 const isOwnerOnlyRoute = (pathname: string): boolean =>
   OWNER_ONLY_ROUTES.some((route) => pathname.startsWith(route));
@@ -116,12 +116,11 @@ const guardSessionRouting = (
 export const proxy = async (request: NextRequest): Promise<NextResponse> => {
   const { pathname } = request.nextUrl;
 
-  // Portal do cliente: sessão é um cookie separado (customer_access_token),
-  // invisível para este proxy. Não fazemos gating de sessão aqui — a página
-  // de pedidos descobre "logado ou não" client-side via 401 em
-  // GET /customer-auth/me/orders. Isso só evita que a lógica de sessão
-  // STAFF (access_token) redirecione essas rotas em qualquer direção.
+  // Portal do cliente usa uma sessão separada da sessão STAFF.
   if (isPortalRoute(pathname)) {
+    if (!request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value) {
+      return buildSignInRedirect(request);
+    }
     return NextResponse.next();
   }
 

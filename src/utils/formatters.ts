@@ -46,3 +46,21 @@ const ZEBRA_TIERS = [
 
 export const zebraRowTier = (index: number): string =>
   ZEBRA_TIERS[index % ZEBRA_TIERS.length];
+
+const PHONE_MAX_DIGITS = 11;
+const PHONE_DDD_LENGTH = 2;
+
+export const formatPhoneInput = (value: string): string => {
+  const digits = value.replace(/\D/g, "").slice(0, PHONE_MAX_DIGITS);
+
+  if (digits.length <= PHONE_DDD_LENGTH) return digits;
+
+  const ddd = digits.slice(0, PHONE_DDD_LENGTH);
+  const rest = digits.slice(PHONE_DDD_LENGTH);
+  const splitIndex = rest.length > 4 ? rest.length - 4 : rest.length;
+
+  return `(${ddd}) ${rest.slice(0, splitIndex)}-${rest.slice(splitIndex)}`.replace(
+    /-$/,
+    "",
+  );
+};

@@ -3,10 +3,7 @@ import { http, HttpResponse } from "msw";
 import { ENV } from "@/constants";
 
 import { alertsFixture } from "./fixtures/alerts";
-import {
-  customerIdentityFixture,
-  customerOrdersFixture,
-} from "./fixtures/customerAuth";
+import { customerOrdersFixture } from "./fixtures/customerAuth";
 import { customersFixture } from "./fixtures/customers";
 import {
   clubTrendFixture,
@@ -23,7 +20,6 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 const HTTP_CREATED = 201;
 const HTTP_NOT_FOUND = 404;
-const HTTP_UNAUTHORIZED = 401;
 const CUSTOMER_NOT_FOUND_MESSAGE = "Cliente não encontrado";
 
 const rawBase = ENV.API_URL.replace(/\/$/, "");
@@ -265,19 +261,6 @@ export const handlers = [
   }),
 
   // ----- Customer Auth (portal do cliente)
-  http.post(`${baseUrl}/customer-auth/magic-link`, () =>
-    HttpResponse.json({}, { status: 200 }),
-  ),
-  http.post(`${baseUrl}/customer-auth/verify`, async ({ request }) => {
-    const body = (await request.json()) as { token?: string };
-    if (!body.token) {
-      return HttpResponse.json(
-        { message: "Token inválido" },
-        { status: HTTP_UNAUTHORIZED },
-      );
-    }
-    return envelope({ customer: customerIdentityFixture });
-  }),
   http.post(
     `${baseUrl}/customer-auth/logout`,
     () => new HttpResponse(null, { status: 204 }),

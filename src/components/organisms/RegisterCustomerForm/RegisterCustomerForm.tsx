@@ -5,18 +5,20 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
-import { FormField } from "@/components/molecules";
+import { FormField, PasswordField } from "@/components/molecules";
 import { useRegisterCustomerMutation } from "@/hooks/mutations";
 import {
   registerCustomerSchema,
   type RegisterCustomerFormValues,
 } from "@/lib/validations";
+import { formatPhoneInput } from "@/utils";
 
 export const RegisterCustomerForm = () => {
   const mutation = useRegisterCustomerMutation();
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterCustomerFormValues>({
     resolver: zodResolver(registerCustomerSchema),
@@ -79,9 +81,15 @@ export const RegisterCustomerForm = () => {
         label="WhatsApp"
         type="tel"
         autoComplete="tel"
-        placeholder="11999999999 (DDD + número)"
+        placeholder="(11) 99999-9999"
         error={errors.whatsapp?.message}
-        {...register("whatsapp")}
+        {...register("whatsapp", {
+          onChange: (event) => {
+            setValue("whatsapp", formatPhoneInput(event.target.value), {
+              shouldValidate: true,
+            });
+          },
+        })}
       />
       <FormField
         label="Data de nascimento"
@@ -90,9 +98,8 @@ export const RegisterCustomerForm = () => {
         error={errors.birthDate?.message}
         {...register("birthDate")}
       />
-      <FormField
+      <PasswordField
         label="Senha"
-        type="password"
         autoComplete="new-password"
         placeholder="Mínimo 8 caracteres"
         error={errors.password?.message}

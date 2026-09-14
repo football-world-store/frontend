@@ -23,6 +23,7 @@ export interface CreateCustomerBody {
   name: string;
   whatsapp: string;
   email?: string;
+  password?: string;
   favoriteTeam?: string;
   preferredSizes?: string[];
   birthDate?: string;
