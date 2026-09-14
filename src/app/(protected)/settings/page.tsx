@@ -170,35 +170,45 @@ const SettingsPage = () => {
               {pendingCustomers.map((customer, index) => (
                 <li
                   key={customer.id}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                  className={`flex flex-col gap-3 rounded-xl px-4 py-3 sm:flex-row sm:items-center sm:gap-4 ${
                     index % 2 === 0
                       ? "bg-surface-container-low"
                       : "bg-surface-container"
                   }`}
                 >
-                  <Avatar name={customer.name} />
-                  <div className="flex-1">
-                    <p className="font-body text-sm font-semibold text-on-surface">
-                      {customer.name}
-                    </p>
-                    <p className="font-label text-xs text-on-surface-variant">
-                      {customer.email ?? "—"}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <Avatar name={customer.name} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-body text-sm font-semibold text-on-surface">
+                        {customer.name}
+                      </p>
+                      <p className="truncate font-label text-xs text-on-surface-variant">
+                        {customer.email ?? "—"}
+                      </p>
+                    </div>
+                    <Badge tone="neutral" className="shrink-0 sm:hidden">
+                      Pendente
+                    </Badge>
                   </div>
-                  <Badge tone="neutral">Pendente</Badge>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      approveCustomerMutation.mutate({
-                        id: customer.id,
-                        isActive: true,
-                      })
-                    }
-                    disabled={approveCustomerMutation.isPending}
-                  >
-                    <Icon name="check_circle" size="sm" filled={false} />
-                    Aprovar
-                  </Button>
+                  <div className="flex items-center gap-3 sm:ml-auto sm:shrink-0">
+                    <Badge tone="neutral" className="hidden sm:inline-flex">
+                      Pendente
+                    </Badge>
+                    <Button
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                      onClick={() =>
+                        approveCustomerMutation.mutate({
+                          id: customer.id,
+                          isActive: true,
+                        })
+                      }
+                      disabled={approveCustomerMutation.isPending}
+                    >
+                      <Icon name="check_circle" size="sm" filled={false} />
+                      Aprovar
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -219,41 +229,51 @@ const SettingsPage = () => {
               {pendingUsers.map((pendingUser, index) => (
                 <li
                   key={pendingUser.id}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                  className={`flex flex-col gap-3 rounded-xl px-4 py-3 sm:flex-row sm:items-center sm:gap-4 ${
                     index % 2 === 0
                       ? "bg-surface-container-low"
                       : "bg-surface-container"
                   }`}
                 >
-                  <Avatar name={pendingUser.name} />
-                  <div className="flex-1">
-                    <p className="font-body text-sm font-semibold text-on-surface">
-                      {pendingUser.name}
-                    </p>
-                    <p className="font-label text-xs text-on-surface-variant">
-                      {pendingUser.email}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <Avatar name={pendingUser.name} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-body text-sm font-semibold text-on-surface">
+                        {pendingUser.name}
+                      </p>
+                      <p className="truncate font-label text-xs text-on-surface-variant">
+                        {pendingUser.email}
+                      </p>
+                    </div>
+                    <Badge tone="neutral" className="shrink-0 sm:hidden">
+                      Pendente
+                    </Badge>
                   </div>
-                  <Badge tone="neutral">Pendente</Badge>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      approveUserMutation.mutate({
-                        id: pendingUser.id,
-                        isActive: true,
-                      })
-                    }
-                    disabled={approveUserMutation.isPending}
-                  >
-                    <Icon name="check_circle" size="sm" filled={false} />
-                    Aprovar
-                  </Button>
-                  <IconButton
-                    iconName="delete"
-                    label={`Rejeitar ${pendingUser.name}`}
-                    filled={false}
-                    onClick={() => setPendingDeleteUserId(pendingUser.id)}
-                  />
+                  <div className="flex items-center gap-3 sm:ml-auto sm:shrink-0">
+                    <Badge tone="neutral" className="hidden sm:inline-flex">
+                      Pendente
+                    </Badge>
+                    <Button
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                      onClick={() =>
+                        approveUserMutation.mutate({
+                          id: pendingUser.id,
+                          isActive: true,
+                        })
+                      }
+                      disabled={approveUserMutation.isPending}
+                    >
+                      <Icon name="check_circle" size="sm" filled={false} />
+                      Aprovar
+                    </Button>
+                    <IconButton
+                      iconName="delete"
+                      label={`Rejeitar ${pendingUser.name}`}
+                      filled={false}
+                      onClick={() => setPendingDeleteUserId(pendingUser.id)}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -293,43 +313,56 @@ const SettingsPage = () => {
               {users.map((systemUser, index) => (
                 <li
                   key={systemUser.id}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                  className={`flex flex-col gap-3 rounded-xl px-4 py-3 sm:flex-row sm:items-center sm:gap-4 ${
                     index % 2 === 0
                       ? "bg-surface-container-low"
                       : "bg-surface-container"
                   }`}
                 >
-                  <Avatar name={systemUser.name} />
-                  <div className="flex-1">
-                    <p className="font-body text-sm font-semibold text-on-surface">
-                      {systemUser.name}
-                    </p>
-                    <p className="font-label text-xs text-on-surface-variant">
-                      {systemUser.email}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <Avatar name={systemUser.name} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-body text-sm font-semibold text-on-surface">
+                        {systemUser.name}
+                      </p>
+                      <p className="truncate font-label text-xs text-on-surface-variant">
+                        {systemUser.email}
+                      </p>
+                    </div>
+                    <Badge
+                      tone={systemUser.role === "OWNER" ? "primary" : "neutral"}
+                      className="shrink-0 sm:hidden"
+                    >
+                      {ROLE_LABEL[systemUser.role]}
+                    </Badge>
                   </div>
-                  <Badge
-                    tone={systemUser.role === "OWNER" ? "primary" : "neutral"}
-                  >
-                    {ROLE_LABEL[systemUser.role]}
-                  </Badge>
-                  <span className="font-label text-xs text-on-surface-variant">
-                    {`Atualizado: ${formatDateBR(systemUser.updatedAt)}`}
-                  </span>
-                  <IconButton
-                    iconName="edit"
-                    label={`Editar ${systemUser.name}`}
-                    filled={false}
-                    onClick={() => setEditingUserId(systemUser.id)}
-                  />
-                  {systemUser.id !== user?.id ? (
-                    <IconButton
-                      iconName="delete"
-                      label={`Excluir ${systemUser.name}`}
-                      filled={false}
-                      onClick={() => setPendingDeleteUserId(systemUser.id)}
-                    />
-                  ) : null}
+                  <div className="flex flex-wrap items-center gap-3 sm:ml-auto sm:shrink-0">
+                    <Badge
+                      tone={systemUser.role === "OWNER" ? "primary" : "neutral"}
+                      className="hidden sm:inline-flex"
+                    >
+                      {ROLE_LABEL[systemUser.role]}
+                    </Badge>
+                    <span className="font-label text-xs text-on-surface-variant">
+                      {`Atualizado: ${formatDateBR(systemUser.updatedAt)}`}
+                    </span>
+                    <div className="ml-auto flex items-center gap-2 sm:ml-0">
+                      <IconButton
+                        iconName="edit"
+                        label={`Editar ${systemUser.name}`}
+                        filled={false}
+                        onClick={() => setEditingUserId(systemUser.id)}
+                      />
+                      {systemUser.id !== user?.id ? (
+                        <IconButton
+                          iconName="delete"
+                          label={`Excluir ${systemUser.name}`}
+                          filled={false}
+                          onClick={() => setPendingDeleteUserId(systemUser.id)}
+                        />
+                      ) : null}
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
