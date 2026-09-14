@@ -28,8 +28,14 @@ export interface CustomerProfile {
   favoriteTeam: string | null;
   preferredSizes: string[];
   birthDate: string | null;
+  photoUrl: string | null;
   status: string;
   createdAt: string;
+}
+
+export interface AvatarUploadResponse {
+  uploadUrl: string;
+  photoUrl: string;
 }
 
 export interface ChangeCustomerPasswordBody {

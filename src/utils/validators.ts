@@ -16,3 +16,15 @@ export const isValidEmail = (value: string): boolean => EMAIL_REGEX.test(value);
 
 export const isNotEmpty = (value: string | null | undefined): boolean =>
   typeof value === "string" && value.trim().length > 0;
+
+const ALLOWED_IMAGE_CONTENT_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+] as const;
+
+export const isAllowedImageContentType = (
+  contentType: string,
+): contentType is (typeof ALLOWED_IMAGE_CONTENT_TYPES)[number] =>
+  (ALLOWED_IMAGE_CONTENT_TYPES as readonly string[]).includes(contentType);

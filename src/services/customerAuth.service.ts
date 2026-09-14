@@ -1,6 +1,7 @@
-import { API_ROUTES, customerApiClient } from "@/services/api";
+import { API_ROUTES, customerApiClient, s3PutObject } from "@/services/api";
 import type { ApiEnvelope } from "@/types";
 import type {
+  AvatarUploadResponse,
   ChangeCustomerPasswordBody,
   CustomerIdentity,
   CustomerProfile,
@@ -8,6 +9,7 @@ import type {
   UpdateCustomerProfileBody,
 } from "@/types";
 import type { CustomerOrders, Sale } from "@/types";
+import { isAllowedImageContentType } from "@/utils";
 
 export const customerAuthService = {
   register: async (body: RegisterCustomerBody): Promise<CustomerIdentity> => {
@@ -39,6 +41,22 @@ export const customerAuthService = {
 
   changePassword: async (body: ChangeCustomerPasswordBody): Promise<void> => {
     await customerApiClient.post(API_ROUTES.customerAuth.changePassword, body);
+  },
+
+  uploadAvatar: async (file: File): Promise<string> => {
+    if (!isAllowedImageContentType(file.type)) {
+      throw new Error("Formato inválido. Use JPG, JPEG, PNG ou WEBP.");
+    }
+
+    const { data } = await customerApiClient.post<
+      ApiEnvelope<AvatarUploadResponse>
+    >(API_ROUTES.customerAuth.avatarUploadUrl, {
+      filename: file.name,
+      contentType: file.type,
+    });
+
+    await s3PutObject(data.data.uploadUrl, file);
+    return data.data.photoUrl;
   },
 
   getOrders: async (): Promise<CustomerOrders> => {

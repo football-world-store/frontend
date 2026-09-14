@@ -25,6 +25,7 @@ export * from "./useUpdateCustomerMutation";
 export * from "./useUpdateCustomerProfileMutation";
 export * from "./useUpdateProductMutation";
 export * from "./useUpdateUserMutation";
+export * from "./useUploadCustomerAvatarMutation";
 export * from "./useUploadProductPhotoMutation";
 export * from "./useRegisterCustomerMutation";
 export * from "./useAdminResetPasswordMutation";
