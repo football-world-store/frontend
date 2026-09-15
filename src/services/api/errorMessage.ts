@@ -1,4 +1,4 @@
-import type { AxiosError } from "axios";
+import { isAxiosError, type AxiosError } from "axios";
 
 import {
   ERROR_MESSAGES,
@@ -39,4 +39,19 @@ export const extractErrorMessage = (
   }
 
   return FALLBACK_ERROR_MESSAGE;
+};
+
+/**
+ * Código de erro cru (ex: `CUSTOMER_EMAIL_DUPLICATE`), sem tradução.
+ * Útil quando o chamador precisa decidir algo com base no código
+ * (ex: marcar um campo específico do form), além de exibir a mensagem.
+ * Aceita `unknown` para que componentes não precisem importar `axios`
+ * só para checar o tipo do erro capturado no catch.
+ */
+export const extractErrorCode = (error: unknown): string | undefined => {
+  if (!isAxiosError<ApiErrorResponse>(error)) return undefined;
+  const message = error.response?.data?.message;
+  if (typeof message !== "string") return undefined;
+  const [code] = message.split(CODE_PREFIX_SEPARATOR);
+  return code;
 };
