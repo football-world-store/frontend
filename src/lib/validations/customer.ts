@@ -17,6 +17,7 @@ export const customerSchema = z.object({
     .nullable()
     .optional(),
   notes: z.string().optional(),
+  birthDate: z.string().optional(),
   password: z
     .string()
     .min(8, "A senha deve ter pelo menos 8 caracteres")

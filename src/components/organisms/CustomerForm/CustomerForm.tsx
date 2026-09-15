@@ -59,6 +59,12 @@ const CustomerFields = ({
         {...register("email")}
       />
     </div>
+    <FormField
+      label="Data de nascimento"
+      type="date"
+      error={errors.birthDate?.message}
+      {...register("birthDate")}
+    />
     {showPassword ? (
       <PasswordField
         label="Senha de acesso ao portal"
@@ -118,7 +124,14 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
-    defaultValues: { name: "", phone: "", email: "", password: "", notes: "" },
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      notes: "",
+      birthDate: "",
+    },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -129,6 +142,7 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
         email: values.email ?? undefined,
         password: values.password || undefined,
         notes: values.notes,
+        birthDate: values.birthDate || undefined,
       });
       onSuccess?.();
     } catch {
@@ -174,6 +188,7 @@ const EditCustomerForm = ({
       phone: formatPhoneInput(customer.phone ?? ""),
       email: customer.email ?? "",
       notes: customer.notes ?? "",
+      birthDate: customer.birthDate?.slice(0, 10) ?? "",
     },
   });
 
@@ -185,6 +200,7 @@ const EditCustomerForm = ({
         whatsapp: values.phone.replace(/\D/g, ""),
         email: values.email ?? undefined,
         notes: values.notes,
+        birthDate: values.birthDate || undefined,
       });
       onSuccess?.();
     } catch {
