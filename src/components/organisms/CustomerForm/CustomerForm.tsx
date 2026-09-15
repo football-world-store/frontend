@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormSetError } from "react-hook-form";
 
 import { Button, Spinner } from "@/components/atoms";
 import { FormField, PasswordField } from "@/components/molecules";
@@ -10,6 +10,7 @@ import {
   useUpdateCustomerMutation,
 } from "@/hooks/mutations";
 import { customerSchema, type CustomerFormValues } from "@/lib/validations";
+import { extractErrorCode } from "@/services/api";
 import type { Customer } from "@/types";
 import { formatPhoneInput } from "@/utils";
 
@@ -18,6 +19,31 @@ interface CustomerFormProps {
   onCancel?: () => void;
   customer?: Customer;
 }
+
+const DUPLICATE_FIELD_BY_CODE: Partial<
+  Record<string, keyof CustomerFormValues>
+> = {
+  CUSTOMER_EMAIL_DUPLICATE: "email",
+  CUSTOMER_WHATSAPP_DUPLICATE: "phone",
+};
+
+const DUPLICATE_MESSAGE_BY_CODE: Partial<Record<string, string>> = {
+  CUSTOMER_EMAIL_DUPLICATE: "Já existe um cliente com este e-mail.",
+  CUSTOMER_WHATSAPP_DUPLICATE: "Já existe um cliente com este WhatsApp.",
+};
+
+const applyDuplicateFieldError = (
+  error: unknown,
+  setError: UseFormSetError<CustomerFormValues>,
+): void => {
+  const code = extractErrorCode(error);
+  const field = code ? DUPLICATE_FIELD_BY_CODE[code] : undefined;
+  if (!field || !code) return;
+  setError(field, {
+    type: "manual",
+    message: DUPLICATE_MESSAGE_BY_CODE[code],
+  });
+};
 
 const CustomerFields = ({
   register,
@@ -121,6 +147,7 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
     register,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
@@ -145,8 +172,9 @@ const CreateCustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
         birthDate: values.birthDate || undefined,
       });
       onSuccess?.();
-    } catch {
-      // Erro já é exibido via toast pelo interceptor do axios.
+    } catch (error) {
+      // Toast já é exibido pelo interceptor do axios; aqui só marcamos o campo.
+      applyDuplicateFieldError(error, setError);
     }
   });
 
@@ -180,6 +208,7 @@ const EditCustomerForm = ({
     register,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
@@ -203,8 +232,9 @@ const EditCustomerForm = ({
         birthDate: values.birthDate || undefined,
       });
       onSuccess?.();
-    } catch {
-      // Erro já é exibido via toast pelo interceptor do axios.
+    } catch (error) {
+      // Toast já é exibido pelo interceptor do axios; aqui só marcamos o campo.
+      applyDuplicateFieldError(error, setError);
     }
   });
 
