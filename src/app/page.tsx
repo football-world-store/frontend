@@ -1,14 +1,16 @@
-import { redirect } from "next/navigation";
+"use client";
 
-import { APP_ROUTES } from "@/constants";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-/**
- * O proxy (`src/proxy.ts`) redireciona `/` para `/dashboard` ou `/sign-in`
- * conforme a presença do cookie de sessão. Este `redirect()` é fallback defensivo
- * para o caso (raro) do middleware ser bypassado em algum ambiente.
- */
-const HomePage = (): never => {
-  redirect(APP_ROUTES.auth.signIn);
+const HomePage = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/sign-in");
+  }, [router]);
+
+  return null;
 };
 
 export default HomePage;

@@ -25,3 +25,8 @@ export * from "./StockEntriesTable";
 export * from "./StockMovementForm";
 export * from "./TopBar";
 export * from "./UserForm";
+export * from "./HeroSection";
+export * from "./FeaturedProductsSection";
+export * from "./BrandsSection";
+export * from "./TestimonialsSection";
+export * from "./CTASection";
