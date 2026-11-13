@@ -1,3 +1,8 @@
+export const buildWhatsAppLink = (
+  phoneNumber: string,
+  message: string,
+): string => `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
 const CENTS_PER_REAL = 100;
 
 const currencyBRLFormatter = new Intl.NumberFormat("pt-BR", {

@@ -1,0 +1,66 @@
+name: Deploy to GitHub Pages (temporário)
+
+# Hospedagem temporária enquanto a distribuição CloudFront (ver
+# deploy-frontend.yml, branch cloudfront) não está configurada de fato —
+# falta CLOUDFRONT_ID real e as secrets da AWS. Usa o mesmo static export
+# (out/) que o deploy-frontend.yml já gera. Quando o CloudFront estiver no
+# ar, aponte o DNS pra lá e remova/desative este workflow.
+#
+# Roda na `main` (static export, via output: "export" trazido da branch
+# cloudfront) — o ambiente github-pages do repo já permite deploy a partir
+# dela por padrão. A Vercel também deploya a `main` automaticamente; como o
+# proxy.ts virou no-op (static export não roda middleware), as rotas
+# protegidas client-side e o rewrite de API pela Vercel deixam de existir —
+# avaliar se a Vercel ainda faz sentido como destino depois disso.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  NEXT_PUBLIC_API_URL: http://54.233.240.75:3333/api/v1
+  NEXT_PUBLIC_ENABLE_MOCKS: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build (static export)
+        run: bun run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
