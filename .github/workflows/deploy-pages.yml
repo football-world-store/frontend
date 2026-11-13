@@ -12,6 +12,11 @@ name: Deploy to GitHub Pages (temporário)
 # proxy.ts virou no-op (static export não roda middleware), as rotas
 # protegidas client-side e o rewrite de API pela Vercel deixam de existir —
 # avaliar se a Vercel ainda faz sentido como destino depois disso.
+#
+# Sem domínio custom por enquanto — serve em
+# football-world-store.github.io/frontend/, por isso o
+# NEXT_PUBLIC_BASE_PATH abaixo. Quando o domínio footballworldstore.com.br
+# entrar, remova essa variável e recoloque o public/CNAME.
 
 on:
   push:
@@ -30,6 +35,7 @@ concurrency:
 env:
   NEXT_PUBLIC_API_URL: http://54.233.240.75:3333/api/v1
   NEXT_PUBLIC_ENABLE_MOCKS: false
+  NEXT_PUBLIC_BASE_PATH: /frontend
 
 jobs:
   build:

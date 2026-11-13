@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import { ENV } from "@/constants";
-import { buildWhatsAppLink } from "@/utils";
+import { buildWhatsAppLink, withBasePath } from "@/utils";
 
 const WHATSAPP_MESSAGE =
   "Olá! Vim pelo site da Football World Store e quero ver as camisas disponíveis.";
@@ -57,7 +57,7 @@ export const HeroSection = () => {
           />
           <div className="relative bg-surface-container-highest shadow-ambient rounded-2xl p-6 sm:p-10 w-full max-w-md">
             <Image
-              src="/products/chuteira-nike-mercurial.png"
+              src={withBasePath("/products/chuteira-nike-mercurial.png")}
               alt="Chuteira Nike Air Zoom Mercurial Vapor 15"
               width={430}
               height={430}

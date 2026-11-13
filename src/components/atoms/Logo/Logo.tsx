@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { withBasePath } from "@/utils";
+
 type LogoSize = "sm" | "md" | "lg" | "xl";
 type LogoVariant = "full" | "compact";
 
@@ -22,8 +24,9 @@ export const Logo = ({
   className = "",
 }: LogoProps) => {
   const { width, height } = SIZE_DIMENSIONS[size];
-  const src =
-    variant === "compact" ? "/brand/logo-compact.png" : "/brand/logo.png";
+  const src = withBasePath(
+    variant === "compact" ? "/brand/logo-compact.png" : "/brand/logo.png",
+  );
   return (
     <Image
       src={src}

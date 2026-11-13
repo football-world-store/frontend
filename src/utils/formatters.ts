@@ -1,7 +1,11 @@
+import { ENV } from "@/constants";
+
 export const buildWhatsAppLink = (
   phoneNumber: string,
   message: string,
 ): string => `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+export const withBasePath = (path: string): string => `${ENV.BASE_PATH}${path}`;
 
 const CENTS_PER_REAL = 100;
 

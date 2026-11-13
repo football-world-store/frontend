@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { ENV } from "@/constants";
+import { withBasePath } from "@/utils";
 
 export const AcaiSection = () => {
   return (
@@ -16,7 +17,7 @@ export const AcaiSection = () => {
         <div className="flex justify-center">
           <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-ambient">
             <Image
-              src="/acai/acai-da-toca-logo.jpg"
+              src={withBasePath("/acai/acai-da-toca-logo.jpg")}
               alt="Açaí da Toca"
               fill
               sizes="176px"

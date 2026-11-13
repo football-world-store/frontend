@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { withBasePath } from "@/utils";
+
 interface Product {
   id: string;
   name: string;
@@ -79,7 +81,7 @@ export const FeaturedProductsSection = () => {
                   </span>
                 ) : null}
                 <Image
-                  src={product.image}
+                  src={withBasePath(product.image)}
                   alt={product.name}
                   fill
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
