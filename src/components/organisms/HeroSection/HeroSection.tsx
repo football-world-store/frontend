@@ -52,9 +52,9 @@ export const HeroSection = () => {
 
           <Link
             href={APP_ROUTES.auth.signIn}
-            className="inline-flex items-center gap-2 rounded-pill border-ghost px-4 py-2 font-label text-on-surface-variant text-sm hover:text-on-surface hover:border-ghost transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex flex-col sm:inline-flex sm:flex-row items-center gap-1 sm:gap-2 rounded-xl border-ghost px-4 py-2 font-label text-on-surface-variant text-sm text-center hover:text-on-surface transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            Temos um espaço VIP feito pra você
+            <span>Temos um espaço VIP feito pra você</span>
             <span className="text-primary font-semibold">Venha conhecer →</span>
           </Link>
         </div>
