@@ -63,9 +63,9 @@ export const SiteFooter = () => {
         </p>
         <Link
           href={APP_ROUTES.auth.signIn}
-          className="font-label text-on-surface-variant/60 text-[0.6875rem] uppercase tracking-widest hover:text-on-surface-variant transition-colors duration-200"
+          className="inline-flex items-center justify-center h-9 px-5 rounded-pill border-ghost text-on-surface-variant font-label text-xs uppercase tracking-widest hover:text-on-surface hover:border-ghost transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          Espaço VIP
+          Sou Cliente VIP
         </Link>
       </div>
     </footer>
