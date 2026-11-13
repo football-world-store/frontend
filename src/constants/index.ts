@@ -1,5 +1,6 @@
 export * from "./api";
 export * from "./auth";
+export * from "./campaign";
 export * from "./dashboard";
 export * from "./env";
 export * from "./errorMessages";

@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { Logo } from "@/components/atoms";
+import { APP_ROUTES } from "@/constants";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -54,9 +57,17 @@ export const SiteFooter = () => {
         </div>
       </div>
 
-      <p className="text-center font-label text-on-surface-variant text-xs mt-10">
-        © {CURRENT_YEAR} Football World Store. Todos os direitos reservados.
-      </p>
+      <div className="flex flex-col items-center gap-2 mt-10">
+        <p className="font-label text-on-surface-variant text-xs">
+          © {CURRENT_YEAR} Football World Store. Todos os direitos reservados.
+        </p>
+        <Link
+          href={APP_ROUTES.auth.signIn}
+          className="font-label text-on-surface-variant/60 text-[0.6875rem] uppercase tracking-widest hover:text-on-surface-variant transition-colors duration-200"
+        >
+          Espaço VIP
+        </Link>
+      </div>
     </footer>
   );
 };
