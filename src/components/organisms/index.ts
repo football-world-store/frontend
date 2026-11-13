@@ -28,5 +28,6 @@ export * from "./UserForm";
 export * from "./HeroSection";
 export * from "./FeaturedProductsSection";
 export * from "./BrandsSection";
-export * from "./TestimonialsSection";
 export * from "./CTASection";
+export * from "./AcaiSection";
+export * from "./LocationSection";
