@@ -31,3 +31,6 @@ export * from "./BrandsSection";
 export * from "./CTASection";
 export * from "./AcaiSection";
 export * from "./LocationSection";
+export * from "./AnnouncementBar";
+export * from "./SiteHeader";
+export * from "./SiteFooter";

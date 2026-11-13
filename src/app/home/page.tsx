@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 
 import { AcaiSection } from "@/components/organisms/AcaiSection";
+import { AnnouncementBar } from "@/components/organisms/AnnouncementBar";
 import { BrandsSection } from "@/components/organisms/BrandsSection";
 import { CTASection } from "@/components/organisms/CTASection";
 import { FeaturedProductsSection } from "@/components/organisms/FeaturedProductsSection";
 import { HeroSection } from "@/components/organisms/HeroSection";
 import { LocationSection } from "@/components/organisms/LocationSection";
+import { SiteFooter } from "@/components/organisms/SiteFooter";
+import { SiteHeader } from "@/components/organisms/SiteHeader";
 
 const SITE_URL = "https://footballworldstore.com.br";
 const PAGE_URL = `${SITE_URL}/home`;
@@ -91,6 +94,8 @@ const PublicHomePage = () => {
           __html: JSON.stringify([sportingGoodsStoreJsonLd, webSiteJsonLd]),
         }}
       />
+      <AnnouncementBar />
+      <SiteHeader />
       <main>
         <HeroSection />
         <FeaturedProductsSection />
@@ -99,6 +104,7 @@ const PublicHomePage = () => {
         <LocationSection />
         <CTASection />
       </main>
+      <SiteFooter />
     </>
   );
 };

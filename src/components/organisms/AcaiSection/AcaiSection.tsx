@@ -6,8 +6,9 @@ import { withBasePath } from "@/utils";
 export const AcaiSection = () => {
   return (
     <section
+      id="acai"
       aria-labelledby="acai-heading"
-      className="relative bg-surface-container-highest shadow-ambient overflow-hidden py-20 px-4 sm:px-6 lg:px-8"
+      className="scroll-mt-20 relative bg-surface-container-highest shadow-ambient overflow-hidden py-20 px-4 sm:px-6 lg:px-8"
     >
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[40vh] rounded-full bg-primary/6 blur-3xl" />

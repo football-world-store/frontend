@@ -66,7 +66,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased`}
+      className={`${lexend.variable} ${manrope.variable} ${inter.variable} h-full antialiased scroll-smooth`}
     >
       <head>
         {/* next/font não suporta os axes variáveis do Material Symbols. Carregamos via link global no root layout — fica em todas as páginas, não é um custom-font por página. */}

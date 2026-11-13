@@ -8,8 +8,9 @@ const MAPS_SEARCH_URL = `https://www.google.com/maps/search/?api=1&query=${encod
 export const LocationSection = () => {
   return (
     <section
+      id="loja-fisica"
       aria-labelledby="location-heading"
-      className="bg-surface-container-low py-20 px-4 sm:px-6 lg:px-8"
+      className="scroll-mt-20 bg-surface-container-low py-20 px-4 sm:px-6 lg:px-8"
     >
       <div className="max-w-7xl mx-auto">
         <header className="text-center mb-12 space-y-3">
