@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 
-import { ENV } from "@/constants";
+import { APP_ROUTES, ENV } from "@/constants";
 import { buildWhatsAppLink, withBasePath } from "@/utils";
 
 const WHATSAPP_MESSAGE =
@@ -48,6 +49,14 @@ export const HeroSection = () => {
               Falar no WhatsApp
             </a>
           </div>
+
+          <Link
+            href={APP_ROUTES.auth.signIn}
+            className="inline-flex items-center gap-2 rounded-pill border-ghost px-4 py-2 font-label text-on-surface-variant text-sm hover:text-on-surface hover:border-ghost transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            Temos um espaço VIP feito pra você
+            <span className="text-primary font-semibold">Venha conhecer →</span>
+          </Link>
         </div>
 
         <div className="relative flex items-center justify-center">

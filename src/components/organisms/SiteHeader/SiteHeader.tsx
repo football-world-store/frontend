@@ -36,14 +36,22 @@ export const SiteHeader = () => {
           ))}
         </nav>
 
-        <a
-          href="https://footballworld.store"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-primary text-on-primary font-label font-medium uppercase tracking-wide text-xs sm:text-sm transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          Ver Loja
-        </a>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href={APP_ROUTES.auth.signIn}
+            className="inline-flex items-center justify-center h-10 px-4 rounded-xl border-ghost text-on-surface font-label font-medium uppercase tracking-wide text-xs sm:text-sm transition-colors duration-200 hover:bg-surface-container-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            Sou Cliente VIP
+          </Link>
+          <a
+            href="https://footballworld.store"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-primary text-on-primary font-label font-medium uppercase tracking-wide text-xs sm:text-sm transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            Ver Loja
+          </a>
+        </div>
       </div>
     </header>
   );
