@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NEXT_PUBLIC_API_URL: http://56.126.81.121:3333/api/v1
+  NEXT_PUBLIC_API_URL: https://api.footballworldstore.com.br/api/v1
   NEXT_PUBLIC_ENABLE_MOCKS: false
 
 jobs:
