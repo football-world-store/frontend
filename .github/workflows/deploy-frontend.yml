@@ -8,7 +8,7 @@ on:
 env:
   S3_BUCKET: fws-frontend-prod
   CLOUDFRONT_ID: SUBSTITUA_PELO_ID_DA_DISTRIBUICAO
-  NEXT_PUBLIC_API_URL: http://54.233.240.75:3333/api/v1
+  NEXT_PUBLIC_API_URL: http://56.126.81.121:3333/api/v1
 
 jobs:
   deploy:
