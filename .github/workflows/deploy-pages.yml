@@ -13,10 +13,10 @@ name: Deploy to GitHub Pages (temporário)
 # protegidas client-side e o rewrite de API pela Vercel deixam de existir —
 # avaliar se a Vercel ainda faz sentido como destino depois disso.
 #
-# Sem domínio custom por enquanto — serve em
-# football-world-store.github.io/frontend/, por isso o
-# NEXT_PUBLIC_BASE_PATH abaixo. Quando o domínio footballworldstore.com.br
-# entrar, remova essa variável e recoloque o public/CNAME.
+# Domínio custom footballworldstore.com.br já configurado (DNS + Settings
+# > Pages > Custom domain + public/CNAME). Site serve na raiz do domínio,
+# por isso sem NEXT_PUBLIC_BASE_PATH — com ele, os assets apontavam pra
+# /frontend/_next/... e davam 404 no domínio próprio (tela preta).
 
 on:
   push:
@@ -35,7 +35,6 @@ concurrency:
 env:
   NEXT_PUBLIC_API_URL: http://56.126.81.121:3333/api/v1
   NEXT_PUBLIC_ENABLE_MOCKS: false
-  NEXT_PUBLIC_BASE_PATH: /frontend
 
 jobs:
   build:
